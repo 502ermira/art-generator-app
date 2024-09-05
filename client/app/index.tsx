@@ -9,7 +9,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>Ermira</Text>
+      <Text>Art Generator</Text>
     </View>
   );
 }
