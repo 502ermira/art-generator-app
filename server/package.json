@@ -10,8 +10,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@huggingface/agents": "^0.0.5",
+    "@huggingface/hub": "^0.15.2",
+    "@huggingface/inference": "^2.8.0",
     "axios": "^1.7.7",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "replicate": "^0.32.1"
   }
 }

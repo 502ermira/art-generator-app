@@ -1,15 +1,11 @@
 import { Text, View } from "react-native";
+import { SafeAreaView } from 'react-native';
+import TextPromptScreen from '../components/TextPromptScreen';
 
 export default function Index() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Art Generator</Text>
-    </View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <TextPromptScreen />
+    </SafeAreaView>
   );
 }
