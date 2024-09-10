@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 import { SafeAreaView } from 'react-native';
-import TextPromptScreen from '../components/TextPromptScreen';
+import TextPromptScreen from '../components/TextPromptScreen/TextPromptScreen';
 
 export default function Index() {
   return (
