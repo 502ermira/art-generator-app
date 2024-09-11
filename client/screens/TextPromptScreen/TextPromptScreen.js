@@ -10,26 +10,46 @@ export default function TextPromptScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [favorites, setFavorites] = useState([]);
+  const [token, setToken] = useState('');
 
   useEffect(() => {
     const loadFavorites = async () => {
-      try {
+      const storedToken = await AsyncStorage.getItem('token');
+      const storedUsername = await AsyncStorage.getItem('username');
+      setToken(storedToken);
+  
+      if (storedToken) {
+        const response = await fetch('http://192.168.1.145:5000/auth/favorites', {
+          headers: { Authorization: storedToken },
+        });
+        const data = await response.json();
+        setFavorites(data.favorites || []);
+      } else {
         const storedFavorites = await AsyncStorage.getItem('favorites');
         if (storedFavorites) {
           setFavorites(JSON.parse(storedFavorites));
         }
-      } catch (err) {
-        console.error('Failed to load favorites:', err);
       }
     };
-
+  
     loadFavorites();
-  }, []);
+  }, []);  
 
   const saveFavorite = async (image) => {
-    const updatedFavorites = [...favorites, image];
-    setFavorites(updatedFavorites);
-    await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+    if (token) {
+      await fetch('http://192.168.1.145:5000/auth/favorites', {
+        method: 'POST',
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image }),
+      });
+    } else {
+      const updatedFavorites = [...favorites, image];
+      setFavorites(updatedFavorites);
+      await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+    }
   };
 
   const generateImage = async () => {
