@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, Button, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Sharing from 'expo-sharing';
+import { UserContext } from '../../contexts/UserContext';
 import styles from './TextPromptScreenStyles';
 
 export default function TextPromptScreen() {
+  const { isLoggedIn } = useContext(UserContext);
   const [prompt, setPrompt] = useState('');
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -12,31 +14,37 @@ export default function TextPromptScreen() {
   const [favorites, setFavorites] = useState([]);
   const [token, setToken] = useState('');
 
+  // Load either user's favorites or guest favorites
   useEffect(() => {
     const loadFavorites = async () => {
       const storedToken = await AsyncStorage.getItem('token');
-      const storedUsername = await AsyncStorage.getItem('username');
       setToken(storedToken);
-  
+
       if (storedToken) {
+        // User is logged in, fetch favorites from backend
         const response = await fetch('http://192.168.1.145:5000/auth/favorites', {
           headers: { Authorization: storedToken },
         });
         const data = await response.json();
         setFavorites(data.favorites || []);
       } else {
+        // Guest mode, fetch favorites from AsyncStorage
         const storedFavorites = await AsyncStorage.getItem('favorites');
         if (storedFavorites) {
           setFavorites(JSON.parse(storedFavorites));
+        } else {
+          setFavorites([]);
         }
       }
     };
-  
-    loadFavorites();
-  }, []);  
 
+    loadFavorites();
+  }, [isLoggedIn]);
+
+  // Save favorite images based on login state
   const saveFavorite = async (image) => {
     if (token) {
+      // User is logged in, save favorite to backend
       await fetch('http://192.168.1.145:5000/auth/favorites', {
         method: 'POST',
         headers: {
@@ -46,6 +54,7 @@ export default function TextPromptScreen() {
         body: JSON.stringify({ image }),
       });
     } else {
+      // Guest mode, save favorite locally in AsyncStorage
       const updatedFavorites = [...favorites, image];
       setFavorites(updatedFavorites);
       await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
