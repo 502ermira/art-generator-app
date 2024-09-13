@@ -9,6 +9,9 @@ export default function EditProfileScreen({ navigation }) {
   const [fullname, setFullname] = useState('');
   const [profilePicture, setProfilePicture] = useState('');
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -21,6 +24,7 @@ export default function EditProfileScreen({ navigation }) {
         setFullname(data.fullname || '');
         setProfilePicture(data.profilePicture || '');
         setUsername(data.username || '');
+        setEmail(data.email || '');
       } catch (error) {
         setError('Failed to load profile');
       }
@@ -37,18 +41,49 @@ export default function EditProfileScreen({ navigation }) {
           'Content-Type': 'application/json',
           Authorization: token,
         },
-        body: JSON.stringify({ fullname, profilePicture, username }),
+        body: JSON.stringify({ fullname, profilePicture, username, email }),
       });
-
+  
       const result = await response.json();
-
+  
       if (response.ok) {
-        navigation.goBack();
+        let successMessage = 'Profile updated successfully';
+  
+        if (result.updates) {
+          const updatedFields = Object.keys(result.updates).join(', ');
+          successMessage = `${updatedFields} updated successfully`;
+        }
+  
+        setError(successMessage);
+        setTimeout(() => navigation.goBack(), 2000);
       } else {
         setError(result.error || 'Failed to update profile');
       }
     } catch (err) {
       setError('Update failed');
+    }
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      const response = await fetch('http://192.168.1.145:5000/auth/change-password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+        body: JSON.stringify({ oldPassword, newPassword }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setError('Password updated successfully');
+      } else {
+        setError(result.error || 'Failed to update password');
+      }
+    } catch (err) {
+      setError('Password change failed');
     }
   };
 
@@ -99,8 +134,31 @@ export default function EditProfileScreen({ navigation }) {
           onChangeText={setUsername}
           style={styles.input}
         />
+        <TextInput
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Old Password"
+          value={oldPassword}
+          onChangeText={setOldPassword}
+          secureTextEntry={true}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="New Password"
+          value={newPassword}
+          onChangeText={setNewPassword}
+          secureTextEntry={true}
+          style={styles.input}
+        />
         <Pressable onPress={handleSave} style={styles.saveButton}>
           <Text style={styles.saveButtonText}>Save</Text>
+        </Pressable>
+        <Pressable onPress={handleChangePassword} style={styles.saveButton}>
+          <Text style={styles.saveButtonText}>Change Password</Text>
         </Pressable>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </ScrollView>

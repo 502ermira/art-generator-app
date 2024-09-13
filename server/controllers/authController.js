@@ -72,7 +72,7 @@ exports.getProfile = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
-  const { fullname, profilePicture } = req.body;
+  const { fullname, profilePicture, username, email } = req.body;
 
   try {
     const user = await User.findById(req.userId);
@@ -80,13 +80,57 @@ exports.updateProfile = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    user.fullname = fullname || user.fullname;
+    const updates = {};
+
+    if (username && username !== user.username) {
+      const usernameExists = await User.findOne({ username });
+      if (usernameExists) {
+        return res.status(400).json({ error: 'Username already taken' });
+      }
+      updates.username = username;
+    }
+
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ error: 'Email already in use' });
+      }
+      updates.email = email;
+    }
+
+    if (fullname && fullname !== user.fullname) {
+      updates.fullname = fullname;
+    }
+
+    Object.assign(user, updates);
     user.profilePicture = profilePicture || user.profilePicture;
 
     await user.save();
-    res.status(200).json({ message: 'Profile updated successfully' });
+
+    res.status(200).json({ message: 'Profile updated successfully', updates });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update profile' });
   }
 };
+exports.changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
 
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Incorrect old password' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update password' });
+  }
+};
