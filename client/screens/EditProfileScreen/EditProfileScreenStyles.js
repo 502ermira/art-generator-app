@@ -74,4 +74,9 @@ export default StyleSheet.create({
     marginTop: 10,
     textAlign: 'center',
   },
+  successText: {
+    color: 'green',
+    textAlign: 'center',
+    marginVertical: 10,
+  }
 });

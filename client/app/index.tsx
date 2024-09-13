@@ -5,8 +5,8 @@ import TextPromptScreen from '../screens/TextPromptScreen/TextPromptScreen';
 import FavoritesScreen from '../screens/FavoritesScreen/FavoritesScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
-import ProfileScreen from '../screens/ProfileScreen';
-import EditProfileScreen from '../screens/EditProfileScreen';
+import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
+import EditProfileScreen from '../screens/EditProfileScreen/EditProfileScreen';
 import Navbar from '../components/Navbar';
 import { UserProvider } from '../contexts/UserContext';
 

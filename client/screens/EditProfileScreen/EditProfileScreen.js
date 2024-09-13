@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Image, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { UserContext } from '../contexts/UserContext';
+import { UserContext } from '../../contexts/UserContext';
 import styles from './EditProfileScreenStyles';
 
-export default function EditProfileScreen({ navigation }) {
+export default function EditProfileScreen({ navigation, route }) {
   const { token } = useContext(UserContext);
+  const { updateUserData } = route.params;
   const [fullname, setFullname] = useState('');
   const [profilePicture, setProfilePicture] = useState('');
   const [username, setUsername] = useState('');
@@ -43,17 +44,18 @@ export default function EditProfileScreen({ navigation }) {
         },
         body: JSON.stringify({ fullname, profilePicture, username, email }),
       });
-  
+
       const result = await response.json();
-  
+
       if (response.ok) {
         let successMessage = 'Profile updated successfully';
-  
+
         if (result.updates) {
           const updatedFields = Object.keys(result.updates).join(', ');
           successMessage = `${updatedFields} updated successfully`;
+          updateUserData(result.updates);
         }
-  
+
         setError(successMessage);
         setTimeout(() => navigation.goBack(), 2000);
       } else {
