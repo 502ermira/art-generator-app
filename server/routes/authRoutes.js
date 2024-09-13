@@ -9,5 +9,6 @@ router.post('/login', authController.login);
 router.get('/favorites', authenticateUser, authController.getFavorites);
 router.post('/favorites', authenticateUser, authController.addFavorite);
 router.get('/profile', authenticateUser, authController.getProfile);
+router.put('/profile', authenticateUser, authController.updateProfile);
 
 module.exports = router;
