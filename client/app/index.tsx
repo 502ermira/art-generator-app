@@ -5,6 +5,7 @@ import TextPromptScreen from '../screens/TextPromptScreen/TextPromptScreen';
 import FavoritesScreen from '../screens/FavoritesScreen/FavoritesScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import Navbar from '../components/Navbar';
 import { UserProvider } from '../contexts/UserContext';
 
@@ -20,6 +21,7 @@ export default function Index() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
           <Stack.Screen name="FavoritesScreen" component={FavoritesScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

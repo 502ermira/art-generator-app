@@ -5,6 +5,7 @@ export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [token, setToken] = useState('');
   const [username, setUsername] = useState('');
 
   useEffect(() => {
@@ -15,9 +16,11 @@ export const UserProvider = ({ children }) => {
       if (token) {
         setIsLoggedIn(true);
         setUsername(storedUsername || '');
+        setToken(token);
       } else {
         setIsLoggedIn(false);
         setUsername('');
+        setToken('');
       }
     };
 
@@ -29,10 +32,11 @@ export const UserProvider = ({ children }) => {
     await AsyncStorage.removeItem('username');
     setIsLoggedIn(false);
     setUsername('');
+    setToken('');
   };
 
   return (
-    <UserContext.Provider value={{ isLoggedIn, username, setIsLoggedIn, setUsername, handleLogout }}>
+    <UserContext.Provider value={{ isLoggedIn, token, username, setIsLoggedIn, setUsername, handleLogout }}>
       {children}
     </UserContext.Provider>
   );

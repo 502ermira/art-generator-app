@@ -24,9 +24,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   usernameText: {
-    fontSize: 17,
-    color: '#eee',
-    marginRight: 15,
+    fontSize: 36.5,
+    color: '#fff',
+    marginRight: 13,
+    borderRadius: 50,
   },
   logoutButton: {
     backgroundColor: '#7049f6',
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
   },
   logoutButtonText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '500',
   },
   authContainer: {
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
   },
   authButton: {
     backgroundColor: '#6200ea',
-    paddingVertical: 8,
+    paddingVertical: 9,
     paddingHorizontal: 20,
     borderRadius: 20,
     marginLeft: 10,

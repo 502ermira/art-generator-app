@@ -3,16 +3,28 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 exports.signup = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, fullname, profilePicture } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, email, password: hashedPassword });
+
+    const defaultProfilePicture = 'https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg';
+    const finalProfilePicture = profilePicture || defaultProfilePicture;
+
+    const user = new User({
+      username,
+      email,
+      password: hashedPassword,
+      fullname, 
+      profilePicture: finalProfilePicture
+    });
+
     await user.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to register user' });
   }
 };
+
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
@@ -47,5 +59,14 @@ exports.addFavorite = async (req, res) => {
     res.json({ message: 'Favorite added', favorites: user.favorites });
   } catch (error) {
     res.status(500).json({ error: 'Failed to add favorite' });
+  }
+};
+
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select('fullname username email profilePicture');
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch user profile' });
   }
 };
