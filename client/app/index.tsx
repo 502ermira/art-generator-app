@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TextPromptScreen from '../screens/TextPromptScreen/TextPromptScreen';
+import FavoritesScreen from '../screens/FavoritesScreen/FavoritesScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
 import Navbar from '../components/Navbar';
@@ -15,9 +16,10 @@ export default function Index() {
       <NavigationContainer independent={true}>
         <Navbar />
         <Stack.Navigator initialRouteName="TextPromptScreen">
-          <Stack.Screen name="TextPromptScreen" component={TextPromptScreen} />
+          <Stack.Screen name="TextPromptScreen" component={TextPromptScreen} options={{ headerShown : false}} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="FavoritesScreen" component={FavoritesScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

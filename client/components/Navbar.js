@@ -1,25 +1,33 @@
 import React, { useContext } from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { UserContext } from '../contexts/UserContext';
+import styles from './NavbarStyles';
+
+const logo = require('../assets/images/nav-logo.png');
 
 export default function Navbar() {
   const navigation = useNavigation();
   const { isLoggedIn, username, handleLogout } = useContext(UserContext);
 
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10, backgroundColor: '#f8f8f8', borderBottomWidth: 1 }}>
-      <Text style={{ fontSize: 20 }}>AI Image Generator</Text>
-
+    <View style={styles.navbarContainer}>
+      <Image source={logo} style={styles.logo} />
       {isLoggedIn ? (
-        <View style={{ flexDirection: 'row' }}>
-          <Text style={{ fontSize: 18, marginRight: 20 }}>Hello, {username}!</Text>
-          <Button title="Logout" onPress={handleLogout} />
+        <View style={styles.loggedInContainer}>
+          <Text style={styles.usernameText}>Hello, {username}!</Text>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Logout</Text>
+          </TouchableOpacity>
         </View>
       ) : (
-        <View style={{ flexDirection: 'row' }}>
-          <Button title="Login" onPress={() => navigation.navigate('Login')} />
-          <Button title="Signup" onPress={() => navigation.navigate('Signup')} />
+        <View style={styles.authContainer}>
+          <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.authButtonText}>Login</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate('Signup')}>
+            <Text style={styles.authButtonText}>Signup</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>
