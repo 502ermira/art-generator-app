@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   fullname: { type: String, required: true },
   profilePicture: { type: String },
   favorites: [{ type: String }],
+  posts: [{ type: String }],
 });
 
 module.exports = mongoose.model('User', userSchema);

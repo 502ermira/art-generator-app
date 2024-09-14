@@ -40,4 +40,9 @@ export default StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  postImage: {
+    width: 200,
+    height: 200,
+    marginBottom: 16,
+  },
 });

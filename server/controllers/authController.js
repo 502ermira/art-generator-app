@@ -64,7 +64,7 @@ exports.addFavorite = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select('fullname username email profilePicture');
+    const user = await User.findById(req.userId).select('fullname username email profilePicture posts');
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch user profile' });
@@ -132,5 +132,27 @@ exports.changePassword = async (req, res) => {
     res.status(200).json({ message: 'Password updated successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update password' });
+  }
+};
+
+exports.postImage = async (req, res) => {
+  const { image } = req.body;
+  const { authorization } = req.headers;
+
+  try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    user.posts.push(image);
+    await user.save();
+
+    res.status(200).json({ message: 'Image shared successfully', posts: user.posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
