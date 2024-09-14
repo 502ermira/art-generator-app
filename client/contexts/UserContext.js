@@ -7,25 +7,28 @@ export const UserProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [token, setToken] = useState('');
   const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('token');
+      
+      const storedToken = await AsyncStorage.getItem('token');
       const storedUsername = await AsyncStorage.getItem('username');
-
-      if (token) {
+      
+      if (storedToken) {
         setIsLoggedIn(true);
         setUsername(storedUsername || '');
-        setToken(token);
+        setToken(storedToken);
       } else {
         setIsLoggedIn(false);
         setUsername('');
         setToken('');
       }
+      setLoading(false);
     };
-
+  
     checkLoginStatus();
-  }, []);
+  }, [isLoggedIn]);
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem('token');
@@ -36,7 +39,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ isLoggedIn, token, username, setIsLoggedIn, setUsername, handleLogout }}>
+    <UserContext.Provider value={{ isLoggedIn, token, username, setIsLoggedIn, setUsername, handleLogout, loading }}>
       {children}
     </UserContext.Provider>
   );

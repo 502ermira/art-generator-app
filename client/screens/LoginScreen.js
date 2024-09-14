@@ -13,6 +13,7 @@ export default function LoginScreen({ navigation }) {
 
   const loginUser = async () => {
     setLoading(true);
+    
     try {
       const response = await fetch('http://192.168.1.145:5000/auth/login', {
         method: 'POST',
@@ -21,23 +22,28 @@ export default function LoginScreen({ navigation }) {
         },
         body: JSON.stringify({ email, password }),
       });
-
+  
       const data = await response.json();
+  
       if (response.ok) {
         await AsyncStorage.setItem('token', data.token);
         await AsyncStorage.setItem('username', data.username);
+        
         setIsLoggedIn(true);
         setUsername(data.username);
-        navigation.replace('TextPromptScreen');
+        setTimeout(() => {
+          navigation.replace('TextPromptScreen');
+        }, 100);
       } else {
         setError(data.error);
       }
     } catch (err) {
+      console.error('Login request failed:', err);
       setError('Login failed');
     } finally {
       setLoading(false);
     }
-  };
+  };   
 
   return (
     <View>

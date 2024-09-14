@@ -4,22 +4,38 @@ import { UserContext } from '../../contexts/UserContext.js';
 import styles from './ProfileScreenStyles';
 
 export default function ProfileScreen({ navigation }) {
-  const { token } = useContext(UserContext);
+  const { token, loading: contextLoading } = useContext(UserContext);
   const [userData, setUserData] = useState({});
   const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const response = await fetch('http://192.168.1.145:5000/auth/profile', {
-        headers: { Authorization: token },
-      });
-      const data = await response.json();
-      setUserData(data);
-      setPosts(data.posts || []);
-    };
-  
-    fetchUserData();
-  }, [token]);
+    if (!contextLoading && token) { 
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch('http://192.168.1.145:5000/auth/profile', {
+            headers: { Authorization: token },
+          });
+          const data = await response.json();
+          setUserData(data);
+          setPosts(data.posts || []);
+        } catch (err) {
+          console.error('Error fetching user data:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchUserData();
+    }
+  }, [token, contextLoading]);
+
+  if (contextLoading || loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.scrollView}>
