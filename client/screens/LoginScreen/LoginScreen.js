@@ -1,8 +1,9 @@
 import React, { useState, useContext } from 'react';
-import { View, TextInput, Button, Text } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Loader from '../components/Loader';
-import { UserContext } from '../contexts/UserContext';
+import Loader from '../../components/Loader.js';
+import { UserContext } from '../../contexts/UserContext.js';
+import { styles } from './LoginScreenStyles';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -13,22 +14,22 @@ export default function LoginScreen({ navigation }) {
 
   const loginUser = async () => {
     setLoading(true);
-    
+    const normalizedEmail = email.toLowerCase();
     try {
       const response = await fetch('http://192.168.1.145:5000/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: normalizedEmail, password }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         await AsyncStorage.setItem('token', data.token);
         await AsyncStorage.setItem('username', data.username);
-        
+
         setIsLoggedIn(true);
         setUsername(data.username);
         setTimeout(() => {
@@ -43,18 +44,34 @@ export default function LoginScreen({ navigation }) {
     } finally {
       setLoading(false);
     }
-  };   
+  };
 
   return (
-    <View>
+    <View style={styles.container}>
       {loading ? (
         <Loader />
       ) : (
         <>
-          <TextInput placeholder="Email" value={email} onChangeText={setEmail} />
-          <TextInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
-          <Button title="Login" onPress={loginUser} />
-          {error && <Text>{error}</Text>}
+          <Text style={styles.title}>Login</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor="#eee"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor="#eee"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity style={styles.button} onPress={loginUser}>
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
         </>
       )}
     </View>

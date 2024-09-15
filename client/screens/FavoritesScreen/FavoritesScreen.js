@@ -58,7 +58,6 @@ export default function FavoritesScreen() {
   
       if (response.ok) {
         alert('Image shared successfully!');
-        setPosts((prevPosts) => [...prevPosts, image]);
       } else {
         const errorData = await response.json();
         console.error(errorData);

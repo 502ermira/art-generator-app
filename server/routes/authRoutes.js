@@ -12,5 +12,6 @@ router.get('/profile', authenticateUser, authController.getProfile);
 router.put('/profile', authenticateUser, authController.updateProfile);
 router.put('/change-password', authenticateUser, authController.changePassword);
 router.post('/share', authenticateUser, authController.postImage);
+router.get('/search-users', authenticateUser, authController.searchUsers);
 
 module.exports = router;

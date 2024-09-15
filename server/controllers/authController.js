@@ -156,3 +156,24 @@ exports.postImage = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.searchUsers = async (req, res) => {
+  const { searchQuery } = req.query;
+
+  if (!searchQuery) {
+    return res.status(400).json({ error: 'Search query is required' });
+  }
+
+  try {
+    const users = await User.find({
+      $or: [
+        { username: { $regex: searchQuery, $options: 'i' } },
+        { fullname: { $regex: searchQuery, $options: 'i' } }
+      ]
+    }).select('username fullname profilePicture');
+
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to search users' });
+  }
+};

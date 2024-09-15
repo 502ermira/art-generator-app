@@ -14,15 +14,22 @@ export default function Navbar() {
   return (
     <View style={styles.navbarContainer}>
       <Image source={logo} style={styles.logo} />
+
       {isLoggedIn ? (
         <View style={styles.loggedInContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-        <Icon name="user-circle" style={styles.usernameText} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
+        <TouchableOpacity
+        style={styles.searchButton}
+        onPress={() => navigation.navigate('SearchScreen')}
+        >
+        <Icon name="search" style={styles.usernameText}/>
+      </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <Icon name="user-circle" style={styles.usernameText} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <View style={styles.authContainer}>
           <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate('Login')}>

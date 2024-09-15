@@ -3,10 +3,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TextPromptScreen from '../screens/TextPromptScreen/TextPromptScreen';
 import FavoritesScreen from '../screens/FavoritesScreen/FavoritesScreen';
-import LoginScreen from '../screens/LoginScreen';
-import SignupScreen from '../screens/SignupScreen';
+import LoginScreen from '../screens/LoginScreen/LoginScreen';
+import SignupScreen from '../screens/SignupScreen/SignupScreen';
 import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
+import SearchScreen from '../screens/SearchScreen/SearchScreen';
 import EditProfileScreen from '../screens/EditProfileScreen/EditProfileScreen';
+import UserProfileScreen from '../screens/UserProfileScreen/UserProfileScreen';
 import Navbar from '../components/Navbar';
 import { UserProvider } from '../contexts/UserContext';
 
@@ -24,6 +26,8 @@ export default function Index() {
           <Stack.Screen name="FavoritesScreen" component={FavoritesScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+          <Stack.Screen name="SearchScreen" component={SearchScreen} />
+          <Stack.Screen name="UserProfile" component={UserProfileScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>
