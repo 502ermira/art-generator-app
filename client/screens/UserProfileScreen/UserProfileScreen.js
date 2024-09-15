@@ -1,52 +1,73 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, ScrollView } from 'react-native';
-import styles from './UserProfileScreenStyles.js';
+import { useState, useEffect, useContext } from 'react';
+import { View, Text, Image, ActivityIndicator, ScrollView } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { UserContext } from '../../contexts/UserContext';
+import { styles } from './UserProfileScreenStyles';
 
-export default function UserProfileScreen({ route }) {
+export default function UserProfileScreen() {
+  const { token } = useContext(UserContext);
+  const route = useRoute();
   const { username } = route.params;
-  const [userData, setUserData] = useState({});
-  const [posts, setPosts] = useState([]);
+  const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUserProfile = async () => {
       try {
-        const response = await fetch(`http://192.168.1.145:5000/auth/profile?username=${username}`);
+        const response = await fetch(`http://192.168.1.145:5000/auth/user/${username}`, {
+          headers: { Authorization: token },
+        });
         const data = await response.json();
-        setUserData(data);
-        setPosts(data.posts || []);
+        setProfileData(data);
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching user data:', error);
-      } finally {
+        console.error('Error fetching user profile:', error);
         setLoading(false);
       }
     };
 
-    fetchUserData();
-  }, [username]);
+    fetchUserProfile();
+  }, [username, token]);
 
   if (loading) {
     return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
+
+  if (!profileData) {
+    return (
       <View style={styles.container}>
-        <Text>Loading...</Text>
+        <Text style={styles.errorText}>Failed to load profile data</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.container}>
-        <Image source={{ uri: userData.profilePicture }} style={styles.profileImage} />
-        <Text style={styles.fullname}>{userData.fullname}</Text>
-        <Text style={styles.username}>@{userData.username}</Text>
-        <Text style={styles.postsTitle}>{`${userData.username}'s Posts`}</Text>
-        {posts.length > 0 ? (
-          posts.map((post, index) => (
-            <Image key={index} source={{ uri: post }} style={styles.postImage} />
-          ))
-        ) : (
-          <Text>No posts yet.</Text>
-        )}
+        <View style={styles.profileHeader}>
+          <Image source={{ uri: profileData.profilePicture }} style={styles.profileImage} />
+          <View style={styles.profileInfo}>
+            <Text style={styles.fullname}>{profileData.fullname}</Text>
+            <Text style={styles.username}>@{profileData.username}</Text>
+          </View>
+        </View>
+
+        <View style={styles.previewContainer}>
+          <Text style={styles.sectionTitle}>Posts</Text>
+          {profileData.posts.length > 0 ? (
+            <View style={styles.previewGrid}>
+              {profileData.posts.map((post, index) => (
+                <Image key={index} source={{ uri: post }} style={styles.previewImage} />
+              ))}
+            </View>
+          ) : (
+            <Text>No posts available</Text>
+          )}
+        </View>
       </View>
     </ScrollView>
   );

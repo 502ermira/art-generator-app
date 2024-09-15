@@ -1,70 +1,66 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-  },
+export const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
     padding: 20,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
   },
-  title: {
-    fontSize: 26,
-    fontWeight: '600',
-    color: '#fff',
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 20,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginRight: 20,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  fullname: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  username: {
+    fontSize: 18,
+    color: '#888',
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 10,
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
     textAlign: 'center',
   },
-  favoriteItem: {
-    marginBottom: 30,
-    flexDirection: 'colum',
+  previewContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#151419',
-    padding: 10,
-    borderRadius: 1,
-    borderWidth: 1,
-    shadowColor: '#111',
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-    elevation: 3,
-    width: 290,
-    paddingTop:25,
+    margin: 0,
+    padding: 0,
   },
-  favoriteImage: {
-    width: 242,
-    height: 242,
-    borderRadius: 1,
-    marginBottom: 16,
+  previewGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginRight: 'auto',
+    marginLeft: 0,
   },
-  modalBackground: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  fullscreenImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    top: 60,
-    right: 12,
-    backgroundColor: 'red',
-    padding: 11,
-    paddingHorizontal: 18,
-    borderRadius: 50,
-    zIndex: 1,
-  },
-  modalCloseText: {
-    color: '#fff',
-    fontSize: 22,
-    fontWeight: 'bold',
+  previewImage: {
+    width: 170,
+    height: 170,
+    margin: 7,
   },
 });
-
-export default styles;

@@ -177,3 +177,17 @@ exports.searchUsers = async (req, res) => {
     res.status(500).json({ error: 'Failed to search users' });
   }
 };
+
+// Fetch another user's profile by their username
+exports.getUserProfileByUsername = async (req, res) => {
+  const { username } = req.params; // Get username from route parameters
+  try {
+    const user = await User.findOne({ username }).select('fullname username profilePicture posts');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch user profile' });
+  }
+};
