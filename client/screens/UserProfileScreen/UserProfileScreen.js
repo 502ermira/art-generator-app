@@ -5,7 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { styles } from './UserProfileScreenStyles';
 
 export default function UserProfileScreen() {
-  const { token } = useContext(UserContext);
+  const { token, username: loggedInUsername } = useContext(UserContext);
   const route = useRoute();
   const { username } = route.params;
   const navigation = useNavigation();
@@ -22,48 +22,63 @@ export default function UserProfileScreen() {
           headers: { Authorization: token },
         });
         const data = await response.json();
-        setProfileData(data);
-        setLoading(false);
-        const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`);
-        const followData = await followResponse.json();
-        setFollowerCount(followData.followers.length);
-        setFollowingCount(followData.following.length);
+
+        if (response.ok) {
+          setProfileData(data);
+
+          const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`);
+          const followData = await followResponse.json();
+          
+          setFollowerCount(followData.followers.length);
+          setFollowingCount(followData.following.length);
+
+          const isUserFollowing = followData.followers.some(
+            (follower) => follower.followerId.username === loggedInUsername
+          );
+          setIsFollowing(isUserFollowing);
+        } else {
+          console.error('Failed to fetch profile:', data.error);
+        }
       } catch (error) {
         console.error('Error fetching user profile:', error);
+      } finally {
         setLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, [username, token]);
+  }, [username, token, loggedInUsername]);
 
-  const handleFollow = async () => {
+  const handleFollowToggle = async () => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/follow/${username}`, {
+      const url = isFollowing 
+        ? `http://192.168.1.145:5000/auth/unfollow/${username}`
+        : `http://192.168.1.145:5000/auth/follow/${username}`;
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: { Authorization: token },
       });
 
       if (response.ok) {
-        setIsFollowing(true);
-        setFollowerCount(followerCount + 1);
+        setIsFollowing(!isFollowing);
+        setFollowerCount(isFollowing ? followerCount - 1 : followerCount + 1);
       } else {
         const data = await response.json();
         console.error(data.error);
       }
     } catch (error) {
-      console.error('Error following user:', error);
+      console.error('Error toggling follow status:', error);
     }
   };
 
   const navigateToFollowers = () => {
     navigation.navigate('Followers', { username, type: 'followers' });
   };
-  
+
   const navigateToFollowing = () => {
     navigation.navigate('Following', { username, type: 'following' });
-  };  
-  
+  };
 
   if (loading) {
     return (
@@ -101,11 +116,14 @@ export default function UserProfileScreen() {
           </View>
         </View>
 
-        {!isFollowing && (
-          <TouchableOpacity style={styles.followButton} onPress={handleFollow}>
-            <Text style={styles.followButtonText}>Follow</Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity 
+          style={styles.followButton} 
+          onPress={handleFollowToggle}
+        >
+          <Text style={styles.followButtonText}>
+            {isFollowing ? 'Following' : 'Follow'}
+          </Text>
+        </TouchableOpacity>
 
         <View style={styles.previewContainer}>
           <Text style={styles.sectionTitle}>Posts</Text>
