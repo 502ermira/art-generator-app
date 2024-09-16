@@ -97,7 +97,7 @@ export default function FavoritesScreen() {
       >
         <View style={styles.modalBackground}>
           <TouchableOpacity onPress={closeModal} style={styles.modalCloseButton}>
-            <Text style={styles.modalCloseText}> X </Text>
+            <Text style={styles.modalCloseText}> ☓ </Text>
           </TouchableOpacity>
           {selectedImage && (
             <Image source={{ uri: selectedImage }} style={styles.fullscreenImage} />

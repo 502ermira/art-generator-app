@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { styles } from './FollowersScreenStyles';
+import { UserContext } from '../../contexts/UserContext';
 
 export default function FollowersFollowingScreen() {
   const route = useRoute();
   const navigation = useNavigation();
+  const { username: loggedInUsername } = useContext(UserContext);
   const { username, type } = route.params;
   const [loading, setLoading] = useState(true);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [followingStatus, setFollowingStatus] = useState({});
 
   useEffect(() => {
     const fetchFollowersAndFollowing = async () => {
@@ -18,6 +21,18 @@ export default function FollowersFollowingScreen() {
         const data = await response.json();
         setFollowers(data.followers);
         setFollowing(data.following);
+
+        const status = {};
+        data.following.forEach(user => {
+          status[user.followingId.username] = true;
+        });
+        data.followers.forEach(user => {
+          if (!status[user.followerId.username]) {
+            status[user.followerId.username] = false;
+          }
+        });
+        setFollowingStatus(status);
+
         setLoading(false);
       } catch (error) {
         console.error('Error fetching followers and following:', error);
@@ -28,8 +43,34 @@ export default function FollowersFollowingScreen() {
     fetchFollowersAndFollowing();
   }, [username]);
 
+  const handleFollowToggle = async (user) => {
+    const isFollowing = followingStatus[user.username];
+    const url = isFollowing 
+      ? `http://192.168.1.145:5000/auth/unfollow/${user.username}` 
+      : `http://192.168.1.145:5000/auth/follow/${user.username}`;
+
+    try {
+      const response = await fetch(url, { method: 'POST' });
+
+      if (response.ok) {
+        setFollowingStatus((prevStatus) => ({
+          ...prevStatus,
+          [user.username]: !isFollowing,
+        }));
+      } else {
+        console.error('Error toggling follow status');
+      }
+    } catch (error) {
+      console.error('Error toggling follow status:', error);
+    }
+  };
+
   const handleUserPress = (user) => {
-    navigation.navigate('UserProfile', { username: user.username });
+    if (user.username === loggedInUsername) {
+      navigation.navigate('Profile');
+    } else {
+      navigation.navigate('UserProfile', { username: user.username });
+    }
   };
 
   if (loading) {
@@ -40,6 +81,29 @@ export default function FollowersFollowingScreen() {
     );
   }
 
+  const renderUserItem = (user, isFollowing) => (
+    <View key={user.username} style={styles.userItemContainer}>
+      <TouchableOpacity style={styles.userItem} onPress={() => handleUserPress(user)}>
+        <Image source={{ uri: user.profilePicture }} style={styles.userImage} />
+        <View style={styles.userInfo}>
+          <Text style={styles.fullname}>{user.fullname}</Text>
+          <Text style={styles.username}>@{user.username}</Text>
+        </View>
+      </TouchableOpacity>
+
+      {user.username !== loggedInUsername && (
+        <TouchableOpacity
+          style={[styles.followButton, isFollowing ? styles.following : styles.notFollowing]}
+          onPress={() => handleFollowToggle(user)}
+        >
+          <Text style={styles.followButtonText}>
+            {isFollowing ? 'Following' : 'Follow'}
+          </Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -47,19 +111,7 @@ export default function FollowersFollowingScreen() {
           <>
             <Text style={styles.sectionTitle}>Followers</Text>
             {followers.length > 0 ? (
-              followers.map((follower, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.userItem}
-                  onPress={() => handleUserPress(follower.followerId)}
-                >
-                  <Image source={{ uri: follower.followerId.profilePicture }} style={styles.userImage} />
-                  <View style={styles.userInfo}>
-                    <Text style={styles.fullname}>{follower.followerId.fullname}</Text>
-                    <Text style={styles.username}>@{follower.followerId.username}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))
+              followers.map((follower) => renderUserItem(follower.followerId, followingStatus[follower.followerId.username]))
             ) : (
               <Text style={styles.emptyText}>No followers yet</Text>
             )}
@@ -68,19 +120,7 @@ export default function FollowersFollowingScreen() {
           <>
             <Text style={styles.sectionTitle}>Following</Text>
             {following.length > 0 ? (
-              following.map((user, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={styles.userItem}
-                  onPress={() => handleUserPress(user.followingId)}
-                >
-                  <Image source={{ uri: user.followingId.profilePicture }} style={styles.userImage} />
-                  <View style={styles.userInfo}>
-                    <Text style={styles.fullname}>{user.followingId.fullname}</Text>
-                    <Text style={styles.username}>@{user.followingId.username}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))
+              following.map((user) => renderUserItem(user.followingId, followingStatus[user.followingId.username]))
             ) : (
               <Text style={styles.emptyText}>Not following anyone</Text>
             )}

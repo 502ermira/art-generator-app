@@ -5,7 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import styles from './SearchScreenStyles';
 
 export default function SearchScreen() {
-  const { token } = useContext(UserContext);
+  const { token, username: loggedInUsername } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const navigation = useNavigation();
@@ -30,7 +30,14 @@ export default function SearchScreen() {
     }
   }, [searchQuery]);
 
-  
+  const handleUserPress = (user) => {
+    if (user.username === loggedInUsername) {
+      navigation.navigate('Profile');
+    } else {
+      navigation.navigate('UserProfile', { username: user.username });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -45,9 +52,7 @@ export default function SearchScreen() {
           data={searchResults}
           keyExtractor={(item) => item.username}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('UserProfile', { username: item.username })}
-            >
+            <TouchableOpacity onPress={() => handleUserPress(item)}>
               <View style={styles.searchResult}>
                 <Image source={{ uri: item.profilePicture }} style={styles.profileImage} />
                 <View style={styles.textContainer}>

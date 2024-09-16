@@ -1,70 +1,67 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
-const styles = StyleSheet.create({
+const { width, height } = Dimensions.get('window');
+
+export default StyleSheet.create({
   scrollView: {
     flex: 1,
+    backgroundColor: '#151419',
   },
   container: {
     flex: 1,
     padding: 20,
     alignItems: 'center',
-    justifyContent: 'flex-start',
   },
   title: {
-    fontSize: 26,
-    fontWeight: '600',
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#fff',
     marginBottom: 20,
-    textAlign: 'center',
-  },
-  favoriteItem: {
-    marginBottom: 30,
-    flexDirection: 'colum',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#151419',
-    padding: 10,
-    borderRadius: 1,
-    borderWidth: 1,
-    shadowColor: '#111',
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
-    elevation: 3,
-    width: 290,
-    paddingTop:25,
   },
   favoriteImage: {
-    width: 242,
-    height: 242,
-    borderRadius: 1,
-    marginBottom: 16,
+    width: width * 0.9,
+    height: width * 0.9,
+    borderRadius: 10,
+    marginBottom: 15,
+    resizeMode: 'cover',
+  },
+  shareButton: {
+    backgroundColor: '#7049f6',
+    paddingVertical: 11,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginBottom: 38,
+  },
+  shareButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 18,
   },
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 1)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  fullscreenImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
   },
   modalCloseButton: {
     position: 'absolute',
-    top: 60,
-    right: 12,
-    backgroundColor: 'red',
-    padding: 11,
-    paddingHorizontal: 18,
-    borderRadius: 50,
-    zIndex: 1,
+    top: 40,
+    right: 20,
+    backgroundColor: '#ff5555',
+    borderRadius: 20,
+    padding: 10,
+    paddingHorizontal: 12,
   },
   modalCloseText: {
     color: '#fff',
-    fontSize: 22,
     fontWeight: 'bold',
+    fontSize: 25,
+  },
+  fullscreenImage: {
+    width: width * 0.95,
+    height: height * 0.75,
+    resizeMode: 'contain',
+    borderRadius: 10,
   },
 });
-
-export default styles;

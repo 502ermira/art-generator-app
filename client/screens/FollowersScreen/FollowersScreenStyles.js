@@ -31,23 +31,21 @@ export const styles = StyleSheet.create({
   userItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#28272C',
     padding: 15,
     borderRadius: 10,
     marginBottom: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
     elevation: 5,
+    justifyContent: 'space-between',
+  },
+  userInfo: {
+    flexDirection: 'column',
+    flex: 1,
   },
   userImage: {
     width: 50,
     height: 50,
     borderRadius: 25,
     marginRight: 15,
-  },
-  userInfo: {
-    flexDirection: 'column',
   },
   username: {
     fontSize: 16,
@@ -64,5 +62,34 @@ export const styles = StyleSheet.create({
     color: '#aaa',
     textAlign: 'center',
     marginTop: 20,
+  },
+  followButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    backgroundColor: '#7049f6',
+    borderRadius: 20,
+  },
+  following: {
+    backgroundColor: '#999',
+  },
+  notFollowing: {
+    backgroundColor: '#7049f6',
+  },
+  followButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  userItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#777',
+    paddingRight: 13,
+    marginBottom:5,
+    backgroundColor: '#28272C',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
   },
 });
