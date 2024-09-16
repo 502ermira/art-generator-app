@@ -12,34 +12,40 @@ export default function Navbar() {
   const { isLoggedIn, handleLogout } = useContext(UserContext);
 
   return (
-    <View style={styles.navbarContainer}>
-      <Image source={logo} style={styles.logo} />
-
-      {isLoggedIn ? (
-        <View style={styles.loggedInContainer}>
-        <TouchableOpacity
-        style={styles.searchButton}
-        onPress={() => navigation.navigate('SearchScreen')}
-        >
-        <Icon name="search" style={styles.usernameText}/>
-      </TouchableOpacity>
+    <>
+      {!isLoggedIn ? (
+        // Navbar for Logged Out Users (Top Navbar)
+        <View style={styles.navbarTopContainer}>
+          <Image source={logo} style={styles.logo} />
+          <View style={styles.authContainer}>
+            <TouchableOpacity
+              style={styles.authButton}
+              onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.authButtonText}>Login</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.authButton}
+              onPress={() => navigation.navigate('Signup')}>
+              <Text style={styles.authButtonText}>Signup</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        // Navbar for Logged In Users (Bottom Navbar)
+        <View style={styles.navbarBottomContainer}>
+          <TouchableOpacity
+            style={styles.searchButton}
+            onPress={() => navigation.navigate('SearchScreen')}>
+            <Icon name="search" style={styles.navIcon} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <Icon name="user-circle" style={styles.usernameText} />
+            <Icon name="user-circle" style={styles.navIcon} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutButtonText}>Logout</Text>
           </TouchableOpacity>
         </View>
-      ) : (
-        <View style={styles.authContainer}>
-          <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate('Login')}>
-            <Text style={styles.authButtonText}>Login</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate('Signup')}>
-            <Text style={styles.authButtonText}>Signup</Text>
-          </TouchableOpacity>
-        </View>
       )}
-    </View>
+    </>
   );
 }

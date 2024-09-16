@@ -1,7 +1,9 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
-const styles = StyleSheet.create({
-  navbarContainer: {
+const { width } = Dimensions.get('window');
+
+export default StyleSheet.create({
+  navbarTopContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -19,33 +21,9 @@ const styles = StyleSheet.create({
     height:50,
     marginTop: -11,
   },
-  loggedInContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  usernameText: {
-    fontSize: 36.5,
-    color: '#fff',
-    marginRight: 13,
-    borderRadius: 50,
-  },
-  logoutButton: {
-    backgroundColor: '#7049f6',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    shadowColor: '#ff5252',
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-  },
   authContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   authButton: {
     backgroundColor: '#6200ea',
@@ -63,6 +41,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
+  navbarBottomContainer: {
+    width: '100%',
+    height: 90,
+    backgroundColor: '#000',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingBottom: 40,
+    paddingTop: 7,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    elevation: 5,
+    zIndex: 10,
+  },
+  searchButton: {
+   
+  },
+  logoutButton: {
+    backgroundColor: '#7049f6',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    shadowColor: '#ff5252',
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  logoutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  navIcon: {
+    fontSize: 28,
+    color: '#ddd',
+  },
 });
-
-export default styles;
