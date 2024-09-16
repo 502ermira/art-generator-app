@@ -16,5 +16,6 @@ router.get('/search-users', authenticateUser, authController.searchUsers);
 router.get('/user/:username', authenticateUser, authController.getUserProfileByUsername);
 router.post('/follow/:username', authenticateUser, authController.followUser);
 router.get('/follow-count/:username', authController.getFollowCount);
+router.get('/followers-following/:username', authController.getFollowersAndFollowing);
 
 module.exports = router;

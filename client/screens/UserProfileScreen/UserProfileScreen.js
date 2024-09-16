@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
 import { styles } from './UserProfileScreenStyles';
 
@@ -8,9 +8,11 @@ export default function UserProfileScreen() {
   const { token } = useContext(UserContext);
   const route = useRoute();
   const { username } = route.params;
+  const navigation = useNavigation();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [followCount, setFollowCount] = useState(0);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
@@ -22,10 +24,10 @@ export default function UserProfileScreen() {
         const data = await response.json();
         setProfileData(data);
         setLoading(false);
-
-        const followResponse = await fetch(`http://192.168.1.145:5000/auth/follow-count/${username}`);
+        const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`);
         const followData = await followResponse.json();
-        setFollowCount(followData.followCount);
+        setFollowerCount(followData.followers.length);
+        setFollowingCount(followData.following.length);
       } catch (error) {
         console.error('Error fetching user profile:', error);
         setLoading(false);
@@ -44,7 +46,7 @@ export default function UserProfileScreen() {
 
       if (response.ok) {
         setIsFollowing(true);
-        setFollowCount(followCount + 1);
+        setFollowerCount(followerCount + 1);
       } else {
         const data = await response.json();
         console.error(data.error);
@@ -53,6 +55,15 @@ export default function UserProfileScreen() {
       console.error('Error following user:', error);
     }
   };
+
+  const navigateToFollowers = () => {
+    navigation.navigate('Followers', { username, type: 'followers' });
+  };
+  
+  const navigateToFollowing = () => {
+    navigation.navigate('Following', { username, type: 'following' });
+  };  
+  
 
   if (loading) {
     return (
@@ -78,7 +89,15 @@ export default function UserProfileScreen() {
           <View style={styles.profileInfo}>
             <Text style={styles.fullname}>{profileData.fullname}</Text>
             <Text style={styles.username}>@{profileData.username}</Text>
-            <Text>{followCount} Followers</Text>
+            
+            <View style={styles.followInfo}>
+              <TouchableOpacity onPress={navigateToFollowers}>
+                <Text style={styles.followers}>{followerCount} Followers</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={navigateToFollowing}>
+                <Text>{followingCount} Following</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -87,6 +106,7 @@ export default function UserProfileScreen() {
             <Text style={styles.followButtonText}>Follow</Text>
           </TouchableOpacity>
         )}
+
         <View style={styles.previewContainer}>
           <Text style={styles.sectionTitle}>Posts</Text>
           {profileData.posts.length > 0 ? (

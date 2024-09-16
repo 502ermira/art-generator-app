@@ -74,5 +74,12 @@ export const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
-  },  
+  },
+  followInfo: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  followers : {
+    marginRight: 9,
+  }
 });

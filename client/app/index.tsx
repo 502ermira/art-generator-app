@@ -9,6 +9,7 @@ import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 import SearchScreen from '../screens/SearchScreen/SearchScreen';
 import EditProfileScreen from '../screens/EditProfileScreen/EditProfileScreen';
 import UserProfileScreen from '../screens/UserProfileScreen/UserProfileScreen';
+import FollowersScreen from '../screens/FollowersScreen/FollowersScreen';
 import Navbar from '../components/Navbar';
 import { UserProvider } from '../contexts/UserContext';
 
@@ -28,6 +29,8 @@ export default function Index() {
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />
           <Stack.Screen name="SearchScreen" component={SearchScreen} />
           <Stack.Screen name="UserProfile" component={UserProfileScreen} />
+          <Stack.Screen name="Followers" component={FollowersScreen} />
+          <Stack.Screen name="Following" component={FollowersScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

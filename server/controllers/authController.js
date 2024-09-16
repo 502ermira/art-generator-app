@@ -239,4 +239,22 @@ exports.getFollowCount = async (req, res) => {
   }
 };
 
+exports.getFollowersAndFollowing = async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const followers = await Follower.find({ followingId: user._id }).populate('followerId', 'username fullname profilePicture');
+    
+    const following = await Follower.find({ followerId: user._id }).populate('followingId', 'username fullname profilePicture');
+
+    res.json({ followers, following });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch followers/following' });
+  }
+};
 
