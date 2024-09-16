@@ -63,4 +63,16 @@ export const styles = StyleSheet.create({
     height: 170,
     margin: 7,
   },
+  followButton: {
+    backgroundColor: '#1da1f2',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  followButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },  
 });

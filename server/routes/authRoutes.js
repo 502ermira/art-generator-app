@@ -14,5 +14,7 @@ router.put('/change-password', authenticateUser, authController.changePassword);
 router.post('/share', authenticateUser, authController.postImage);
 router.get('/search-users', authenticateUser, authController.searchUsers);
 router.get('/user/:username', authenticateUser, authController.getUserProfileByUsername);
+router.post('/follow/:username', authenticateUser, authController.followUser);
+router.get('/follow-count/:username', authController.getFollowCount);
 
 module.exports = router;

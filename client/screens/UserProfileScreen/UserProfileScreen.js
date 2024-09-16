@@ -1,5 +1,5 @@
-import { useState, useEffect, useContext } from 'react';
-import { View, Text, Image, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
 import { styles } from './UserProfileScreenStyles';
@@ -10,6 +10,8 @@ export default function UserProfileScreen() {
   const { username } = route.params;
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [followCount, setFollowCount] = useState(0);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -20,6 +22,10 @@ export default function UserProfileScreen() {
         const data = await response.json();
         setProfileData(data);
         setLoading(false);
+
+        const followResponse = await fetch(`http://192.168.1.145:5000/auth/follow-count/${username}`);
+        const followData = await followResponse.json();
+        setFollowCount(followData.followCount);
       } catch (error) {
         console.error('Error fetching user profile:', error);
         setLoading(false);
@@ -29,10 +35,29 @@ export default function UserProfileScreen() {
     fetchUserProfile();
   }, [username, token]);
 
+  const handleFollow = async () => {
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/follow/${username}`, {
+        method: 'POST',
+        headers: { Authorization: token },
+      });
+
+      if (response.ok) {
+        setIsFollowing(true);
+        setFollowCount(followCount + 1);
+      } else {
+        const data = await response.json();
+        console.error(data.error);
+      }
+    } catch (error) {
+      console.error('Error following user:', error);
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#000" />
+        <Text>Loading...</Text>
       </View>
     );
   }
@@ -53,9 +78,15 @@ export default function UserProfileScreen() {
           <View style={styles.profileInfo}>
             <Text style={styles.fullname}>{profileData.fullname}</Text>
             <Text style={styles.username}>@{profileData.username}</Text>
+            <Text>{followCount} Followers</Text>
           </View>
         </View>
 
+        {!isFollowing && (
+          <TouchableOpacity style={styles.followButton} onPress={handleFollow}>
+            <Text style={styles.followButtonText}>Follow</Text>
+          </TouchableOpacity>
+        )}
         <View style={styles.previewContainer}>
           <Text style={styles.sectionTitle}>Posts</Text>
           {profileData.posts.length > 0 ? (

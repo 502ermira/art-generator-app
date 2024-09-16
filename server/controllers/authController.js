@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Follower = require('../models/Follower');
 
 exports.signup = async (req, res) => {
   const { username, email, password, fullname, profilePicture } = req.body;
@@ -178,9 +179,8 @@ exports.searchUsers = async (req, res) => {
   }
 };
 
-// Fetch another user's profile by their username
 exports.getUserProfileByUsername = async (req, res) => {
-  const { username } = req.params; // Get username from route parameters
+  const { username } = req.params;
   try {
     const user = await User.findOne({ username }).select('fullname username profilePicture posts');
     if (!user) {
@@ -191,3 +191,52 @@ exports.getUserProfileByUsername = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch user profile' });
   }
 };
+
+exports.followUser = async (req, res) => {
+  const { userId: followerId } = req;
+  const { username } = req.params;
+
+  try {
+    const followingUser = await User.findOne({ username });
+    if (!followingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const alreadyFollowing = await Follower.findOne({
+      followerId,
+      followingId: followingUser._id,
+    });
+
+    if (alreadyFollowing) {
+      return res.status(400).json({ error: 'You are already following this user' });
+    }
+
+    const newFollow = new Follower({
+      followerId,
+      followingId: followingUser._id,
+    });
+
+    await newFollow.save();
+    res.status(200).json({ message: 'Followed successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to follow user' });
+  }
+};
+
+exports.getFollowCount = async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const followCount = await Follower.countDocuments({ followingId: user._id });
+    res.json({ followCount });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch follow count' });
+  }
+};
+
+
