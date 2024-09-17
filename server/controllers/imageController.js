@@ -1,8 +1,11 @@
 const { HfInference } = require('@huggingface/inference');
 const inference = new HfInference(process.env.HUGGINGFACE_API_KEY);
+const Image = require('../models/Image');
+const User = require('../models/User');
 
 exports.generateImage = async (req, res) => {
-  const prompt = req.body.prompt;
+  const { prompt } = req.body;
+  const userId = req.userId;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' });
@@ -23,6 +26,13 @@ exports.generateImage = async (req, res) => {
     if (result) {
       const base64Image = Buffer.from(await result.arrayBuffer()).toString('base64');
       const imageUrl = `data:image/png;base64,${base64Image}`;
+
+      const newImage = new Image({
+        prompt,
+        image: imageUrl,
+        user: userId || null,
+      });
+      await newImage.save();
 
       res.status(200).json({ image: imageUrl });
     } else {

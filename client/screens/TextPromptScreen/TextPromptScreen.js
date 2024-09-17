@@ -50,11 +50,12 @@ export default function TextPromptScreen() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: token ? `Bearer ${token}` : '',
         },
         body: JSON.stringify({ prompt }),
       });
       const data = await response.json();
-
+  
       if (response.ok) {
         setImageUrl(data.image);
       } else {
@@ -65,7 +66,7 @@ export default function TextPromptScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const saveFavorite = async (image) => {
     if (token) {
@@ -85,7 +86,7 @@ export default function TextPromptScreen() {
       await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
     }
   };
-
+  
   const previewFavorites = favorites.slice(0, 6);
 
   return (

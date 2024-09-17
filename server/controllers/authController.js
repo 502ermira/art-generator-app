@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Follower = require('../models/Follower');
+const Image = require('../models/Image');
 
 exports.signup = async (req, res) => {
   const { username, email, password, fullname, profilePicture } = req.body;
@@ -42,26 +43,26 @@ exports.login = async (req, res) => {
     }
   };  
 
-exports.getFavorites = async (req, res) => {
-  try {
-    const user = await User.findById(req.userId);
-    res.json({ favorites: user.favorites });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch favorites' });
-  }
-};
-
-exports.addFavorite = async (req, res) => {
-  const { image } = req.body;
-  try {
-    const user = await User.findById(req.userId);
-    user.favorites.push(image);
-    await user.save();
-    res.json({ message: 'Favorite added', favorites: user.favorites });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to add favorite' });
-  }
-};
+  exports.getFavorites = async (req, res) => {
+    try {
+      const user = await User.findById(req.userId).populate('favorites');
+      res.json({ favorites: user.favorites });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch favorites' });
+    }
+  };
+  
+  exports.addFavorite = async (req, res) => {
+    const { image } = req.body;
+    try {
+      const user = await User.findById(req.userId);
+      user.favorites.push(image);
+      await user.save();
+      res.json({ message: 'Favorite added', favorites: user.favorites });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to add favorite' });
+    }
+  };
 
 exports.getProfile = async (req, res) => {
   try {
