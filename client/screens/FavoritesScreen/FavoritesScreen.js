@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, ScrollView, Image, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, Image, Modal, TouchableOpacity, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../../contexts/UserContext';
 import styles from './FavoritesScreenStyles';
@@ -10,6 +10,8 @@ export default function FavoritesScreen() {
   const [token, setToken] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [description, setDescription] = useState('');
+  const [inputModalVisible, setInputModalVisible] = useState(false);
 
   useEffect(() => {
     const loadFavorites = async () => {
@@ -45,7 +47,19 @@ export default function FavoritesScreen() {
     setSelectedImage(null);
   };
 
-  const shareImage = async (image) => {
+  const openInputModal = (imageUrl) => {
+    setSelectedImage(imageUrl);
+    setInputModalVisible(true);
+  };
+
+  const closeInputModal = () => {
+    setInputModalVisible(false);
+    setDescription('');
+  };
+
+  const shareImage = async () => {
+    if (!selectedImage) return;
+
     try {
       const response = await fetch('http://192.168.1.145:5000/auth/share', {
         method: 'POST',
@@ -53,11 +67,15 @@ export default function FavoritesScreen() {
           Authorization: token,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ image }),
+        body: JSON.stringify({
+          image: { url: selectedImage, prompt: description },
+          description
+        }),
       });
-  
+
       if (response.ok) {
         alert('Image shared successfully!');
+        closeInputModal();
       } else {
         const errorData = await response.json();
         console.error(errorData);
@@ -79,7 +97,7 @@ export default function FavoritesScreen() {
               <TouchableOpacity onPress={() => openModal(favorite)}>
                 <Image source={{ uri: favorite }} style={styles.favoriteImage} />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => shareImage(favorite)} style={styles.shareButton}>
+              <TouchableOpacity onPress={() => openInputModal(favorite)} style={styles.shareButton}>
                 <Text style={styles.shareButtonText}>Share</Text>
               </TouchableOpacity>
             </View>
@@ -102,6 +120,31 @@ export default function FavoritesScreen() {
           {selectedImage && (
             <Image source={{ uri: selectedImage }} style={styles.fullscreenImage} />
           )}
+        </View>
+      </Modal>
+
+      <Modal
+        visible={inputModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={closeInputModal}
+      >
+        <View style={styles.inputModalBackground}>
+          <View style={styles.inputModalContent}>
+            <Text style={styles.modalTitle}>Enter a description for this image (optional):</Text>
+            <TextInput
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Enter description"
+              style={styles.input}
+            />
+            <TouchableOpacity onPress={shareImage} style={styles.submitButton}>
+              <Text style={styles.submitButtonText}>Share</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={closeInputModal} style={styles.cancelButton}>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     </ScrollView>

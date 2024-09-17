@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Follower = require('../models/Follower');
 const Image = require('../models/Image');
+const Post = require('../models/Post');
 
 exports.signup = async (req, res) => {
   const { username, email, password, fullname, profilePicture } = req.body;
@@ -138,7 +139,7 @@ exports.changePassword = async (req, res) => {
 };
 
 exports.postImage = async (req, res) => {
-  const { image } = req.body;
+  const { image, description } = req.body;
   const { authorization } = req.headers;
 
   try {
@@ -149,10 +150,23 @@ exports.postImage = async (req, res) => {
       return res.status(401).json({ error: 'User not found' });
     }
 
-    user.posts.push(image);
-    await user.save();
+    const newImage = new Image({
+      prompt: image.prompt,
+      image: image.url,
+      user: user._id,
+    });
 
-    res.status(200).json({ message: 'Image shared successfully', posts: user.posts });
+    await newImage.save();
+
+    const newPost = new Post({
+      image: newImage._id,
+      description,
+      user: user._id
+    });
+
+    await newPost.save();
+
+    res.status(200).json({ message: 'Image shared successfully', post: newPost });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
@@ -187,6 +201,7 @@ exports.getUserProfileByUsername = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch user profile' });
