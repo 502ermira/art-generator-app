@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Follower = require('../models/Follower');
 const Image = require('../models/Image');
 const Post = require('../models/Post');
+const Like = require('../models/Like');
 
 exports.signup = async (req, res) => {
   const { username, email, password, fullname, profilePicture } = req.body;
@@ -199,8 +200,16 @@ exports.getUserPosts = async (req, res) => {
 
 exports.getPostById = async (req, res) => {
   const { postId } = req.params;
+  const { authorization } = req.headers;
 
   try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
     const post = await Post.findById(postId)
       .populate('image', 'image prompt')
       .populate('user', 'username fullname profilePicture');
@@ -209,7 +218,14 @@ exports.getPostById = async (req, res) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
-    res.json(post);
+    const likesCount = await Like.countDocuments({ post: postId });
+    const isLikedByUser = await Like.findOne({ post: postId, user: user._id });
+
+    res.json({
+      ...post.toObject(),
+      likes: likesCount,
+      isLikedByUser: !!isLikedByUser,
+    });
   } catch (error) {
     console.error('Error fetching post:', error);
     res.status(500).json({ error: 'Failed to fetch post' });
@@ -371,3 +387,59 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ error: 'Failed to update password' });
   }
 };
+
+exports.likePost = async (req, res) => {
+  const { postId } = req.params;
+  const { authorization } = req.headers;
+
+  try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const existingLike = await Like.findOne({ post: postId, user: user._id });
+    
+    if (existingLike) {
+      await Like.deleteOne({ _id: existingLike._id });
+      return res.status(200).json({ message: 'Post unliked' });
+    }
+
+    const newLike = new Like({
+      post: postId,
+      user: user._id,
+    });
+
+    await newLike.save();
+    res.status(201).json({ message: 'Post liked', like: newLike });
+  } catch (err) {
+    console.error('Error liking post:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+exports.getLikesByPostId = async (req, res) => {
+  const { postId } = req.params;
+
+  if (!postId || postId.length !== 24) { // Assuming postId is a MongoDB ObjectId
+    return res.status(400).json({ error: 'Invalid postId' });
+  }
+
+  try {
+    const likes = await Like.find({ post: postId })
+      .populate('user', 'username fullname profilePicture');
+
+    res.json({ likers: likes.map(like => like.user) });
+  } catch (error) {
+    console.error('Error fetching likes:', error);
+    res.status(500).json({ error: 'Failed to fetch likes' });
+  }
+};
+

@@ -20,5 +20,7 @@ router.get('/followers-following/:username', authController.getFollowersAndFollo
 router.post('/unfollow/:username', authenticateUser, authController.unfollowUser);
 router.get('/user/:username/posts', authenticateUser, authController.getUserPosts);
 router.get('/posts/:postId', authenticateUser, authController.getPostById);
+router.post('/posts/:postId/like', authenticateUser, authController.likePost);
+router.get('/posts/:postId/likes', authenticateUser, authController.getLikesByPostId);
 
 module.exports = router;

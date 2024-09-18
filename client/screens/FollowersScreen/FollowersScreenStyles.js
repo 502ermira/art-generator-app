@@ -1,12 +1,13 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#151419',
     minHeight: height,
+    width: width,
   },
   loadingContainer: {
     flex: 1,
@@ -85,7 +86,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#777',
-    paddingRight: 13,
+    paddingRight: 110,
     marginBottom:5,
     backgroundColor: '#28272C',
     borderRadius: 10,
