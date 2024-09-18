@@ -96,8 +96,8 @@ export default function PostScreen() {
       <View style={styles.likesContainer}>
 
       <TouchableOpacity onPress={handleLikesPress}>
-  <Text>{postData.likes} {postData.likes === 1 ? 'Like' : 'Likes'}</Text>
-</TouchableOpacity>
+       <Text>{postData.likes} {postData.likes === 1 ? 'Like' : 'Likes'}</Text>
+      </TouchableOpacity>
         <TouchableOpacity 
           style={postData.isLikedByUser ? styles.unlikeButton : styles.likeButton} 
           onPress={() => handleLike(postId)}
