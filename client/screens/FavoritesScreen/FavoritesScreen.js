@@ -59,7 +59,7 @@ export default function FavoritesScreen() {
 
   const shareImage = async () => {
     if (!selectedImage) return;
-
+  
     try {
       const response = await fetch('http://192.168.1.145:5000/auth/share', {
         method: 'POST',
@@ -68,11 +68,11 @@ export default function FavoritesScreen() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          image: { url: selectedImage, prompt: description },
-          description
+          image: { url: selectedImage },
+          description,
         }),
       });
-
+  
       if (response.ok) {
         alert('Image shared successfully!');
         closeInputModal();
@@ -85,7 +85,7 @@ export default function FavoritesScreen() {
       console.error(err);
       alert('Error occurred: ' + err.message);
     }
-  };
+  };  
 
   return (
     <ScrollView style={styles.scrollView}>

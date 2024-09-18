@@ -81,5 +81,14 @@ export const styles = StyleSheet.create({
   },
   followers : {
     marginRight: 9,
-  }
+  },
+  postIdText: {
+    marginTop: 5,
+    fontSize: 12,
+    color: '#666',
+  },
+  postContainer: {
+    marginBottom: 20,
+    alignItems: 'center',
+  },
 });

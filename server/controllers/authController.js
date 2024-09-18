@@ -65,113 +65,66 @@ exports.login = async (req, res) => {
     }
   };
 
-exports.getProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.userId).select('fullname username email profilePicture posts');
-    res.json(user);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch user profile' });
-  }
-};
-
-exports.updateProfile = async (req, res) => {
-  const { fullname, profilePicture, username, email } = req.body;
-
-  try {
-    const user = await User.findById(req.userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const updates = {};
-
-    if (username && username !== user.username) {
-      const usernameExists = await User.findOne({ username });
-      if (usernameExists) {
-        return res.status(400).json({ error: 'Username already taken' });
+  exports.getProfile = async (req, res) => {
+    try {
+      const user = await User.findById(req.userId)
+        .select('fullname username email profilePicture');
+  
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
       }
-      updates.username = username;
+  
+      res.json(user);
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      res.status(500).json({ error: 'Failed to fetch user profile' });
     }
+  };  
 
-    if (email && email !== user.email) {
-      const emailExists = await User.findOne({ email });
-      if (emailExists) {
-        return res.status(400).json({ error: 'Email already in use' });
+  exports.postImage = async (req, res) => {
+    const { image, description } = req.body;
+    const { authorization } = req.headers;
+  
+    try {
+      const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.userId);
+  
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
       }
-      updates.email = email;
+  
+      let existingImage = await Image.findOne({ image: image.url });
+      
+      if (!existingImage) {
+        existingImage = new Image({
+          prompt: image.prompt,
+          image: image.url,
+          user: user._id,
+        });
+  
+        await existingImage.save();
+      }
+  
+      const newPost = new Post({
+        image: existingImage._id,
+        description,
+        user: user._id
+      });
+  
+      await newPost.save();
+  
+      if (!user.posts) {
+        user.posts = [];
+      }
+      user.posts.push(newPost._id);
+      await user.save();
+  
+      res.status(200).json({ message: 'Image shared successfully', post: newPost });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal server error' });
     }
-
-    if (fullname && fullname !== user.fullname) {
-      updates.fullname = fullname;
-    }
-
-    Object.assign(user, updates);
-    user.profilePicture = profilePicture || user.profilePicture;
-
-    await user.save();
-
-    res.status(200).json({ message: 'Profile updated successfully', updates });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to update profile' });
-  }
-};
-exports.changePassword = async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
-
-  try {
-    const user = await User.findById(req.userId);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Incorrect old password' });
-    }
-
-    user.password = await bcrypt.hash(newPassword, 10);
-    await user.save();
-
-    res.status(200).json({ message: 'Password updated successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to update password' });
-  }
-};
-
-exports.postImage = async (req, res) => {
-  const { image, description } = req.body;
-  const { authorization } = req.headers;
-
-  try {
-    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId);
-
-    if (!user) {
-      return res.status(401).json({ error: 'User not found' });
-    }
-
-    const newImage = new Image({
-      prompt: image.prompt,
-      image: image.url,
-      user: user._id,
-    });
-
-    await newImage.save();
-
-    const newPost = new Post({
-      image: newImage._id,
-      description,
-      user: user._id
-    });
-
-    await newPost.save();
-
-    res.status(200).json({ message: 'Image shared successfully', post: newPost });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
+  };  
 
 exports.searchUsers = async (req, res) => {
   const { searchQuery } = req.query;
@@ -196,15 +149,70 @@ exports.searchUsers = async (req, res) => {
 
 exports.getUserProfileByUsername = async (req, res) => {
   const { username } = req.params;
+
   try {
-    const user = await User.findOne({ username }).select('fullname username profilePicture posts');
+    const user = await User.findOne({ username })
+      .select('fullname username profilePicture posts')
+      .populate({
+        path: 'posts',
+        populate: {
+          path: 'image',
+          model: 'Image',
+          select: 'image',
+        },
+      });
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    
+
     res.json(user);
   } catch (error) {
+    console.error('Error fetching user profile:', error);
     res.status(500).json({ error: 'Failed to fetch user profile' });
+  }
+};
+
+exports.getUserPosts = async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const user = await User.findOne({ username }).select('posts');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const posts = await Post.find({ _id: { $in: user.posts } })
+      .populate({
+        path: 'image',
+        model: 'Image',
+        select: 'image',
+      });
+
+    res.json(posts);
+  } catch (error) {
+    console.error('Error fetching user posts:', error);
+    res.status(500).json({ error: 'Failed to fetch user posts' });
+  }
+};
+
+exports.getPostById = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const post = await Post.findById(postId)
+      .populate('image', 'image prompt')
+      .populate('user', 'username fullname profilePicture');
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    res.json(post);
+  } catch (error) {
+    console.error('Error fetching post:', error);
+    res.status(500).json({ error: 'Failed to fetch post' });
   }
 };
 
@@ -296,5 +304,70 @@ exports.unfollowUser = async (req, res) => {
     res.status(200).json({ message: 'Unfollowed successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to unfollow user' });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  const { fullname, profilePicture, username, email } = req.body;
+
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const updates = {};
+
+    if (username && username !== user.username) {
+      const usernameExists = await User.findOne({ username });
+      if (usernameExists) {
+        return res.status(400).json({ error: 'Username already taken' });
+      }
+      updates.username = username;
+    }
+
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ error: 'Email already in use' });
+      }
+      updates.email = email;
+    }
+
+    if (fullname && fullname !== user.fullname) {
+      updates.fullname = fullname;
+    }
+
+    Object.assign(user, updates);
+    user.profilePicture = profilePicture || user.profilePicture;
+
+    await user.save();
+
+    res.status(200).json({ message: 'Profile updated successfully', updates });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+};
+
+exports.changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Incorrect old password' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update password' });
   }
 };

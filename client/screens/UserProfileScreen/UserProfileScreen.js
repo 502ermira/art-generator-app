@@ -10,6 +10,7 @@ export default function UserProfileScreen() {
   const { username } = route.params;
   const navigation = useNavigation();
   const [profileData, setProfileData] = useState(null);
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
@@ -22,16 +23,16 @@ export default function UserProfileScreen() {
           headers: { Authorization: token },
         });
         const data = await response.json();
-
+  
         if (response.ok) {
           setProfileData(data);
-
+  
           const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`);
           const followData = await followResponse.json();
           
           setFollowerCount(followData.followers.length);
           setFollowingCount(followData.following.length);
-
+  
           const isUserFollowing = followData.followers.some(
             (follower) => follower.followerId.username === loggedInUsername
           );
@@ -45,9 +46,30 @@ export default function UserProfileScreen() {
         setLoading(false);
       }
     };
-
+  
     fetchUserProfile();
   }, [username, token, loggedInUsername]);
+
+  useEffect(() => {
+    const fetchUserPosts = async () => {
+      try {
+        const response = await fetch(`http://192.168.1.145:5000/auth/user/${username}/posts`, {
+          headers: { Authorization: token },
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          setPosts(data);
+        } else {
+          console.error('Failed to fetch posts:', data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching user posts:', error);
+      }
+    };
+
+    fetchUserPosts();
+  }, [username, token]);
 
   const handleFollowToggle = async () => {
     try {
@@ -115,7 +137,7 @@ export default function UserProfileScreen() {
             </View>
           </View>
         </View>
-
+  
         <TouchableOpacity 
           style={styles.followButton} 
           onPress={handleFollowToggle}
@@ -124,19 +146,21 @@ export default function UserProfileScreen() {
             {isFollowing ? 'Following' : 'Follow'}
           </Text>
         </TouchableOpacity>
-
-        <View style={styles.previewContainer}>
-          <Text style={styles.sectionTitle}>Posts</Text>
-          {profileData.posts.length > 0 ? (
-            <View style={styles.previewGrid}>
-              {profileData.posts.map((post, index) => (
-                <Image key={index} source={{ uri: post }} style={styles.previewImage} />
-              ))}
-            </View>
-          ) : (
-            <Text>No posts available</Text>
-          )}
-        </View>
+  
+        {posts.length > 0 ? (
+          <View style={styles.previewGrid}>
+          {posts.map((post, index) => (
+          <TouchableOpacity 
+           key={index} 
+           style={styles.postContainer} 
+           onPress={() => navigation.navigate('PostScreen', { postId: post._id })}>
+           <Image source={{ uri: post.image.image }} style={styles.previewImage} />
+          </TouchableOpacity>
+          ))}
+          </View>
+        ) : (
+          <Text>No posts available</Text>
+        )}
       </View>
     </ScrollView>
   );

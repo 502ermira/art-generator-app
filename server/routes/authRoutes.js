@@ -9,14 +9,16 @@ router.post('/login', authController.login);
 router.get('/favorites', authenticateUser, authController.getFavorites);
 router.post('/favorites', authenticateUser, authController.addFavorite);
 router.get('/profile', authenticateUser, authController.getProfile);
+router.post('/share', authenticateUser, authController.postImage);
+router.get('/user/:username', authenticateUser, authController.getUserProfileByUsername);
 router.put('/profile', authenticateUser, authController.updateProfile);
 router.put('/change-password', authenticateUser, authController.changePassword);
-router.post('/share', authenticateUser, authController.postImage);
 router.get('/search-users', authenticateUser, authController.searchUsers);
-router.get('/user/:username', authenticateUser, authController.getUserProfileByUsername);
 router.post('/follow/:username', authenticateUser, authController.followUser);
 router.get('/follow-count/:username', authController.getFollowCount);
 router.get('/followers-following/:username', authController.getFollowersAndFollowing);
 router.post('/unfollow/:username', authenticateUser, authController.unfollowUser);
+router.get('/user/:username/posts', authenticateUser, authController.getUserPosts);
+router.get('/posts/:postId', authenticateUser, authController.getPostById);
 
 module.exports = router;

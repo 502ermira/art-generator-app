@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -7,7 +8,7 @@ const userSchema = new mongoose.Schema({
   fullname: { type: String, required: true },
   profilePicture: { type: String },
   favorites: [{ type: String }],
-  posts: [{ type: String }],
+  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post', default: [] }],
 });
 
 module.exports = mongoose.model('User', userSchema);
