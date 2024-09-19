@@ -5,6 +5,7 @@ const Follower = require('../models/Follower');
 const Image = require('../models/Image');
 const Post = require('../models/Post');
 const Like = require('../models/Like');
+const Comment = require('../models/Comment');
 
 exports.signup = async (req, res) => {
   const { username, email, password, fullname, profilePicture } = req.body;
@@ -428,7 +429,7 @@ exports.likePost = async (req, res) => {
 exports.getLikesByPostId = async (req, res) => {
   const { postId } = req.params;
 
-  if (!postId || postId.length !== 24) { // Assuming postId is a MongoDB ObjectId
+  if (!postId || postId.length !== 24) {
     return res.status(400).json({ error: 'Invalid postId' });
   }
 
@@ -443,3 +444,45 @@ exports.getLikesByPostId = async (req, res) => {
   }
 };
 
+exports.getCommentsByPostId = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const comments = await Comment.find({ post: postId })
+      .populate('user', 'username fullname profilePicture')
+      .sort({ createdAt: -1 });
+
+    res.json(comments);
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ error: 'Failed to fetch comments' });
+  }
+};
+
+exports.addCommentToPost = async (req, res) => {
+  const { postId } = req.params;
+  const { content } = req.body;
+  const { authorization } = req.headers;
+
+  try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    const newComment = new Comment({
+      post: postId,
+      user: user._id,
+      content,
+    });
+
+    await newComment.save();
+
+    res.json(newComment);
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ error: 'Failed to add comment' });
+  }
+};

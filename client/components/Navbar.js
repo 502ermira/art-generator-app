@@ -33,6 +33,9 @@ export default function Navbar() {
       ) : (
         // Navbar for Logged In Users (Bottom Navbar)
         <View style={styles.navbarBottomContainer}>
+          <TouchableOpacity onPress={() => navigation.navigate('TextPromptScreen')}>
+            <Icon name="home" style={styles.navIcon} />
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.searchButton}
             onPress={() => navigation.navigate('SearchScreen')}>

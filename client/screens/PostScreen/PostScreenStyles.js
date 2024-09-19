@@ -24,8 +24,8 @@ export const styles = StyleSheet.create({
     marginBottom: 13,
   },
   profileImage: {
-    width: 50,
-    height: 50,
+    width: 53,
+    height: 53,
     borderRadius: 25,
     marginRight: 10,
   },
@@ -34,10 +34,11 @@ export const styles = StyleSheet.create({
   },
   fullname: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 17.5,
   },
   username: {
     color: '#888',
+    fontSize: 15,
   },
   postImage: {
     width: '100%',
@@ -65,49 +66,73 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 10,
+    textAlign: 'center',
+  },
+  likeIcon: {
+    marginRight: 8,
   },
   likeButton: {
-    backgroundColor: '#007BFF',
     padding: 10,
-    borderRadius: 5,
-    marginLeft: 10,
+    borderRadius: 50,
   },
   unlikeButton: {
-    backgroundColor: '#FFC107',
     padding: 10,
-    borderRadius: 5,
-    marginLeft: 10,
+    borderRadius: 50,
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  commentsSection: {
+    marginTop: 5,
+    paddingTop: 16,
+    textAlign: 'center',
+    justifyItems : 'center',
   },
-  modalContainer: {
-    flex: 1,
+  commentsTitle: {
+    fontSize: 17,
+    marginBottom: 12,
+  },
+  comment: {
+    paddingHorizontal: 9,
+    paddingVertical: 13,
+    backgroundColor: '#f9f9f9',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyItems: 'center',
+    alignContent: 'center',
+    textAlign: 'center',
+  },
+  profileImageComment : {
+    width: 30,
+    height: 30,
+    borderRadius: 50,
+    marginRight: 10,
+  },
+  commentUser: {
+    marginBottom: 4,
+    fontSize: 15,
     justifyContent: 'center',
+  },
+  commentInputContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    width: width * 0.8,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  modalText: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  closeButton: {
-    backgroundColor: '#007BFF',
-    padding: 10,
-    borderRadius: 5,
+    justifyContent: 'space-between',
     marginTop: 10,
+  },
+  commentInput: {
+    flex: 1,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginRight: 10,
+    fontSize: 14,
+  },
+  commentButton: {
     alignItems: 'center',
+    flexDirection: 'row',
+  },
+  commentIcon: {
+    marginLeft: 12,
+  },
+  submitIcon: {
+    paddingHorizontal: 7,
   },
 });

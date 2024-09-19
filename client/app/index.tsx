@@ -12,6 +12,7 @@ import UserProfileScreen from '../screens/UserProfileScreen/UserProfileScreen';
 import PostScreen from '../screens/PostScreen/PostScreen';
 import FollowersScreen from '../screens/FollowersScreen/FollowersScreen';
 import LikesScreen from '../screens/LikesScreen/LikesScreen';
+import CommentsScreen from '../screens/CommentsScreen/CommentsScreen.js';
 import Navbar from '../components/Navbar';
 import { UserProvider } from '../contexts/UserContext';
 
@@ -35,6 +36,7 @@ export default function Index() {
           <Stack.Screen name="Following" component={FollowersScreen} />
           <Stack.Screen name="LikesScreen" component={LikesScreen} />
           <Stack.Screen name="PostScreen" component={PostScreen} />
+          <Stack.Screen name="CommentsScreen" component={CommentsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>
