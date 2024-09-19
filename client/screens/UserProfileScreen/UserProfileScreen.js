@@ -121,14 +121,12 @@ export default function UserProfileScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <CustomHeader title={`${profileData.fullname}'s Profile`} />
+      <CustomHeader title={`${profileData.username}`} screenType="UserProfileScreen" />
       <View style={styles.container}>
         <View style={styles.profileHeader}>
           <Image source={{ uri: profileData.profilePicture }} style={styles.profileImage} />
           <View style={styles.profileInfo}>
             <Text style={styles.fullname}>{profileData.fullname}</Text>
-            <Text style={styles.username}>@{profileData.username}</Text>
-            
             <View style={styles.followInfo}>
               <TouchableOpacity onPress={navigateToFollowers}>
                 <Text style={styles.followers}>{followerCount} Followers</Text>

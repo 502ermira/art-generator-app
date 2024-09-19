@@ -74,6 +74,11 @@ export default function FollowersFollowingScreen() {
     }
   };
 
+  const getHeaderTitle = () => {
+    const possessiveUsername = username.endsWith('s') ? `${username}'` : `${username}'s`;
+    return `${possessiveUsername} ${type === 'followers' ? 'Followers' : 'Following'}`;
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -107,7 +112,7 @@ export default function FollowersFollowingScreen() {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title={type === 'followers' ? 'Followers' : 'Following'} />
+      <CustomHeader title={getHeaderTitle()} screenType={null}/>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {type === 'followers' ? (

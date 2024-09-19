@@ -10,7 +10,7 @@ export default function PostScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { postId } = route.params;
-  const { token } = useContext(UserContext);
+  const { token , username} = useContext(UserContext);
   const [postData, setPostData] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -119,7 +119,7 @@ export default function PostScreen() {
       </View>
     );
   }
-
+  
   const formattedDate = new Date(postData.sharedAt).toLocaleDateString();
   const formattedTime = new Date(postData.sharedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 
@@ -148,7 +148,7 @@ export default function PostScreen() {
           {postData.isLikedByUser ? (
             <Icon name="heart" style={styles.likeIcon} size={25} color="red" />
           ) : (
-            <Icon name="heart-o" style={styles.likeIcon} size={25} color="red" />
+            <Icon name="heart-o" style={styles.likeIcon} size={25} color="black" />
           )}
         </TouchableOpacity>
 

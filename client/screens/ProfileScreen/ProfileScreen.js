@@ -21,11 +21,20 @@ export default function ProfileScreen({ navigation }) {
           });
           const data = await response.json();
           setUserData(data);
-          setPosts(data.posts || []);
+
+          const postsResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/posts`, {
+            headers: { Authorization: token },
+          });
+          const postsData = await postsResponse.json();
+
+          if (postsResponse.ok) {
+            setPosts(postsData);
+          } else {
+            console.error('Failed to fetch posts:', postsData.error);
+          }
 
           const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${loggedInUsername}`);
           const followData = await followResponse.json();
-
           setFollowerCount(followData.followers.length);
           setFollowingCount(followData.following.length);
 
@@ -57,14 +66,13 @@ export default function ProfileScreen({ navigation }) {
 
   return (
     <>
-      <CustomHeader title="Profile" />
+      <CustomHeader title={loggedInUsername} screenType='ProfileScreen'/>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.container}>
           <View style={styles.profileHeader}>
             <Image source={{ uri: userData.profilePicture }} style={styles.profileImage} />
             <View style={styles.profileInfo}>
               <Text style={styles.fullname}>{userData.fullname}</Text>
-              <Text style={styles.username}>@{userData.username}</Text>
 
               <View style={styles.followInfo}>
                 <TouchableOpacity onPress={navigateToFollowers}>
@@ -86,10 +94,16 @@ export default function ProfileScreen({ navigation }) {
 
           <View style={styles.previewContainer}>
             <Text style={styles.sectionTitle}>Your Posts</Text>
+
             {posts.length > 0 ? (
               <View style={styles.previewGrid}>
                 {posts.map((post, index) => (
-                  <Image key={index} source={{ uri: post }} style={styles.previewImage} />
+                  <TouchableOpacity 
+                    key={index} 
+                    style={styles.postContainer} 
+                    onPress={() => navigation.navigate('PostScreen', { postId: post._id })}>
+                    <Image source={{ uri: post.image.image }} style={styles.previewImage} />
+                  </TouchableOpacity>
                 ))}
               </View>
             ) : (
