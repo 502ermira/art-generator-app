@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 20,
     textAlign: 'center',
+    marginTop: -50,
   },
   input: {
     width: '100%',
@@ -54,35 +55,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   imageButton: {
+    padding: 40,
+    backgroundColor: '#7049f6',
+    borderRadius: 100,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#eee',
-    borderRadius: 12,
-    width: 100,
-    height: 100,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ddd',
-  },
-  imagePlaceholderText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  imageButton: {
-    padding: 10,
-    backgroundColor: '#007BFF',
-    borderRadius: 8,
-    marginBottom: 20,
+    width: 120,
+    height: 120,
+    borderColor:'#5029d6',
+    borderWidth:2.5,
   },
   imageButtonText: {
-    color: '#fff',
+    color: '#f0f0f0',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
   profileImage: {
     width:120,
     height:120,
   },
+  label : {
+    color: '#f0f0f0',
+    fontSize: 15,
+    fontWeight: '500',
+    marginTop: -8,
+    marginBottom: 18,
+  }
 });
 
 export { styles };

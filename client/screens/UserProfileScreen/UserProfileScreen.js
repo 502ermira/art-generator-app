@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
 import { styles } from './UserProfileScreenStyles';
+import CustomHeader from '@/components/CustomHeader';
 
 export default function UserProfileScreen() {
   const { token, username: loggedInUsername } = useContext(UserContext);
@@ -95,11 +96,11 @@ export default function UserProfileScreen() {
   };
 
   const navigateToFollowers = () => {
-    navigation.navigate('Followers', { username, type: 'followers' });
+    navigation.push('Followers', { username, type: 'followers' });
   };
 
   const navigateToFollowing = () => {
-    navigation.navigate('Following', { username, type: 'following' });
+    navigation.push('Following', { username, type: 'following' });
   };
 
   if (loading) {
@@ -120,6 +121,7 @@ export default function UserProfileScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <CustomHeader title={`${profileData.fullname}'s Profile`} />
       <View style={styles.container}>
         <View style={styles.profileHeader}>
           <Image source={{ uri: profileData.profilePicture }} style={styles.profileImage} />

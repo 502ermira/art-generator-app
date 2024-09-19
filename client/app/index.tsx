@@ -14,6 +14,7 @@ import FollowersScreen from '../screens/FollowersScreen/FollowersScreen';
 import LikesScreen from '../screens/LikesScreen/LikesScreen';
 import CommentsScreen from '../screens/CommentsScreen/CommentsScreen.js';
 import Navbar from '../components/Navbar';
+import CustomHeader from '../components/CustomHeader';
 import { UserProvider } from '../contexts/UserContext';
 
 const Stack = createNativeStackNavigator();
@@ -25,18 +26,18 @@ export default function Index() {
         <Navbar />
         <Stack.Navigator initialRouteName="TextPromptScreen">
           <Stack.Screen name="TextPromptScreen" component={TextPromptScreen} options={{ headerShown : false}} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Signup" component={SignupScreen} />
-          <Stack.Screen name="FavoritesScreen" component={FavoritesScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown : false}}/>
+          <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown : false}}/>
+          <Stack.Screen name="FavoritesScreen" component={FavoritesScreen} options={{ headerShown : false}}/>
+          <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown : false}}/>
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-          <Stack.Screen name="SearchScreen" component={SearchScreen} />
-          <Stack.Screen name="UserProfile" component={UserProfileScreen} />
-          <Stack.Screen name="Followers" component={FollowersScreen} />
-          <Stack.Screen name="Following" component={FollowersScreen} />
-          <Stack.Screen name="LikesScreen" component={LikesScreen} />
-          <Stack.Screen name="PostScreen" component={PostScreen} />
-          <Stack.Screen name="CommentsScreen" component={CommentsScreen} />
+          <Stack.Screen name="SearchScreen" component={SearchScreen} options={{ headerShown : false}} />
+          <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ headerShown : false}}/>
+          <Stack.Screen name="Followers" component={FollowersScreen} options={{ headerShown : false}}/>
+          <Stack.Screen name="Following" component={FollowersScreen} options={{ headerShown : false}}/>
+          <Stack.Screen name="LikesScreen" component={LikesScreen} options={{ headerShown : false}}/>
+          <Stack.Screen name="PostScreen" component={PostScreen} options={{ headerShown : false}} />
+          <Stack.Screen name="CommentsScreen" component={CommentsScreen} options={{ headerShown : false}} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

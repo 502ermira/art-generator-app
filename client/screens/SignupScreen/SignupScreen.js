@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import Loader from '../../components/Loader.js';
 import { styles } from './SignupScreenStyles';
 
@@ -74,10 +75,11 @@ export default function SignupScreen({ navigation }) {
               <Image source={{ uri: profilePicture }} style={styles.profileImage} />
             ) : (
               <View style={styles.imagePlaceholder}>
-                <Text style={styles.imageButtonText}>Select Image</Text>
+                <Text style={styles.imageButtonText}><Icon name="image"size={30} color="#eee" /></Text>
               </View>
             )}
           </TouchableOpacity>
+          <Text style={styles.label}>Choose Your Profile Picture</Text>
           <TextInput
             style={styles.input}
             placeholder="Fullname"

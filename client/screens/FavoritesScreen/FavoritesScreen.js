@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Image, Modal, TouchableOpacity, TextInput } fro
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../../contexts/UserContext';
 import styles from './FavoritesScreenStyles';
+import CustomHeader from '../../components/CustomHeader';
 
 export default function FavoritesScreen() {
   const { isLoggedIn } = useContext(UserContext);
@@ -59,7 +60,7 @@ export default function FavoritesScreen() {
 
   const shareImage = async () => {
     if (!selectedImage) return;
-  
+
     try {
       const response = await fetch('http://192.168.1.145:5000/auth/share', {
         method: 'POST',
@@ -72,7 +73,7 @@ export default function FavoritesScreen() {
           description,
         }),
       });
-  
+
       if (response.ok) {
         alert('Image shared successfully!');
         closeInputModal();
@@ -85,27 +86,30 @@ export default function FavoritesScreen() {
       console.error(err);
       alert('Error occurred: ' + err.message);
     }
-  };  
+  };
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Your Favorite Images</Text>
-        {favorites.length > 0 ? (
-          favorites.map((favorite, index) => (
-            <View key={index}>
-              <TouchableOpacity onPress={() => openModal(favorite)}>
-                <Image source={{ uri: favorite }} style={styles.favoriteImage} />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => openInputModal(favorite)} style={styles.shareButton}>
-                <Text style={styles.shareButtonText}>Share</Text>
-              </TouchableOpacity>
-            </View>
-          ))
-        ) : (
-          <Text>No favorites yet.</Text>
-        )}
-      </View>
+    <View style={{ flex: 1 }}>
+      <CustomHeader title="Favorites" />
+      <ScrollView style={[styles.scrollView, { paddingTop: 60 }]}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Your Favorite Images</Text>
+          {favorites.length > 0 ? (
+            favorites.map((favorite, index) => (
+              <View key={index}>
+                <TouchableOpacity onPress={() => openModal(favorite)}>
+                  <Image source={{ uri: favorite }} style={styles.favoriteImage} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => openInputModal(favorite)} style={styles.shareButton}>
+                  <Text style={styles.shareButtonText}>Share</Text>
+                </TouchableOpacity>
+              </View>
+            ))
+          ) : (
+            <Text>No favorites yet.</Text>
+          )}
+        </View>
+      </ScrollView>
 
       <Modal
         visible={modalVisible}
@@ -147,6 +151,6 @@ export default function FavoritesScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </View>
   );
 }

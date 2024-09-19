@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { styles } from './FollowersScreenStyles';
 import { UserContext } from '../../contexts/UserContext';
+import CustomHeader from '@/components/CustomHeader';
 
 export default function FollowersFollowingScreen() {
   const route = useRoute();
@@ -67,9 +68,9 @@ export default function FollowersFollowingScreen() {
 
   const handleUserPress = (user) => {
     if (user.username === loggedInUsername) {
-      navigation.navigate('Profile');
+      navigation.push('Profile');
     } else {
-      navigation.navigate('UserProfile', { username: user.username });
+      navigation.push('UserProfile', { username: user.username });
     }
   };
 
@@ -106,6 +107,8 @@ export default function FollowersFollowingScreen() {
 
   return (
     <View style={styles.container}>
+      <CustomHeader title={type === 'followers' ? 'Followers' : 'Following'} />
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {type === 'followers' ? (
           <>

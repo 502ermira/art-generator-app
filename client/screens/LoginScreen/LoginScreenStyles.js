@@ -5,7 +5,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 25,
     backgroundColor: '#151419',
   },
   title: {
@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 20,
     textAlign: 'center',
+    marginTop: -50,
   },
   input: {
     width: '100%',

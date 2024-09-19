@@ -4,6 +4,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { styles } from './PostScreenStyles.js';
 import { UserContext } from '../../contexts/UserContext';
+import CustomHeader from '@/components/CustomHeader';
 
 export default function PostScreen() {
   const route = useRoute();
@@ -104,8 +105,12 @@ export default function PostScreen() {
   };
 
   const handleCommentsPress = () => {
-    navigation.navigate('CommentsScreen', { postId: postData._id });
-  };  
+    navigation.push('CommentsScreen', { postId: postData._id });
+  };
+
+  const handleLikesPress = () => {
+    navigation.push('LikesScreen', { postId: postData._id });
+  };
 
   if (loading) {
     return (
@@ -115,15 +120,13 @@ export default function PostScreen() {
     );
   }
 
-  const handleLikesPress = () => {
-    navigation.navigate('LikesScreen', { postId: postData._id });
-  };
-
   const formattedDate = new Date(postData.sharedAt).toLocaleDateString();
   const formattedTime = new Date(postData.sharedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <CustomHeader title="Post Details" />
+
       <View style={styles.userInfo}>
         <Image source={{ uri: postData.user.profilePicture }} style={styles.profileImage} />
         <View style={styles.userDetails}>
@@ -177,7 +180,7 @@ export default function PostScreen() {
           onChangeText={setNewComment}
         />
         <TouchableOpacity style={styles.commentSubmitButton} onPress={handleAddComment}>
-        <Icon name="paper-plane" style={styles.submitIcon} size={27} color="black" />
+          <Icon name="paper-plane" style={styles.submitIcon} size={27} color="black" />
         </TouchableOpacity>
       </View>
     </ScrollView>

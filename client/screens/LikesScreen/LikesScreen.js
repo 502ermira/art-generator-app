@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { styles } from '../FollowersScreen/FollowersScreenStyles';
+import CustomHeader from '@/components/CustomHeader';
 import { UserContext } from '../../contexts/UserContext';
 
 export default function LikesScreen() {
@@ -85,9 +86,9 @@ export default function LikesScreen() {
 
   const handleUserPress = (user) => {
     if (user.username === loggedInUsername) {
-      navigation.navigate('Profile');
+      navigation.push('Profile');
     } else {
-      navigation.navigate('UserProfile', { username: user.username });
+      navigation.push('UserProfile', { username: user.username });
     }
   };
 
@@ -124,6 +125,7 @@ export default function LikesScreen() {
 
   return (
     <View style={styles.container}>
+      <CustomHeader title="Likes" />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {likers.length > 0 ? (
           likers.map((user) => renderUserItem(user))

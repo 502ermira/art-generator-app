@@ -4,6 +4,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { styles } from './CommentsScreenStyles.js';
 import { UserContext } from '../../contexts/UserContext';
+import CustomHeader from '../../components/CustomHeader.js';
 
 export default function CommentsScreen() {
   const route = useRoute();
@@ -64,9 +65,9 @@ export default function CommentsScreen() {
 
   const handleUserPress = (username) => {
     if (username === loggedInUsername) {
-      navigation.navigate('Profile');
+      navigation.push('Profile');
     } else {
-      navigation.navigate('UserProfile', { username });
+      navigation.push('UserProfile', { username });
     }
   };
 
@@ -79,35 +80,38 @@ export default function CommentsScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.commentsTitle}>Comments</Text>
-      
-      {comments.map((comment) => (
-        <View key={comment._id} style={styles.comment}>
-          <TouchableOpacity onPress={() => handleUserPress(comment.user.username)}>
-            <Image source={{ uri: comment.user.profilePicture }} style={styles.profileImageComment} />
-          </TouchableOpacity>
-          <View style={styles.commentContent}>
-            <Text style={styles.commentUser}>{comment.user.fullname}</Text>
-            <Text style={styles.commentContentText}>{comment.content}</Text>
-            <Text style={styles.commentDate}>
-              {new Date(comment.createdAt).toLocaleTimeString([], { day:'2-digit', month: '2-digit', year:'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
-            </Text>
+    <View style={{ flex: 1 }}>
+      <CustomHeader title="Comments" />
+      <ScrollView contentContainerStyle={[styles.container, { paddingTop: 60 }]}>
+        <Text style={styles.commentsTitle}>Comments</Text>
+        
+        {comments.map((comment) => (
+          <View key={comment._id} style={styles.comment}>
+            <TouchableOpacity onPress={() => handleUserPress(comment.user.username)}>
+              <Image source={{ uri: comment.user.profilePicture }} style={styles.profileImageComment} />
+            </TouchableOpacity>
+            <View style={styles.commentContent}>
+              <Text style={styles.commentUser}>{comment.user.fullname}</Text>
+              <Text style={styles.commentContentText}>{comment.content}</Text>
+              <Text style={styles.commentDate}>
+                {new Date(comment.createdAt).toLocaleTimeString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
+              </Text>
+            </View>
           </View>
-        </View>
-      ))}
+        ))}
 
-      <View style={styles.commentInputContainer}>
-        <TextInput
-          style={styles.commentInput}
-          placeholder="Add a comment"
-          value={newComment}
-          onChangeText={setNewComment}
-        />
-        <TouchableOpacity onPress={handleAddComment}>
-          <Icon name="paper-plane" size={25} color="black" />
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        <View style={styles.commentInputContainer}>
+          <TextInput
+            style={styles.commentInput}
+            placeholder="Add a comment"
+            value={newComment}
+            onChangeText={setNewComment}
+          />
+          <TouchableOpacity onPress={handleAddComment}>
+            <Icon name="paper-plane" size={25} color="black" />
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
   );
 }

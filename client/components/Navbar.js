@@ -11,21 +11,30 @@ export default function Navbar() {
   const navigation = useNavigation();
   const { isLoggedIn, handleLogout } = useContext(UserContext);
 
+  const handleNavigation = (screen) => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: screen }],
+    });
+  };
+
   return (
     <>
       {!isLoggedIn ? (
         // Navbar for Logged Out Users (Top Navbar)
         <View style={styles.navbarTopContainer}>
+          <TouchableOpacity onPress={() => handleNavigation('TextPromptScreen')}>
           <Image source={logo} style={styles.logo} />
+          </TouchableOpacity>
           <View style={styles.authContainer}>
             <TouchableOpacity
               style={styles.authButton}
-              onPress={() => navigation.navigate('Login')}>
+              onPress={() => handleNavigation('Login')}>
               <Text style={styles.authButtonText}>Login</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.authButton}
-              onPress={() => navigation.navigate('Signup')}>
+              onPress={() => handleNavigation('Signup')}>
               <Text style={styles.authButtonText}>Signup</Text>
             </TouchableOpacity>
           </View>
@@ -33,15 +42,15 @@ export default function Navbar() {
       ) : (
         // Navbar for Logged In Users (Bottom Navbar)
         <View style={styles.navbarBottomContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate('TextPromptScreen')}>
+          <TouchableOpacity onPress={() => handleNavigation('TextPromptScreen')}>
             <Icon name="home" style={styles.navIcon} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.searchButton}
-            onPress={() => navigation.navigate('SearchScreen')}>
+            onPress={() => handleNavigation('SearchScreen')}>
             <Icon name="search" style={styles.navIcon} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+          <TouchableOpacity onPress={() => handleNavigation('Profile')}>
             <Icon name="user-circle" style={styles.navIcon} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
