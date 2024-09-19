@@ -4,10 +4,10 @@ const { height, width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   container: {
-    padding: 16,
     backgroundColor: '#fff',
     minHeight: height,
     width: width,
+    paddingBottom: 100,
   },
   loadingContainer: {
     flex: 1,
@@ -22,10 +22,12 @@ export const styles = StyleSheet.create({
   userInfo: {
     flexDirection: 'row',
     marginBottom: 13,
+    paddingHorizontal: 16,
+    paddingTop: 12,
   },
   profileImage: {
-    width: 53,
-    height: 53,
+    width: 50,
+    height: 50,
     borderRadius: 25,
     marginRight: 10,
   },
@@ -33,8 +35,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   fullname: {
-    fontWeight: 'bold',
-    fontSize: 17.5,
+    fontWeight: '600',
+    fontSize: 17,
   },
   username: {
     color: '#888',
@@ -45,59 +47,61 @@ export const styles = StyleSheet.create({
     height: undefined,
     aspectRatio: 1,
     resizeMode: 'contain',
-    marginBottom: 10,
   },
   prompt: {
     fontStyle: 'italic',
     marginBottom: 8,
     color: '#303030',
     fontSize: 15,
+    paddingLeft: 16,
   },
   description: {
-    marginBottom: 8,
     fontWeight: '600',
     fontSize: 16,
     color: '#333',
+    paddingLeft: 16,
   },
   date: {
     color: '#888',
+    paddingLeft: 16,
+    marginTop: 19,
+    fontSize: 13,
   },
   likesContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: 6,
     textAlign: 'center',
+    paddingHorizontal: 16,
   },
   likeIcon: {
-    marginRight: 8,
+    marginRight: 5,
   },
   likeButton: {
-    padding: 10,
+    padding: 9,
     borderRadius: 50,
+    marginLeft: -3,
   },
   unlikeButton: {
-    padding: 10,
+    padding: 9,
     borderRadius: 50,
+    marginLeft: -3,
   },
   commentsSection: {
-    marginTop: 5,
+    marginTop: 0,
     paddingTop: 16,
     textAlign: 'center',
     justifyItems : 'center',
   },
-  commentsTitle: {
-    fontSize: 17,
-    marginBottom: 12,
-  },
   comment: {
-    paddingHorizontal: 9,
-    paddingVertical: 13,
-    backgroundColor: '#f9f9f9',
+    paddingHorizontal: 3,
+    paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyItems: 'center',
     alignContent: 'center',
     textAlign: 'center',
+    paddingLeft: 16,
   },
   profileImageComment : {
     width: 30,
@@ -114,14 +118,15 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 3,
+    paddingHorizontal: 16,
   },
   commentInput: {
     flex: 1,
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 8,
-    padding: 10,
+    padding: 9,
     marginRight: 10,
     fontSize: 14,
   },
@@ -130,9 +135,15 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   commentIcon: {
-    marginLeft: 12,
+    marginLeft: 10,
+    marginTop: -3
   },
   submitIcon: {
-    paddingHorizontal: 7,
+    paddingRight: 2,
+  },
+  viewMoreText : {
+    marginBottom: 6,
+    paddingLeft: 16,
+    marginTop: -3,
   },
 });

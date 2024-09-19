@@ -8,6 +8,8 @@ export const styles = StyleSheet.create({
     backgroundColor: '#fff',
     minHeight: '100%',
     width: width,
+    marginTop: -29,
+    paddingBottom: 90,
   },
   loadingContainer: {
     flex: 1,

@@ -38,9 +38,9 @@ export const styles = StyleSheet.create({
     color: '#888',
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginVertical: 10,
+    fontSize: 17,
+    fontWeight: '600',
+    marginVertical: 13,
   },
   errorText: {
     fontSize: 16,
@@ -49,8 +49,8 @@ export const styles = StyleSheet.create({
   },
   previewContainer: {
     alignItems: 'center',
-    margin: 0,
-    padding: 0,
+    marginHorizontal: -8,
+    paddingTop: 12,
   },
   previewGrid: {
     flexDirection: 'row',
@@ -59,9 +59,9 @@ export const styles = StyleSheet.create({
     marginLeft: 0,
   },
   previewImage: {
-    width: 170,
-    height: 170,
-    margin: 7,
+    width: 175,
+    height: 175,
+    margin: 4,
   },
   followButton: {
     backgroundColor: '#7049f6',
@@ -82,13 +82,7 @@ export const styles = StyleSheet.create({
   followers : {
     marginRight: 9,
   },
-  postIdText: {
-    marginTop: 5,
-    fontSize: 12,
-    color: '#666',
-  },
   postContainer: {
-    marginBottom: 20,
     alignItems: 'center',
   },
 });

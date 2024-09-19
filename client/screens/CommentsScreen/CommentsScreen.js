@@ -83,7 +83,6 @@ export default function CommentsScreen() {
     <View style={{ flex: 1 }}>
       <CustomHeader title="Comments" />
       <ScrollView contentContainerStyle={[styles.container, { paddingTop: 60 }]}>
-        <Text style={styles.commentsTitle}>Comments</Text>
         
         {comments.map((comment) => (
           <View key={comment._id} style={styles.comment}>

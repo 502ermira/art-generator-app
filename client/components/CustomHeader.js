@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function CustomHeader({ title, screenType }) {
@@ -19,7 +19,7 @@ export default function CustomHeader({ title, screenType }) {
     >
       {canGoBack && (
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="black" />
+          <Ionicons name="chevron-back-outline" size={24} color="black" />
         </TouchableOpacity>
       )}
       
@@ -38,59 +38,61 @@ export default function CustomHeader({ title, screenType }) {
   );
 }
 
-const { height, width } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
   headerContainer: {
+    paddingTop:20,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    padding: 15,
+    padding: 13,
     borderBottomWidth: 1,
     borderColor: '#ccc',
     textAlign: 'center',
     justifyContent: 'space-between',
     width: '100%',
+    paddingTop:60,
   },
   headerContainerProfile: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#eee',
-    padding: 15,
+    padding: 13,
     borderBottomWidth: 1,
     borderColor: '#999',
     textAlign: 'center',
     justifyContent: 'space-between',
     width: '100%',
+    paddingTop:60,
   },
   headerContainerNew: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f8f8f8',
-    padding: 15,
+    padding: 13,
     textAlign: 'center',
     width: '100%',
     justifyContent: 'space-between',
-    paddingLeft: '45%',
+    paddingLeft: '44%',
+    paddingTop:60,
   },
   headerContainerNull: {
+    paddingTop:60,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f8f8f8',
-    padding:15,
+    padding:13,
     borderBottomWidth: 0,
     textAlign: 'center',
     width: '100%',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 0,
+    fontSize: 17.5,
+    fontWeight: '600',
   },
   backButton :{
-    marginRight: 10,
+    marginRight: 13,
   },
   menuButton : {
-    marginLeft: 14,
+    marginLeft: 20,
   }
 });

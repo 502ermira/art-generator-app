@@ -15,6 +15,7 @@ export default function PostScreen() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
+  const [visibleComments, setVisibleComments] = useState(2);
 
   useEffect(() => {
     const fetchPostData = async () => {
@@ -154,23 +155,26 @@ export default function PostScreen() {
 
         <TouchableOpacity onPress={handleCommentsPress} style={styles.commentButton}>
           <Text>{comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}</Text>
-          <Icon name="comment-o" style={styles.commentIcon} size={25} color="black" />
+          <Icon name="comment-o" style={styles.commentIcon} size={27} color="black" />
         </TouchableOpacity>
       </View>
 
       <Text style={styles.prompt}>Prompt: {postData.image.prompt || 'No prompt available'}</Text>
       <Text style={styles.description}>{postData.description || 'No description available'}</Text>
-      <Text style={styles.date}>Posted on {formattedDate} at {formattedTime}</Text>
 
       <View style={styles.commentsSection}>
-        <Text style={styles.commentsTitle}>Comments</Text>
-        {comments.map((comment) => (
-          <View key={comment._id} style={styles.comment}>
-            <Image source={{ uri: comment.user.profilePicture }} style={styles.profileImageComment} />
-            <Text style={styles.commentUser}>{comment.user.fullname}: {comment.content}</Text>
-          </View>
-        ))}
-      </View>
+      {comments.length > visibleComments && (
+        <TouchableOpacity onPress={handleCommentsPress}>
+          <Text style={styles.viewMoreText}>View {comments.length - visibleComments} more comments</Text>
+        </TouchableOpacity>
+      )}
+      {comments.slice(0, visibleComments).map((comment) => (
+        <View key={comment._id} style={styles.comment}>
+          <Image source={{ uri: comment.user.profilePicture }} style={styles.profileImageComment} />
+          <Text style={styles.commentUser}>{comment.user.fullname}: {comment.content}</Text>
+        </View>
+      ))}
+    </View>
 
       <View style={styles.commentInputContainer}>
         <TextInput
@@ -183,6 +187,7 @@ export default function PostScreen() {
           <Icon name="paper-plane" style={styles.submitIcon} size={27} color="black" />
         </TouchableOpacity>
       </View>
+      <Text style={styles.date}>Posted on {formattedDate} at {formattedTime}</Text>
     </ScrollView>
   );
 }
