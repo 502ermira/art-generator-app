@@ -40,7 +40,7 @@ exports.login = async (req, res) => {
         return res.status(400).json({ error: 'Invalid email or password' });
       }
   
-      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
       res.json({ token, username: user.username });
     } catch (error) {
       res.status(500).json({ error: 'Login failed' });
@@ -169,7 +169,17 @@ exports.getUserProfileByUsername = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json(user);
+    const reposts = await Repost.find({ user: user._id })
+      .populate({
+        path: 'post',
+        populate: {
+          path: 'image',
+          model: 'Image',
+          select: 'image',
+        },
+      });
+
+    res.json({ user, reposts });
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ error: 'Failed to fetch user profile' });
@@ -531,6 +541,32 @@ exports.getReposts = async (req, res) => {
     const reposts = await Repost.find({ post: postId })
       .populate('user', 'username fullname profilePicture')
       .sort({ repostedAt: -1 });
+
+    res.json(reposts);
+  } catch (error) {
+    console.error('Error fetching reposts:', error);
+    res.status(500).json({ error: 'Failed to fetch reposts' });
+  }
+};
+
+exports.getRepostsByUsername = async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const reposts = await Repost.find({ user: user._id })
+      .populate({
+        path: 'post',
+        populate: {
+          path: 'image',
+          model: 'Image',
+          select: 'image',
+        },
+      });
 
     res.json(reposts);
   } catch (error) {

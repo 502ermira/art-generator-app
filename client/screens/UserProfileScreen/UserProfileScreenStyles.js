@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#eee',
+    backgroundColor: '#fafafa',
     padding: 20,
   },
   scrollContainer: {
@@ -59,8 +59,8 @@ export const styles = StyleSheet.create({
     justifyContent:'center',
   },
   previewImage: {
-    width: 174,
-    height: 180,
+    width: 177,
+    height: 177,
     margin: 4,
   },
   followButton: {
@@ -85,4 +85,8 @@ export const styles = StyleSheet.create({
   postContainer: {
     alignItems: 'center',
   },
+  tabBar :{
+    backgroundColor: '#f9f9f9',
+    marginTop: 20,
+  }
 });

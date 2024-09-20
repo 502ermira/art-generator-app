@@ -1,7 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { styles } from './UserProfileScreenStyles';
 import CustomHeader from '@/components/CustomHeader';
 
@@ -12,65 +13,68 @@ export default function UserProfileScreen() {
   const navigation = useNavigation();
   const [profileData, setProfileData] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [reposts, setReposts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [routes] = useState([
+    { key: 'posts', title: 'Posts' },
+    { key: 'reposts', title: 'Reposts' },
+  ]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/user/${username}`, {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setProfileData(data.user);
+        setReposts(data.reposts);
+        const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`);
+        const followData = await followResponse.json();
+
+        setFollowerCount(followData.followers.length);
+        setFollowingCount(followData.following.length);
+
+        const isUserFollowing = followData.followers.some(
+          (follower) => follower.followerId.username === loggedInUsername
+        );
+        setIsFollowing(isUserFollowing);
+      } else {
+        console.error('Failed to fetch profile:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserPosts = async () => {
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/user/${username}/posts`, {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setPosts(data);
+      } else {
+        console.error('Failed to fetch posts:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching user posts:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await fetch(`http://192.168.1.145:5000/auth/user/${username}`, {
-          headers: { Authorization: token },
-        });
-        const data = await response.json();
-  
-        if (response.ok) {
-          setProfileData(data);
-  
-          const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`);
-          const followData = await followResponse.json();
-          
-          setFollowerCount(followData.followers.length);
-          setFollowingCount(followData.following.length);
-  
-          const isUserFollowing = followData.followers.some(
-            (follower) => follower.followerId.username === loggedInUsername
-          );
-          setIsFollowing(isUserFollowing);
-        } else {
-          console.error('Failed to fetch profile:', data.error);
-        }
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
     fetchUserProfile();
-  }, [username, token, loggedInUsername]);
-
-  useEffect(() => {
-    const fetchUserPosts = async () => {
-      try {
-        const response = await fetch(`http://192.168.1.145:5000/auth/user/${username}/posts`, {
-          headers: { Authorization: token },
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-          setPosts(data);
-        } else {
-          console.error('Failed to fetch posts:', data.error);
-        }
-      } catch (error) {
-        console.error('Error fetching user posts:', error);
-      }
-    };
-
     fetchUserPosts();
-  }, [username, token]);
+  }, [username, token, loggedInUsername]);
 
   const handleFollowToggle = async () => {
     try {
@@ -103,6 +107,51 @@ export default function UserProfileScreen() {
     navigation.push('Following', { username, type: 'following' });
   };
 
+  const PostsRoute = () => (
+    <View style={styles.tabContent}>
+      {posts.length > 0 ? (
+        <View style={styles.previewGrid}>
+          {posts.map((post, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={styles.postContainer} 
+              onPress={() => navigation.navigate('PostScreen', { postId: post._id })}
+            >
+              <Image source={{ uri: post.image.image }} style={styles.previewImage} />
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : (
+        <Text>No posts available</Text>
+      )}
+    </View>
+  );
+
+  const RepostsRoute = () => (
+    <View style={styles.tabContent}>
+      {reposts.length > 0 ? (
+        <View style={styles.previewGrid}>
+          {reposts.map((repost, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={styles.postContainer} 
+              onPress={() => navigation.navigate('PostScreen', { postId: repost.post._id })}
+            >
+              <Image source={{ uri: repost.post.image.image }} style={styles.previewImage} />
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : (
+        <Text>No reposts available</Text>
+      )}
+    </View>
+  );
+
+  const renderScene = SceneMap({
+    posts: PostsRoute,
+    reposts: RepostsRoute,
+  });
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -111,17 +160,9 @@ export default function UserProfileScreen() {
     );
   }
 
-  if (!profileData) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Failed to load profile data</Text>
-      </View>
-    );
-  }
-
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <CustomHeader title={`${profileData.username}`} screenType="UserProfileScreen" />
+      <CustomHeader title={username} screenType="UserProfileScreen" />
       <View style={styles.container}>
         <View style={styles.profileHeader}>
           <Image source={{ uri: profileData.profilePicture }} style={styles.profileImage} />
@@ -137,7 +178,7 @@ export default function UserProfileScreen() {
             </View>
           </View>
         </View>
-  
+
         <TouchableOpacity 
           style={styles.followButton} 
           onPress={handleFollowToggle}
@@ -146,21 +187,21 @@ export default function UserProfileScreen() {
             {isFollowing ? 'Following' : 'Follow'}
           </Text>
         </TouchableOpacity>
-  
-        {posts.length > 0 ? (
-          <View style={styles.previewGrid}>
-          {posts.map((post, index) => (
-          <TouchableOpacity 
-           key={index} 
-           style={styles.postContainer} 
-           onPress={() => navigation.navigate('PostScreen', { postId: post._id })}>
-           <Image source={{ uri: post.image.image }} style={styles.previewImage} />
-          </TouchableOpacity>
-          ))}
-          </View>
-        ) : (
-          <Text>No posts available</Text>
-        )}
+
+        <TabView
+          navigationState={{ index, routes }}
+          renderScene={renderScene}
+          onIndexChange={setIndex}
+          initialLayout={{ width: Dimensions.get('window').width }}
+          renderTabBar={props => (
+            <TabBar
+              {...props}
+              indicatorStyle={{ backgroundColor: '#7049f6', marginBottom:1 }}
+              style={styles.tabBar}
+              labelStyle={{ color: 'black' }}
+            />
+          )}
+        />
       </View>
     </ScrollView>
   );

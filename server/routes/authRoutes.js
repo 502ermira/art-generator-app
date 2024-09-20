@@ -26,5 +26,6 @@ router.get('/posts/:postId/comments', authenticateUser, authController.getCommen
 router.post('/posts/:postId/comments', authenticateUser, authController.addCommentToPost);
 router.post('/posts/:postId/repost', authenticateUser, authController.repostPost);
 router.get('/posts/:postId/reposts', authenticateUser, authController.getReposts);
+router.get('/user/:username/reposts', authenticateUser, authController.getRepostsByUsername);
 
 module.exports = router;
