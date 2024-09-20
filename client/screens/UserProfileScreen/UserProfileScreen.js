@@ -34,6 +34,7 @@ export default function UserProfileScreen() {
       if (response.ok) {
         setProfileData(data.user);
         setReposts(data.reposts);
+
         const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`);
         const followData = await followResponse.json();
 
@@ -111,14 +112,16 @@ export default function UserProfileScreen() {
     <View style={styles.tabContent}>
       {posts.length > 0 ? (
         <View style={styles.previewGrid}>
-          {posts.map((post, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={styles.postContainer} 
-              onPress={() => navigation.navigate('PostScreen', { postId: post._id })}
-            >
-              <Image source={{ uri: post.image.image }} style={styles.previewImage} />
-            </TouchableOpacity>
+          {posts
+            .sort((a, b) => new Date(b.sharedAt) - new Date(a.sharedAt))
+            .map((post, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={styles.postContainer} 
+                onPress={() => navigation.navigate('PostScreen', { postId: post._id })}
+              >
+                <Image source={{ uri: post.image.image }} style={styles.previewImage} />
+              </TouchableOpacity>
           ))}
         </View>
       ) : (
@@ -131,14 +134,16 @@ export default function UserProfileScreen() {
     <View style={styles.tabContent}>
       {reposts.length > 0 ? (
         <View style={styles.previewGrid}>
-          {reposts.map((repost, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={styles.postContainer} 
-              onPress={() => navigation.navigate('PostScreen', { postId: repost.post._id })}
-            >
-              <Image source={{ uri: repost.post.image.image }} style={styles.previewImage} />
-            </TouchableOpacity>
+          {reposts
+            .sort((a, b) => new Date(b.repostedAt) - new Date(a.repostedAt))
+            .map((repost, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={styles.postContainer} 
+                onPress={() => navigation.navigate('PostScreen', { postId: repost.post._id, repostedBy: username ,repostedAt: repost.repostedAt })} 
+              >
+                <Image source={{ uri: repost.post.image.image }} style={styles.previewImage} />
+              </TouchableOpacity>
           ))}
         </View>
       ) : (

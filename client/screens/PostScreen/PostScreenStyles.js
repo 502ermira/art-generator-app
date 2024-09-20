@@ -147,4 +147,19 @@ export const styles = StyleSheet.create({
     paddingLeft: 16,
     marginTop: -3,
   },
+  repostedByText: {  
+    fontSize: 15.5, 
+    fontStyle: 'italic',
+    color: '#999',
+    paddingLeft: 18,
+    paddingTop:13,
+    alignItems: 'center',
+    padding: 10,
+  },
+  repostIcon : {
+    paddingRight:8,
+  },
+  repostDate : {
+    fontSize: 14,
+  }
 });

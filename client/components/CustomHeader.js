@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fafafa',
     padding: 13,
-    borderBottomWidth: 1,
-    borderColor: '#999',
+    borderBottomWidth: 0.5,
+    borderColor: '#ccc',
     textAlign: 'center',
     justifyContent: 'space-between',
     width: '100%',
@@ -74,6 +74,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingLeft: '44%',
     paddingTop:60,
+    borderBottomWidth: 0.5,
+    borderColor: '#ccc',
   },
   headerContainerNull: {
     paddingTop:60,
@@ -84,6 +86,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
     textAlign: 'center',
     width: '100%',
+    borderBottomWidth: 0.5,
+    borderColor: '#ccc',
   },
   headerTitle: {
     fontSize: 17.5,

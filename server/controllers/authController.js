@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Follower = require('../models/Follower');
 const Image = require('../models/Image');
@@ -58,15 +59,37 @@ exports.login = async (req, res) => {
   
   exports.addFavorite = async (req, res) => {
     const { image } = req.body;
+  
+    if (!image) {
+      return res.status(400).json({ error: 'Image is required' });
+    }
+  
+    if (typeof image !== 'string') {
+      return res.status(400).json({ error: 'Image must be a string (URL)' });
+    }
+  
     try {
-      const user = await User.findById(req.userId);
+      const userId = req.userId;
+  
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+  
+      const user = await User.findById(userId);
+  
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
       user.favorites.push(image);
       await user.save();
-      res.json({ message: 'Favorite added', favorites: user.favorites });
+  
+      res.status(200).json({ message: 'Favorite added', favorites: user.favorites });
     } catch (error) {
+      console.error('Error adding favorite:', error.errors || error);
       res.status(500).json({ error: 'Failed to add favorite' });
     }
-  };
+  };  
 
   exports.getProfile = async (req, res) => {
     try {

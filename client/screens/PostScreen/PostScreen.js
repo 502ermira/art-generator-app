@@ -10,7 +10,7 @@ import CustomHeader from '@/components/CustomHeader';
 export default function PostScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { postId } = route.params;
+  const { postId, repostedBy, repostedAt } = route.params;
   const { token, username } = useContext(UserContext);
   const [postData, setPostData] = useState(null);
   const [comments, setComments] = useState([]);
@@ -160,11 +160,17 @@ export default function PostScreen() {
 
   const formattedDate = new Date(postData.sharedAt).toLocaleDateString();
   const formattedTime = new Date(postData.sharedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  const formattedRepostDate = repostedAt ? new Date(repostedAt).toLocaleTimeString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '';
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <CustomHeader title="Post Details" />
-
+      {repostedBy && repostedAt && (
+        <Text style={styles.repostedByText}>
+         <AntDesign name="retweet" style={styles.repostIcon} size={19} color={'#999'} />
+         {repostedBy} reposted on <Text style={styles.repostDate} >{formattedRepostDate}</Text>
+        </Text>
+      )}
       <View style={styles.userInfo}>
         <Image source={{ uri: postData.user.profilePicture }} style={styles.profileImage} />
         <View style={styles.userDetails}>

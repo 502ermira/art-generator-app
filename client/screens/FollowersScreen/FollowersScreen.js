@@ -8,7 +8,7 @@ import CustomHeader from '@/components/CustomHeader';
 export default function FollowersFollowingScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { username: loggedInUsername } = useContext(UserContext);
+  const { username: loggedInUsername, token } = useContext(UserContext);
   const { username, type } = route.params;
   const [loading, setLoading] = useState(true);
   const [followers, setFollowers] = useState([]);
@@ -18,7 +18,11 @@ export default function FollowersFollowingScreen() {
   useEffect(() => {
     const fetchFollowersAndFollowing = async () => {
       try {
-        const response = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`);
+        const response = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`, {
+          headers: {
+            Authorization: token,
+          },
+        });
         const data = await response.json();
         setFollowers(data.followers);
         setFollowing(data.following);
@@ -42,7 +46,7 @@ export default function FollowersFollowingScreen() {
     };
 
     fetchFollowersAndFollowing();
-  }, [username]);
+  }, [username, token]);
 
   const handleFollowToggle = async (user) => {
     const isFollowing = followingStatus[user.username];
@@ -51,7 +55,12 @@ export default function FollowersFollowingScreen() {
       : `http://192.168.1.145:5000/auth/follow/${user.username}`;
 
     try {
-      const response = await fetch(url, { method: 'POST' });
+      const response = await fetch(url, { 
+        method: 'POST',
+        headers: {
+          Authorization: token,
+        },
+      });
 
       if (response.ok) {
         setFollowingStatus((prevStatus) => ({
@@ -112,7 +121,7 @@ export default function FollowersFollowingScreen() {
 
   return (
     <View style={styles.container}>
-      <CustomHeader title={getHeaderTitle()} screenType={null}/>
+      <CustomHeader title={getHeaderTitle()} screenType={null} />
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {type === 'followers' ? (
