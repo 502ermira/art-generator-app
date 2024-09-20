@@ -24,6 +24,10 @@ export default function UserProfileScreen() {
     { key: 'reposts', title: 'Reposts' },
   ]);
 
+  const screenWidth = Dimensions.get('window').width;
+  const numColumns = screenWidth > 600 ? 3 : 2;
+  const imageSize = screenWidth / numColumns - 10;
+
   const fetchUserProfile = async () => {
     try {
       const response = await fetch(`http://192.168.1.145:5000/auth/user/${username}`, {
@@ -120,7 +124,7 @@ export default function UserProfileScreen() {
                 style={styles.postContainer} 
                 onPress={() => navigation.navigate('PostScreen', { postId: post._id })}
               >
-                <Image source={{ uri: post.image.image }} style={styles.previewImage} />
+                <Image source={{ uri: post.image.image }} style={[styles.postContainer, { width: imageSize, height: imageSize }]}  />
               </TouchableOpacity>
           ))}
         </View>
@@ -139,7 +143,7 @@ export default function UserProfileScreen() {
             .map((repost, index) => (
               <TouchableOpacity 
                 key={index} 
-                style={styles.postContainer} 
+                style={[styles.postContainer, { width: imageSize, height: imageSize }]} 
                 onPress={() => navigation.navigate('PostScreen', { postId: repost.post._id, repostedBy: username ,repostedAt: repost.repostedAt })} 
               >
                 <Image source={{ uri: repost.post.image.image }} style={styles.previewImage} />

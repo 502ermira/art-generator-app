@@ -4,7 +4,8 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fafafa',
-    padding: 20,
+    padding: 0,
+    paddingBottom: 100,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -18,6 +19,8 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
+    paddingHorizontal: 20,
+    paddingTop:20,
   },
   profileImage: {
     width: 100,
@@ -33,35 +36,26 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  username: {
-    fontSize: 18,
-    color: '#888',
+  followInfo: {
+    flexDirection: 'row',
+    marginTop: 10,
   },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginVertical: 13,
-  },
-  errorText: {
-    fontSize: 16,
-    color: 'red',
-    textAlign: 'center',
-  },
-  previewContainer: {
-    alignItems: 'center',
-    paddingTop: 12,
+  followers: {
+    marginRight: 9,
   },
   previewGrid: {
     flexDirection: 'row',
-    flexWrap : 'wrap',
-    marginHorizontal: -15,
-    alignItems: 'flex-start',
-    justifyContent:'center',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
   },
   previewImage: {
-    width: 177,
-    height: 177,
-    margin: 4,
+    width: '100%',
+    height: '100%',
+  },
+  postContainer: {
+    overflow: 'hidden',
+    padding: 3,
+    justifyContent: 'flex-start',
   },
   followButton: {
     backgroundColor: '#7049f6',
@@ -69,24 +63,17 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 5,
     marginTop: 10,
+    marginHorizontal: 25,
   },
   followButtonText: {
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
   },
-  followInfo: {
-    flexDirection: 'row',
-    marginTop: 10,
-  },
-  followers : {
-    marginRight: 9,
-  },
-  postContainer: {
-    alignItems: 'center',
-  },
-  tabBar :{
-    backgroundColor: '#f9f9f9',
+  tabBar: {
+    backgroundColor: '#fafafa',
     marginTop: 20,
-  }
+    marginRight: 15,
+    marginLeft: 15,
+  },
 });
