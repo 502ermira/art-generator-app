@@ -17,6 +17,7 @@ export default function PostScreen() {
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
   const [visibleComments, setVisibleComments] = useState(2);
+  const [isRepostedByUser, setIsRepostedByUser] = useState(false);
 
   useEffect(() => {
     const fetchPostData = async () => {
@@ -25,9 +26,15 @@ export default function PostScreen() {
           headers: { Authorization: token },
         });
         const data = await response.json();
-
+  
         if (response.ok) {
           setPostData(data);
+          const repostResponse = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/reposts`, {
+            headers: { Authorization: token },
+          });
+          const reposts = await repostResponse.json();
+          const hasReposted = reposts.some(repost => repost.user.username === username);
+          setIsRepostedByUser(hasReposted);
         } else {
           console.error('Failed to fetch post:', data.error);
         }
@@ -85,26 +92,28 @@ export default function PostScreen() {
 
   const handleRepost = async () => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/repost`, {
+      const url = `http://192.168.1.145:5000/auth/posts/${postId}/repost`;
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           Authorization: token,
         },
       });
-
+  
       const data = await response.json();
       if (response.ok) {
         setPostData((prev) => ({
           ...prev,
-          reposts: prev.reposts + 1,
+          reposts: isRepostedByUser ? prev.reposts - 1 : prev.reposts + 1,
         }));
+        setIsRepostedByUser(!isRepostedByUser);
       } else {
-        console.error('Failed to repost:', data.error);
+        console.error(data.error);
       }
     } catch (error) {
-      console.error('Error reposting post:', error);
+      console.error('Error handling repost:', error);
     }
-  };
+  };  
 
   const handleAddComment = async () => {
     try {
@@ -191,7 +200,7 @@ export default function PostScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleRepost} style={styles.repostButton}>
-          <AntDesign name="retweet" style={styles.commentIcon} size={25.5} color="black" />
+          <AntDesign name="retweet" style={styles.commentIcon} size={25.5} color={isRepostedByUser ? 'green' : 'black'}  />
         </TouchableOpacity>
       </View>
 

@@ -508,8 +508,10 @@ exports.repostPost = async (req, res) => {
     }
 
     const existingRepost = await Repost.findOne({ user: user._id, post: postId });
+
     if (existingRepost) {
-      return res.status(400).json({ error: 'You have already reposted this post' });
+      await Repost.deleteOne({ _id: existingRepost._id });
+      return res.status(200).json({ message: 'Post unreposted successfully' });
     }
 
     const repost = new Repost({ user: user._id, post: postId });
