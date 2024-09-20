@@ -6,6 +6,7 @@ const Image = require('../models/Image');
 const Post = require('../models/Post');
 const Like = require('../models/Like');
 const Comment = require('../models/Comment');
+const Repost = require('../models/Repost');
 
 exports.signup = async (req, res) => {
   const { username, email, password, fullname, profilePicture } = req.body;
@@ -220,11 +221,13 @@ exports.getPostById = async (req, res) => {
     }
 
     const likesCount = await Like.countDocuments({ post: postId });
+    const repostsCount = await Repost.countDocuments({ post: postId });
     const isLikedByUser = await Like.findOne({ post: postId, user: user._id });
 
     res.json({
       ...post.toObject(),
       likes: likesCount,
+      reposts: repostsCount,
       isLikedByUser: !!isLikedByUser,
     });
   } catch (error) {
@@ -484,5 +487,52 @@ exports.addCommentToPost = async (req, res) => {
   } catch (error) {
     console.error('Error adding comment:', error);
     res.status(500).json({ error: 'Failed to add comment' });
+  }
+};
+
+exports.repostPost = async (req, res) => {
+  const { postId } = req.params;
+  const { authorization } = req.headers;
+
+  try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+    
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const existingRepost = await Repost.findOne({ user: user._id, post: postId });
+    if (existingRepost) {
+      return res.status(400).json({ error: 'You have already reposted this post' });
+    }
+
+    const repost = new Repost({ user: user._id, post: postId });
+    await repost.save();
+
+    res.status(201).json({ message: 'Post reposted successfully', repost });
+  } catch (error) {
+    console.error('Error reposting post:', error);
+    res.status(500).json({ error: 'Failed to repost post' });
+  }
+};
+
+exports.getReposts = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const reposts = await Repost.find({ post: postId })
+      .populate('user', 'username fullname profilePicture')
+      .sort({ repostedAt: -1 });
+
+    res.json(reposts);
+  } catch (error) {
+    console.error('Error fetching reposts:', error);
+    res.status(500).json({ error: 'Failed to fetch reposts' });
   }
 };

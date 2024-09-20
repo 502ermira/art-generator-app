@@ -49,18 +49,18 @@ export const styles = StyleSheet.create({
   },
   previewContainer: {
     alignItems: 'center',
-    marginHorizontal: -8,
     paddingTop: 12,
   },
   previewGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginRight: 'auto',
-    marginLeft: 0,
+    flexWrap : 'wrap',
+    marginHorizontal: -15,
+    alignItems: 'flex-start',
+    justifyContent:'center',
   },
   previewImage: {
-    width: 175,
-    height: 175,
+    width: 174,
+    height: 180,
     margin: 4,
   },
   followButton: {

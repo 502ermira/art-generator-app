@@ -13,6 +13,7 @@ import PostScreen from '../screens/PostScreen/PostScreen';
 import FollowersScreen from '../screens/FollowersScreen/FollowersScreen';
 import LikesScreen from '../screens/LikesScreen/LikesScreen';
 import CommentsScreen from '../screens/CommentsScreen/CommentsScreen.js';
+import RepostsScreen from '../screens/RepostsScreen/RepostsScreen';
 import Navbar from '../components/Navbar';
 import CustomHeader from '../components/CustomHeader';
 import { UserProvider } from '../contexts/UserContext';
@@ -38,6 +39,7 @@ export default function Index() {
           <Stack.Screen name="LikesScreen" component={LikesScreen} options={{ headerShown : false}}/>
           <Stack.Screen name="PostScreen" component={PostScreen} options={{ headerShown : false}} />
           <Stack.Screen name="CommentsScreen" component={CommentsScreen} options={{ headerShown : false}} />
+          <Stack.Screen name="RepostsScreen" component={RepostsScreen} options={{ headerShown : false}}/>
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

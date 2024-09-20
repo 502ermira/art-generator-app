@@ -136,7 +136,8 @@ export const styles = StyleSheet.create({
   },
   commentIcon: {
     marginLeft: 10,
-    marginTop: -3
+    marginTop: -3,
+    marginRight:12,
   },
   submitIcon: {
     paddingRight: 2,

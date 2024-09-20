@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, Image, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AntDesign from '@expo/vector-icons/AntDesign';
 import { styles } from './PostScreenStyles.js';
 import { UserContext } from '../../contexts/UserContext';
 import CustomHeader from '@/components/CustomHeader';
@@ -10,7 +11,7 @@ export default function PostScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { postId } = route.params;
-  const { token , username} = useContext(UserContext);
+  const { token, username } = useContext(UserContext);
   const [postData, setPostData] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -82,6 +83,29 @@ export default function PostScreen() {
     }
   };
 
+  const handleRepost = async () => {
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/repost`, {
+        method: 'POST',
+        headers: {
+          Authorization: token,
+        },
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setPostData((prev) => ({
+          ...prev,
+          reposts: prev.reposts + 1,
+        }));
+      } else {
+        console.error('Failed to repost:', data.error);
+      }
+    } catch (error) {
+      console.error('Error reposting post:', error);
+    }
+  };
+
   const handleAddComment = async () => {
     try {
       const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/comments`, {
@@ -113,6 +137,10 @@ export default function PostScreen() {
     navigation.push('LikesScreen', { postId: postData._id });
   };
 
+  const handleRepostsPress = () => {
+    navigation.push('RepostsScreen', { postId: postData._id });
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -120,7 +148,7 @@ export default function PostScreen() {
       </View>
     );
   }
-  
+
   const formattedDate = new Date(postData.sharedAt).toLocaleDateString();
   const formattedTime = new Date(postData.sharedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 
@@ -155,7 +183,15 @@ export default function PostScreen() {
 
         <TouchableOpacity onPress={handleCommentsPress} style={styles.commentButton}>
           <Text>{comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}</Text>
-          <Icon name="comment-o" style={styles.commentIcon} size={27} color="black" />
+          <Icon name="comment-o" style={styles.commentIcon} size={24.5} color="black" />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleRepostsPress} style={styles.commentButton}>
+          <Text>{postData.reposts} {postData.reposts === 1 ? 'Repost' : 'Reposts'}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleRepost} style={styles.repostButton}>
+          <AntDesign name="retweet" style={styles.commentIcon} size={25.5} color="black" />
         </TouchableOpacity>
       </View>
 

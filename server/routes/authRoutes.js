@@ -24,5 +24,7 @@ router.post('/posts/:postId/like', authenticateUser, authController.likePost);
 router.get('/posts/:postId/likes', authenticateUser, authController.getLikesByPostId);
 router.get('/posts/:postId/comments', authenticateUser, authController.getCommentsByPostId);
 router.post('/posts/:postId/comments', authenticateUser, authController.addCommentToPost);
+router.post('/posts/:postId/repost', authenticateUser, authController.repostPost);
+router.get('/posts/:postId/reposts', authenticateUser, authController.getReposts);
 
 module.exports = router;
