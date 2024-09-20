@@ -53,6 +53,9 @@ export default function Navbar() {
           <TouchableOpacity onPress={() => handleNavigation('Profile')}>
             <Icon name="user-circle" style={styles.navIcon} />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => handleNavigation('NotificationScreen')}>
+            <Icon name="bell" style={styles.navIcon} />
+          </TouchableOpacity>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutButtonText}>Logout</Text>
           </TouchableOpacity>

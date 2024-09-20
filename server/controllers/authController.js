@@ -8,6 +8,7 @@ const Post = require('../models/Post');
 const Like = require('../models/Like');
 const Comment = require('../models/Comment');
 const Repost = require('../models/Repost');
+const Notification = require('../models/Notification');
 
 exports.signup = async (req, res) => {
   const { username, email, password, fullname, profilePicture } = req.body;
@@ -31,7 +32,6 @@ exports.signup = async (req, res) => {
     res.status(500).json({ error: 'Failed to register user' });
   }
 };
-
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
@@ -508,13 +508,28 @@ exports.addCommentToPost = async (req, res) => {
       return res.status(401).json({ error: 'User not found' });
     }
 
+    const mentionedUsernames = content.match(/@(\w+)/g)?.map((m) => m.slice(1)) || [];
+    
+    const mentionedUsers = await User.find({ username: { $in: mentionedUsernames } });
+
     const newComment = new Comment({
       post: postId,
       user: user._id,
       content,
+      mentions: mentionedUsers.map((u) => u._id),
     });
 
     await newComment.save();
+
+    for (const mentionedUser of mentionedUsers) {
+      const notification = new Notification({
+        user: mentionedUser._id,
+        fromUser: user._id,
+        post: postId,
+        message: `${user.username} mentioned you in a comment`,
+      });
+      await notification.save();
+    }
 
     res.json(newComment);
   } catch (error) {
@@ -595,5 +610,28 @@ exports.getRepostsByUsername = async (req, res) => {
   } catch (error) {
     console.error('Error fetching reposts:', error);
     res.status(500).json({ error: 'Failed to fetch reposts' });
+  }
+};
+
+exports.getNotifications = async (req, res) => {
+  const { authorization } = req.headers;
+
+  try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    const notifications = await Notification.find({ user: user._id })
+      .populate('fromUser', 'username')
+      .populate('post', '_id')
+      .sort({ createdAt: -1 });
+
+    res.json(notifications);
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Failed to fetch notifications' });
   }
 };

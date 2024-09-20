@@ -116,6 +116,8 @@ export default function PostScreen() {
   };  
 
   const handleAddComment = async () => {
+    if (!newComment.trim()) return;
+  
     try {
       const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/comments`, {
         method: 'POST',
@@ -125,7 +127,7 @@ export default function PostScreen() {
         },
         body: JSON.stringify({ content: newComment }),
       });
-
+  
       const data = await response.json();
       if (response.ok) {
         setComments((prev) => [data, ...prev]);
@@ -136,7 +138,7 @@ export default function PostScreen() {
     } catch (error) {
       console.error('Error adding comment:', error);
     }
-  };
+  };  
 
   const handleCommentsPress = () => {
     navigation.push('CommentsScreen', { postId: postData._id });
