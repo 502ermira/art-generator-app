@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, TextInput, Text, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { TextInput, Text, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from '../../components/Loader.js';
 import { UserContext } from '../../contexts/UserContext.js';
