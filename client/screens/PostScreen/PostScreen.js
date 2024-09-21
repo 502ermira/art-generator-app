@@ -1,11 +1,13 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, Image, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef, useState, useContext } from 'react';
+import { View, KeyboardAvoidingView, Keyboard, Platform, Text, Image, ScrollView, TextInput, TouchableOpacity , Dimensions} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { styles } from './PostScreenStyles.js';
 import { UserContext } from '../../contexts/UserContext';
 import CustomHeader from '@/components/CustomHeader';
+
+const { height } = Dimensions.get('window');
 
 export default function PostScreen() {
   const route = useRoute();
@@ -18,6 +20,13 @@ export default function PostScreen() {
   const [loading, setLoading] = useState(true);
   const [visibleComments, setVisibleComments] = useState(2);
   const [isRepostedByUser, setIsRepostedByUser] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [inputLayout, setInputLayout] = useState(null);
+  const [inputPosition, setInputPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const textInputRef = useRef(null);
 
   useEffect(() => {
     const fetchPostData = async () => {
@@ -64,6 +73,19 @@ export default function PostScreen() {
 
     fetchPostData();
     fetchComments();
+
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+
   }, [postId, token]);
 
   const handleLike = async (postId) => {
@@ -115,6 +137,29 @@ export default function PostScreen() {
     }
   };  
 
+  const fetchUserSuggestions = async (searchTerm) => {
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/users/suggestions?searchTerm=${searchTerm}`, {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSuggestions(data);
+      } else {
+        console.error('Failed to fetch user suggestions:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching user suggestions:', error);
+    }
+  };
+
+  const handleMentionPress = (username) => {
+    const words = newComment.split(' ');
+    words.pop();
+    setNewComment([...words, `@${username}`].join(' ') + ' ');
+    setShowSuggestions(false);
+  };
+
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
   
@@ -140,6 +185,24 @@ export default function PostScreen() {
     }
   };  
 
+  const handleCommentChange = (text) => {
+    setNewComment(text);
+
+    const lastWord = text.split(' ').pop();
+    if (lastWord.startsWith('@')) {
+      const searchTerm = lastWord.slice(1);
+      if (searchTerm) {
+        fetchUserSuggestions(searchTerm);
+        setShowSuggestions(true);
+        measureInputPosition();
+      } else {
+        setShowSuggestions(false);
+      }
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
   const handleCommentsPress = () => {
     navigation.push('CommentsScreen', { postId: postData._id });
   };
@@ -160,11 +223,20 @@ export default function PostScreen() {
     );
   }
 
+  const measureInputPosition = () => {
+    if (textInputRef.current) {
+      textInputRef.current.measureInWindow((x, y, width, height) => {
+        setInputPosition({ x, y, width, height });
+      },500);
+    }
+  };
+
   const formattedDate = new Date(postData.sharedAt).toLocaleDateString();
   const formattedTime = new Date(postData.sharedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
   const formattedRepostDate = repostedAt ? new Date(repostedAt).toLocaleTimeString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '';
 
   return (
+   <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView contentContainerStyle={styles.container}>
       <CustomHeader title="Post Details" />
       {repostedBy && repostedAt && (
@@ -231,16 +303,44 @@ export default function PostScreen() {
 
       <View style={styles.commentInputContainer}>
         <TextInput
+          ref={textInputRef}
           style={styles.commentInput}
           placeholder="Leave a comment"
           value={newComment}
-          onChangeText={setNewComment}
+          onChangeText={handleCommentChange}
+          onFocus={measureInputPosition}
         />
         <TouchableOpacity style={styles.commentSubmitButton} onPress={handleAddComment}>
           <Icon name="paper-plane" style={styles.submitIcon} size={27} color="black" />
         </TouchableOpacity>
       </View>
+      {showSuggestions && (
+          <View
+            style={{
+              position: 'relative',
+              bottom: height - inputPosition.y - keyboardHeight,
+              left: inputPosition.x,
+              bottom:127,
+              width: inputPosition.width,
+              backgroundColor: 'white',
+              borderRadius: 5,
+              padding: 10,
+              zIndex: 1000,
+              maxHeight: 100,
+            }}
+          >
+            <ScrollView keyboardShouldPersistTaps='handled'>
+              {suggestions.map((item) => (
+                <TouchableOpacity key={item._id} onPress={() => handleMentionPress(item.username)} style={styles.suggestionItem}>
+                  <Text style={styles.suggestionText}>@{item.username} ({item.fullname})</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
       <Text style={styles.date}>Posted on {formattedDate} at {formattedTime}</Text>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

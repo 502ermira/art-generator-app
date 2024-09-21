@@ -635,3 +635,17 @@ exports.getNotifications = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch notifications' });
   }
 };
+
+exports.suggestUsers = async (req, res) => {
+  const { searchTerm } = req.query;
+
+  try {
+    const users = await User.find({ username: { $regex: `^${searchTerm}`, $options: 'i' } })
+                            .limit(10)
+                            .select('username fullname');
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching user suggestions:', error);
+    res.status(500).json({ error: 'Failed to fetch user suggestions' });
+  }
+};

@@ -28,5 +28,6 @@ router.post('/posts/:postId/repost', authenticateUser, authController.repostPost
 router.get('/posts/:postId/reposts', authenticateUser, authController.getReposts);
 router.get('/user/:username/reposts', authenticateUser, authController.getRepostsByUsername);
 router.get('/notifications', authenticateUser, authController.getNotifications);
+router.get('/users/suggestions', authenticateUser, authController.suggestUsers);
 
 module.exports = router;

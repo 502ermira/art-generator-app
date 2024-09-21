@@ -5,6 +5,7 @@ export const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f5f5f5',
     flex: 1,
+    paddingTop: 65,
   },
   notification: {
     backgroundColor: '#ffffff',

@@ -85,7 +85,7 @@ export default function FollowersFollowingScreen() {
 
   const getHeaderTitle = () => {
     const possessiveUsername = username.endsWith('s') ? `${username}'` : `${username}'s`;
-    return `${possessiveUsername} ${type === 'followers' ? 'Followers' : 'Following'}`;
+    return `${possessiveUsername} ${type === 'followers' ? 'followers' : 'following'}`;
   };
 
   if (loading) {

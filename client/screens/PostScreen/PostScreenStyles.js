@@ -157,9 +157,10 @@ export const styles = StyleSheet.create({
     padding: 10,
   },
   repostIcon : {
-    paddingRight:8,
+    marginRight:10,
   },
   repostDate : {
     fontSize: 14,
-  }
+  },
+
 });
