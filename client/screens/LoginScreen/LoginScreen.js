@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, TextInput, Text, TouchableOpacity } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from '../../components/Loader.js';
 import { UserContext } from '../../contexts/UserContext.js';
@@ -47,7 +47,10 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       {loading ? (
         <Loader />
       ) : (
@@ -74,6 +77,6 @@ export default function LoginScreen({ navigation }) {
           {error ? <Text style={styles.error}>{error}</Text> : null}
         </>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }

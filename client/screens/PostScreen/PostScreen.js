@@ -18,7 +18,7 @@ export default function PostScreen() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
-  const [visibleComments, setVisibleComments] = useState(2);
+  const [visibleComments, setVisibleComments] = useState(1);
   const [isRepostedByUser, setIsRepostedByUser] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -237,7 +237,7 @@ export default function PostScreen() {
 
   return (
    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <CustomHeader title="Post Details" />
       {repostedBy && repostedAt && (
         <Text style={styles.repostedByText}>
@@ -309,37 +309,51 @@ export default function PostScreen() {
           value={newComment}
           onChangeText={handleCommentChange}
           onFocus={measureInputPosition}
+          blurOnSubmit={false}
         />
         <TouchableOpacity style={styles.commentSubmitButton} onPress={handleAddComment}>
           <Icon name="paper-plane" style={styles.submitIcon} size={27} color="black" />
         </TouchableOpacity>
       </View>
       {showSuggestions && (
-          <View
-            style={{
-              position: 'relative',
-              bottom: height - inputPosition.y - keyboardHeight,
-              left: inputPosition.x,
-              bottom:127,
-              width: inputPosition.width,
-              backgroundColor: 'white',
-              borderRadius: 5,
-              padding: 10,
-              zIndex: 1000,
-              maxHeight: 100,
-            }}
-          >
-            <ScrollView keyboardShouldPersistTaps='handled'>
-              {suggestions.map((item) => (
-                <TouchableOpacity key={item._id} onPress={() => handleMentionPress(item.username)} style={styles.suggestionItem}>
-                  <Text style={styles.suggestionText}>@{item.username} ({item.fullname})</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+      <View
+        style={{
+        position: 'absolute',
+        bottom: height - inputPosition.y - keyboardHeight,
+        left: inputPosition.x,
+        width: inputPosition.width,
+       backgroundColor: '#f0f0f0',
+        borderRadius: 5,
+        paddingVertical: 10,
+        zIndex: 1000,
+        bottom: 172,
+        maxHeight: 155,
+        zIndex: 1000,
+       }}
+      >
+       <ScrollView keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={true}
+        style={{ maxHeight: 150 }}
+        persistentScrollbar={true}
+       >
+      {suggestions.slice(0, 10).map((item) => (
+        <TouchableOpacity
+          key={item._id}
+          onPress={() => handleMentionPress(item.username)}
+          style={styles.suggestionItem}
+        >
+          <View style={styles.suggestionContainer}>
+            <Image source={{ uri: item.profilePicture }} style={styles.profileImageSuggestion} />
+            <Text style={styles.suggestionText}>
+              @{item.username} ({item.fullname})
+            </Text>
           </View>
-        )}
-
-      <Text style={styles.date}>Posted on {formattedDate} at {formattedTime}</Text>
+        </TouchableOpacity>
+      ))}
+      </ScrollView>
+      </View>
+      )}
+    <Text style={styles.date}>Posted on {formattedDate} at {formattedTime}</Text>
     </ScrollView>
     </KeyboardAvoidingView>
   );

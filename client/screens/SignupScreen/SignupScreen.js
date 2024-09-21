@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Image } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, Image, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Loader from '../../components/Loader.js';
@@ -17,8 +17,11 @@ export default function SignupScreen({ navigation }) {
   const signupUser = async () => {
     setLoading(true);
     
-    const defaultProfilePicture = 'https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg'; // Replace with an actual default URL
+    const defaultProfilePicture = 'https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg';
     const finalProfilePicture = profilePicture || defaultProfilePicture;
+
+    const normalizedUsername = username.toLowerCase();
+    const normalizedEmail = email.toLowerCase();
 
     try {
       const response = await fetch('http://192.168.1.145:5000/auth/signup', {
@@ -26,19 +29,35 @@ export default function SignupScreen({ navigation }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, email, password, fullname, profilePicture: finalProfilePicture }),
+        body: JSON.stringify({
+          username: normalizedUsername,
+          email: normalizedEmail,
+          password,
+          fullname,
+          profilePicture: finalProfilePicture,
+        }),
       });
 
       const data = await response.json();
       if (response.ok) {
         setLoading(false);
-        navigation.replace('Login');
+        Alert.alert(
+          "Signup Successful",
+          "You have signed up successfully! Please proceed to login with your credentials.",
+          [
+            { text: "OK", onPress: () => navigation.replace('Login') }
+          ]
+        );
       } else {
-        setError(data.error);
+        if (data.error) {
+          setError(data.error);
+        } else {
+          setError('An unknown error occurred. Please try again.');
+        }
         setLoading(false);
       }
     } catch (err) {
-      setError('Signup failed');
+      setError('Signup failed. Please check your connection and try again.');
       setLoading(false);
     }
   };
@@ -64,7 +83,10 @@ export default function SignupScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       {loading ? (
         <Loader />
       ) : (
@@ -75,7 +97,7 @@ export default function SignupScreen({ navigation }) {
               <Image source={{ uri: profilePicture }} style={styles.profileImage} />
             ) : (
               <View style={styles.imagePlaceholder}>
-                <Text style={styles.imageButtonText}><Icon name="image"size={30} color="#eee" /></Text>
+                <Text style={styles.imageButtonText}><Icon name="image" size={30} color="#eee" /></Text>
               </View>
             )}
           </TouchableOpacity>
@@ -115,6 +137,6 @@ export default function SignupScreen({ navigation }) {
           {error ? <Text style={styles.error}>{error}</Text> : null}
         </>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }

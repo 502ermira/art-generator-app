@@ -162,5 +162,18 @@ export const styles = StyleSheet.create({
   repostDate : {
     fontSize: 14,
   },
-
+  suggestionItem :{
+    padding:7,
+    flex: 1
+  },
+  profileImageSuggestion : {
+    width: 27,
+    height: 27,
+    borderRadius: 50,
+    marginRight: 10,
+  },
+  suggestionContainer : {
+    flexDirection: 'row', 
+    alignItems: 'center' ,
+  }
 });

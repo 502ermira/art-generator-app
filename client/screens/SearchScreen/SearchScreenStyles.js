@@ -5,6 +5,7 @@ export default StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#151419',
+    paddingTop: 80,
   },
   searchInput: {
     padding: 10,

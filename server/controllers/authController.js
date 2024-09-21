@@ -642,7 +642,7 @@ exports.suggestUsers = async (req, res) => {
   try {
     const users = await User.find({ username: { $regex: `^${searchTerm}`, $options: 'i' } })
                             .limit(10)
-                            .select('username fullname');
+                            .select('username fullname profilePicture');
     res.json(users);
   } catch (error) {
     console.error('Error fetching user suggestions:', error);
