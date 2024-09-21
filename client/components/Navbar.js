@@ -18,6 +18,14 @@ export default function Navbar() {
     });
   };
 
+  const handleLogoutAndRefresh = () => {
+    handleLogout();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'TextPromptScreen' }],
+    });
+  };
+
   return (
     <>
       {!isLoggedIn ? (
@@ -56,7 +64,7 @@ export default function Navbar() {
           <TouchableOpacity onPress={() => handleNavigation('NotificationScreen')}>
             <Icon name="bell" style={styles.navIcon} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogoutAndRefresh}>
             <Text style={styles.logoutButtonText}>Logout</Text>
           </TouchableOpacity>
         </View>

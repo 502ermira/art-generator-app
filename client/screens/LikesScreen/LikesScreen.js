@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { styles } from '../FollowersScreen/FollowersScreenStyles';
 import CustomHeader from '@/components/CustomHeader';
 import { UserContext } from '../../contexts/UserContext';
+import Loader from '@/components/Loader';
 
 export default function LikesScreen() {
   const route = useRoute();
@@ -13,6 +14,7 @@ export default function LikesScreen() {
   const [loading, setLoading] = useState(true);
   const [likers, setLikers] = useState([]);
   const [followingStatus, setFollowingStatus] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchLikers = async () => {
@@ -94,11 +96,14 @@ export default function LikesScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
+      <Loader />
     );
   }
+
+  const filteredLikers = likers.filter(user =>
+    user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.fullname.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const renderUserItem = (user) => (
     <View key={user.username} style={styles.userItemContainer}>
@@ -126,9 +131,16 @@ export default function LikesScreen() {
   return (
     <View style={styles.container}>
       <CustomHeader title="Likes" />
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search Likers"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholderTextColor='#aaa'
+      />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {likers.length > 0 ? (
-          likers.map((user) => renderUserItem(user))
+        {filteredLikers.length > 0 ? (
+          filteredLikers.map((user) => renderUserItem(user))
         ) : (
           <Text style={styles.emptyText}>No likes yet</Text>
         )}

@@ -14,6 +14,7 @@ export default function CustomHeader({ title, screenType }) {
         screenType === 'UserProfileScreen' ? styles.headerContainer 
         : screenType === 'ProfileScreen' && !canGoBack ? styles.headerContainerNew
         : screenType === 'ProfileScreen' ? styles.headerContainerProfile 
+        : screenType === 'FollowersFollowing' ? styles.headerContainerFollowers 
         : styles.headerContainerNull
       }
     >
@@ -32,6 +33,10 @@ export default function CustomHeader({ title, screenType }) {
       ) : screenType === 'ProfileScreen' ? (
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.menuButton}>
           <Ionicons name="settings" size={24} color="black" />
+        </TouchableOpacity>
+      ) : screenType === 'FollwersFollowing' ? (
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.followersButton}>
+          <Ionicons name="settings" size={24} color="black" style={styles.followersButton} />
         </TouchableOpacity>
       ) : null}
     </View>
@@ -89,9 +94,26 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderColor: '#ccc',
   },
+  headerContainerFollowers : {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fafafa',
+    padding: 13,
+    textAlign: 'center',
+    width: '100%',
+    justifyContent: 'space-between',
+    paddingRight: '44%',
+    paddingTop:60,
+    borderBottomWidth: 0.5,
+    borderColor: '#ccc',
+  },
   headerTitle: {
     fontSize: 17.5,
     fontWeight: '600',
+  },
+  followersButton : {
+    marginLeft:0,
+    marginRight: '90%,'
   },
   backButton :{
     marginRight: 13,

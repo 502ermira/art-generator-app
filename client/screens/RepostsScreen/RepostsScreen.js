@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
 import { styles } from './RepostsScreenStyles';
@@ -11,6 +11,7 @@ export default function RepostsScreen() {
   const { postId } = route.params;
   const { token, username: loggedInUsername } = useContext(UserContext);
   const [reposts, setReposts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchReposts = async () => {
@@ -41,18 +42,32 @@ export default function RepostsScreen() {
     }
   };
 
+  const filteredReposts = reposts.filter(repost =>
+    repost.user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    repost.user.fullname.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <View style={styles.container}>
       <CustomHeader title="Reposts" />
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search Reposts"
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholderTextColor='#aaa'
+      />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {reposts.length > 0 ? (
-          reposts.map((repost) => (
+        {filteredReposts.length > 0 ? (
+          filteredReposts.map((repost) => (
             <TouchableOpacity key={repost._id} style={styles.repost} onPress={() => handleUserPress(repost.user)}>
-                <Image source={{ uri: repost.user.profilePicture }} style={styles.profileImage} />
-                <View style={styles.repostInfo}>
-                  <Text style={styles.username}>{repost.user.fullname} (@{repost.user.username})</Text>
-                  <Text style={styles.repostedAt}>Reposted on {new Date(repost.repostedAt).toLocaleTimeString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}</Text>
-                </View>
+              <Image source={{ uri: repost.user.profilePicture }} style={styles.profileImage} />
+              <View style={styles.repostInfo}>
+                <Text style={styles.username}>{repost.user.fullname} (@{repost.user.username})</Text>
+                <Text style={styles.repostedAt}>
+                  Reposted on {new Date(repost.repostedAt).toLocaleTimeString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
+                </Text>
+              </View>
             </TouchableOpacity>
           ))
         ) : (

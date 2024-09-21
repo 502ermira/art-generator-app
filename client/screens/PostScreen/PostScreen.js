@@ -322,7 +322,7 @@ export default function PostScreen() {
         bottom: height - inputPosition.y - keyboardHeight,
         left: inputPosition.x,
         width: inputPosition.width,
-       backgroundColor: '#f0f0f0',
+        backgroundColor: '#f0f0f0',
         borderRadius: 5,
         paddingVertical: 10,
         zIndex: 1000,

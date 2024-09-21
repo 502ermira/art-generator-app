@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useContext, memo } from 'react';
+import { View, Text, TextInput, Image, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { styles } from './FollowersScreenStyles';
 import { UserContext } from '../../contexts/UserContext';
 import CustomHeader from '@/components/CustomHeader';
+import Loader from '@/components/Loader';
 
 export default function FollowersFollowingScreen() {
   const route = useRoute();
@@ -14,6 +16,11 @@ export default function FollowersFollowingScreen() {
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [followingStatus, setFollowingStatus] = useState({});
+  const [index, setIndex] = useState(type === 'followers' ? 0 : 1);
+  const [routes] = useState([
+    { key: 'followers', title: 'Followers' },
+    { key: 'following', title: 'Following' },
+  ]);
 
   useEffect(() => {
     const fetchFollowersAndFollowing = async () => {
@@ -37,7 +44,6 @@ export default function FollowersFollowingScreen() {
           }
         });
         setFollowingStatus(status);
-
         setLoading(false);
       } catch (error) {
         console.error('Error fetching followers and following:', error);
@@ -83,19 +89,6 @@ export default function FollowersFollowingScreen() {
     }
   };
 
-  const getHeaderTitle = () => {
-    const possessiveUsername = username.endsWith('s') ? `${username}'` : `${username}'s`;
-    return `${possessiveUsername} ${type === 'followers' ? 'followers' : 'following'}`;
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
-
   const renderUserItem = (user, isFollowing) => (
     <View key={user.username} style={styles.userItemContainer}>
       <TouchableOpacity style={styles.userItem} onPress={() => handleUserPress(user)}>
@@ -105,7 +98,6 @@ export default function FollowersFollowingScreen() {
           <Text style={styles.username}>@{user.username}</Text>
         </View>
       </TouchableOpacity>
-
       {user.username !== loggedInUsername && (
         <TouchableOpacity
           style={[styles.followButton, isFollowing ? styles.following : styles.notFollowing]}
@@ -119,31 +111,94 @@ export default function FollowersFollowingScreen() {
     </View>
   );
 
+  const FollowersRoute = memo(() => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const filteredFollowers = followers.filter(follower =>
+      follower.followerId.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      follower.followerId.fullname.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  
+    return (
+      <View style={styles.tabSceneContainer}>
+        <Text style={styles.sectionTitle}>Followers</Text>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search Followers"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor='#aaa'
+        />
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {filteredFollowers.length > 0 ? (
+            filteredFollowers.map((follower) =>
+              renderUserItem(follower.followerId, followingStatus[follower.followerId.username])
+            )
+          ) : (
+            <Text style={styles.emptyText}>No followers found</Text>
+          )}
+        </ScrollView>
+      </View>
+    );
+  });
+  
+  const FollowingRoute = memo(() => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const filteredFollowing = following.filter(user =>
+      user.followingId.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.followingId.fullname.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  
+    return (
+      <View style={styles.tabSceneContainer}>
+        <Text style={styles.sectionTitle}>Following</Text>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search Following"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholderTextColor='#aaa'
+        />
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {filteredFollowing.length > 0 ? (
+            filteredFollowing.map((user) =>
+              renderUserItem(user.followingId, followingStatus[user.followingId.username])
+            )
+          ) : (
+            <Text style={styles.emptyText}>No following found</Text>
+          )}
+        </ScrollView>
+      </View>
+    );
+  });
+
+  const renderScene = SceneMap({
+    followers: FollowersRoute,
+    following: FollowingRoute,
+  });
+
+  if (loading) {
+    return (
+      <Loader />
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <CustomHeader title={getHeaderTitle()} screenType={null} />
-
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {type === 'followers' ? (
-          <>
-            <Text style={styles.sectionTitle}>Followers</Text>
-            {followers.length > 0 ? (
-              followers.map((follower) => renderUserItem(follower.followerId, followingStatus[follower.followerId.username]))
-            ) : (
-              <Text style={styles.emptyText}>No followers yet</Text>
-            )}
-          </>
-        ) : (
-          <>
-            <Text style={styles.sectionTitle}>Following</Text>
-            {following.length > 0 ? (
-              following.map((user) => renderUserItem(user.followingId, followingStatus[user.followingId.username]))
-            ) : (
-              <Text style={styles.emptyText}>Not following anyone</Text>
-            )}
-          </>
+      <CustomHeader title={`${username}`} screenType={`FollowersFollowing`} />
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: Dimensions.get('window').width }}
+        renderTabBar={(props) => (
+          <TabBar
+            {...props}
+            indicatorStyle={{ backgroundColor: '#eee', height: 2 }}
+            style={styles.tabBar}
+            labelStyle={{ color: 'white', fontWeight: '500' }}
+          />
         )}
-      </ScrollView>
+      />
     </View>
   );
 }
