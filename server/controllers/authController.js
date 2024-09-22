@@ -583,7 +583,8 @@ exports.addCommentToPost = async (req, res) => {
         user: post.user,
         fromUser: user._id,
         post: postId,
-        message: `${user.username} commented on your post`,
+        comment: newComment._id,
+        message: `${user.username} commented on your post: "${content.slice(0, 100)}..."`,
         type: 'comment',
       });
       await notification.save();
@@ -594,7 +595,8 @@ exports.addCommentToPost = async (req, res) => {
         user: mentionedUser._id,
         fromUser: user._id,
         post: postId,
-        message: `${user.username} mentioned you in a comment`,
+        comment: newComment._id,
+        message: `${user.username} mentioned you in a comment: "${content.slice(0, 100)}..."`,
         type: 'mention',
       });
       await notification.save();
@@ -630,7 +632,11 @@ exports.deleteComment = async (req, res) => {
 
     await Comment.findByIdAndDelete(commentId);
 
-    res.json({ success: true, message: 'Comment deleted successfully' });
+    await Notification.deleteMany({
+      comment: commentId,
+    });
+
+    res.json({ success: true, message: 'Comment and related notifications deleted successfully' });
   } catch (error) {
     console.error('Error deleting comment:', error);
     res.status(500).json({ error: 'Failed to delete comment' });
@@ -749,29 +755,24 @@ exports.getNotifications = async (req, res) => {
     const user = await User.findById(decoded.userId);
 
     if (!user) return res.status(401).json({ error: 'User not found' });
-    const notifications = await Notification.find({ user: user._id })
+
+    let notifications = await Notification.find({ user: user._id })
       .populate('fromUser', 'username profilePicture')
       .populate({
         path: 'post',
         populate: { path: 'image', select: 'image' },
       })
+      .populate('comment', 'content')
       .sort({ createdAt: -1 });
 
-    const filteredNotifications = await Promise.all(
-      notifications.map(async (notification) => {
-        if (notification.type === 'follow') {
-          const followRecord = await Follower.findOne({
-            followerId: notification.fromUser._id,
-            followingId: user._id,
-          });
+    notifications = notifications.filter(notification => {
+      if (notification.type === 'comment' || notification.type === 'mention') {
+        return notification.post && notification.post._id;
+      }
+      return true;
+    });
 
-          if (!followRecord) return null;
-        }
-        return notification;
-      })
-    );
-
-    res.json(filteredNotifications.filter(Boolean));
+    res.json(notifications);
   } catch (error) {
     console.error('Error fetching notifications:', error);
     res.status(500).json({ error: 'Failed to fetch notifications' });

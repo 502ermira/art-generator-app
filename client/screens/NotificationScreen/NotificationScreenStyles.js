@@ -4,7 +4,7 @@ const { height } = Dimensions.get('window')
 export const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#f9f9f9',
     paddingVertical:60,
     minHeight: height,
   },
@@ -39,6 +39,10 @@ export const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
   },
+  usernameAndTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },  
   notificationText: {
     fontSize: 14,
   },

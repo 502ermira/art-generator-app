@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './NotificationScreenStyles.js';
@@ -26,14 +26,14 @@ export default function NotificationScreen() {
         console.error('Error fetching notifications:', error);
       }
     };
-    
+
     const fetchFollowingStatus = async () => {
       try {
         const statusResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${loggedInUsername}`, {
-          headers: { Authorization: token }
+          headers: { Authorization: token },
         });
         const statusData = await statusResponse.json();
-        
+
         const status = {};
         statusData.following.forEach(user => {
           status[user.followingId.username] = true;
@@ -85,6 +85,16 @@ export default function NotificationScreen() {
     navigation.navigate('PostScreen', { postId });
   };
 
+  const truncateComment = (content) => {
+    const screenWidth = Dimensions.get('window').width;
+    const maxCharacters = Math.floor(screenWidth / 10);
+    return content.length > maxCharacters ? content.slice(0, maxCharacters) + '...' : content;
+  };
+
+  const handleUserPress = (username) => {
+    navigation.push('UserProfile', { username });
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {notifications.map((notification) => (
@@ -99,20 +109,27 @@ export default function NotificationScreen() {
         >
           <View style={styles.notificationContent}>
             <View style={styles.profileContainer}>
-              <Image
-                source={{ uri: notification.fromUser.profilePicture}}
-                style={styles.profilePicture}
-              />
+              <TouchableOpacity onPress={() => handleUserPress(notification.fromUser.username)}>
+                <Image
+                  source={{ uri: notification.fromUser.profilePicture }}
+                  style={styles.profilePicture}
+                />
+              </TouchableOpacity>
             </View>
+
             <View style={styles.notificationTextContainer}>
-              <Text style={styles.notificationText}>
+             <View style={styles.usernameAndTextContainer}>
+              <TouchableOpacity onPress={() => handleUserPress(notification.fromUser.username)}>
                 <Text style={styles.usernameText}>{notification.fromUser.username}</Text>
+              </TouchableOpacity>
+              <Text style={styles.notificationText}>
                 {notification.type === 'like' && ' liked your post'}
-                {notification.type === 'comment' && ' commented on your post'}
-                {notification.type === 'mention' && ' mentioned you in a comment'}
+                {notification.type === 'comment' && ` commented on your post: ${truncateComment(notification.comment?.content || '')}`}
+                {notification.type === 'mention' && ` mentioned you in a comment: ${truncateComment(notification.comment?.content || '')}`}
                 {notification.type === 'repost' && ' reposted your post'}
                 {notification.type === 'follow' && ' started following you'}
               </Text>
+              </View>
               <Text style={styles.notificationTime}>
                 {new Date(notification.createdAt).toLocaleString()}
               </Text>
