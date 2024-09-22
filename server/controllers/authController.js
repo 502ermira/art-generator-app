@@ -466,9 +466,16 @@ exports.likePost = async (req, res) => {
     }
 
     const existingLike = await Like.findOne({ post: postId, user: user._id });
-    
+
     if (existingLike) {
       await Like.deleteOne({ _id: existingLike._id });
+
+      await Notification.deleteOne({
+        post: postId,
+        fromUser: user._id,
+        type: 'like',
+      });
+
       return res.status(200).json({ message: 'Post unliked' });
     }
 
@@ -479,15 +486,26 @@ exports.likePost = async (req, res) => {
 
     await newLike.save();
 
-    if (post.user.toString() !== user._id.toString()) {
-      const notification = new Notification({
-        user: post.user,
-        fromUser: user._id,
-        post: postId,
-        message: `${user.username} liked your post`,
-        type: 'like',
-      });
-      await notification.save();
+    const existingNotification = await Notification.findOne({
+      post: postId,
+      fromUser: user._id,
+      type: 'like',
+    });
+
+    if (existingNotification) {
+      existingNotification.createdAt = Date.now();
+      await existingNotification.save();
+    } else {
+      if (post.user.toString() !== user._id.toString()) {
+        const notification = new Notification({
+          user: post.user,
+          fromUser: user._id,
+          post: postId,
+          message: `${user.username} liked your post`,
+          type: 'like',
+        });
+        await notification.save();
+      }
     }
 
     res.status(201).json({ message: 'Post liked', like: newLike });
@@ -589,6 +607,36 @@ exports.addCommentToPost = async (req, res) => {
   }
 };
 
+exports.deleteComment = async (req, res) => {
+  const { commentId } = req.params;
+  const { authorization } = req.headers;
+
+  try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
+    if (comment.user.toString() !== user._id.toString()) {
+      return res.status(403).json({ error: 'You are not authorized to delete this comment' });
+    }
+
+    await Comment.findByIdAndDelete(commentId);
+
+    res.json({ success: true, message: 'Comment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    res.status(500).json({ error: 'Failed to delete comment' });
+  }
+};
+
 exports.repostPost = async (req, res) => {
   const { postId } = req.params;
   const { authorization } = req.headers;
@@ -610,21 +658,39 @@ exports.repostPost = async (req, res) => {
 
     if (existingRepost) {
       await Repost.deleteOne({ _id: existingRepost._id });
+
+      await Notification.deleteOne({
+        post: postId,
+        fromUser: user._id,
+        type: 'repost',
+      });
+
       return res.status(200).json({ message: 'Post unreposted successfully' });
     }
 
     const repost = new Repost({ user: user._id, post: postId });
     await repost.save();
 
-    if (post.user.toString() !== user._id.toString()) {
-      const notification = new Notification({
-        user: post.user,
-        fromUser: user._id,
-        post: postId,
-        message: `${user.username} reposted your post`,
-        type: 'repost',
-      });
-      await notification.save();
+    const existingNotification = await Notification.findOne({
+      post: postId,
+      fromUser: user._id,
+      type: 'repost',
+    });
+
+    if (existingNotification) {
+      existingNotification.createdAt = Date.now();
+      await existingNotification.save();
+    } else {
+      if (post.user.toString() !== user._id.toString()) {
+        const notification = new Notification({
+          user: post.user,
+          fromUser: user._id,
+          post: postId,
+          message: `${user.username} reposted your post`,
+          type: 'repost',
+        });
+        await notification.save();
+      }
     }
 
     res.status(201).json({ message: 'Post reposted successfully', repost });

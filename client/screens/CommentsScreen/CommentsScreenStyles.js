@@ -45,7 +45,6 @@ export const styles = StyleSheet.create({
   commentUser: {
     fontWeight: 'bold',
     fontSize: 16,
-    marginBottom: 3,
   },
   commentInputContainer: {
     flexDirection: 'row',
@@ -83,5 +82,13 @@ export const styles = StyleSheet.create({
   suggestionContainer : {
     flexDirection: 'row', 
     alignItems: 'center' ,
-  }
+  },
+  deleteButton: {
+    backgroundColor: 'red',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginBottom: 10,
+  },
 });
