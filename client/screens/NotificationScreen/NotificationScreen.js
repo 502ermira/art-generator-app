@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './NotificationScreenStyles.js';
 
 export default function NotificationScreen() {
-  const { token } = useContext(UserContext);
+  const { token, username: loggedInUsername } = useContext(UserContext);
   const [notifications, setNotifications] = useState([]);
+  const [followingStatus, setFollowingStatus] = useState({});
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -16,7 +17,6 @@ export default function NotificationScreen() {
           headers: { Authorization: token },
         });
         const data = await response.json();
-
         if (response.ok) {
           setNotifications(data);
         } else {
@@ -26,9 +26,60 @@ export default function NotificationScreen() {
         console.error('Error fetching notifications:', error);
       }
     };
+    
+    const fetchFollowingStatus = async () => {
+      try {
+        const statusResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${loggedInUsername}`, {
+          headers: { Authorization: token }
+        });
+        const statusData = await statusResponse.json();
+        
+        const status = {};
+        statusData.following.forEach(user => {
+          status[user.followingId.username] = true;
+        });
+        statusData.followers.forEach(user => {
+          if (!status[user.followerId.username]) {
+            status[user.followerId.username] = false;
+          }
+        });
+        setFollowingStatus(status);
+      } catch (error) {
+        console.error('Error fetching follow status:', error);
+      }
+    };
 
     fetchNotifications();
-  }, [token]);
+    fetchFollowingStatus();
+  }, [token, loggedInUsername]);
+
+  const handleFollowToggle = async (user) => {
+    const isFollowing = followingStatus[user.username];
+    const url = isFollowing
+      ? `http://192.168.1.145:5000/auth/unfollow/${user.username}`
+      : `http://192.168.1.145:5000/auth/follow/${user.username}`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        setFollowingStatus((prevStatus) => ({
+          ...prevStatus,
+          [user.username]: !isFollowing,
+        }));
+      } else {
+        console.error('Error toggling follow status');
+      }
+    } catch (error) {
+      console.error('Error toggling follow status:', error);
+    }
+  };
 
   const handlePostPress = (postId) => {
     navigation.navigate('PostScreen', { postId });
@@ -40,10 +91,56 @@ export default function NotificationScreen() {
         <TouchableOpacity
           key={notification._id}
           style={styles.notification}
-          onPress={() => handlePostPress(notification.post._id)}
+          onPress={() => {
+            if (notification.type !== 'follow') {
+              handlePostPress(notification.post._id);
+            }
+          }}
         >
-          <Text style={styles.notificationText}>{notification.message}</Text>
-          <Text style={styles.notificationTime}>{new Date(notification.createdAt).toLocaleString()}</Text>
+          <View style={styles.notificationContent}>
+            <View style={styles.profileContainer}>
+              <Image
+                source={{ uri: notification.fromUser.profilePicture}}
+                style={styles.profilePicture}
+              />
+            </View>
+            <View style={styles.notificationTextContainer}>
+              <Text style={styles.notificationText}>
+                <Text style={styles.usernameText}>{notification.fromUser.username}</Text>
+                {notification.type === 'like' && ' liked your post'}
+                {notification.type === 'comment' && ' commented on your post'}
+                {notification.type === 'mention' && ' mentioned you in a comment'}
+                {notification.type === 'repost' && ' reposted your post'}
+                {notification.type === 'follow' && ' started following you'}
+              </Text>
+              <Text style={styles.notificationTime}>
+                {new Date(notification.createdAt).toLocaleString()}
+              </Text>
+            </View>
+
+            {notification.type !== 'follow' && notification.post?.image && (
+              <Image
+                source={{ uri: notification.post.image.image }}
+                style={styles.notificationImage}
+              />
+            )}
+
+            {notification.type === 'follow' && (
+              <TouchableOpacity
+                style={[
+                  styles.followButton,
+                  followingStatus[notification.fromUser.username]
+                    ? styles.following
+                    : styles.notFollowing,
+                ]}
+                onPress={() => handleFollowToggle(notification.fromUser)}
+              >
+                <Text style={styles.followButtonText}>
+                  {followingStatus[notification.fromUser.username] ? 'Following' : 'Follow Back'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </TouchableOpacity>
       ))}
     </ScrollView>

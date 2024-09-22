@@ -2,29 +2,73 @@ import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    backgroundColor: '#f5f5f5',
-    flex: 1,
-    paddingTop: 65,
+    padding: 16,
+    backgroundColor: '#fff',
+    paddingVertical:60,
   },
   notification: {
-    backgroundColor: '#ffffff',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  notificationContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  profileContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  profilePicture: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 2,
+  },
+  usernameText: {
+    fontWeight: '600',
+  },
+  notificationTextContainer: {
+    flex: 1,
+    flexDirection: 'column',
   },
   notificationText: {
-    fontSize: 16,
-    color: '#333',
+    fontSize: 14,
   },
   notificationTime: {
     fontSize: 12,
     color: '#888',
-    marginTop: 5,
+  },
+  notificationImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+  },
+  followButton: {
+    padding: 10,
+    backgroundColor: '#1DA1F2',
+    borderRadius: 5,
+  },
+  followButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  followButton: {
+    backgroundColor: '#7049f6',
+    paddingVertical: 8.5,
+    paddingHorizontal: 11,
+    borderRadius: 5,
+  },
+  followButtonText: {
+    color: 'white',
+    fontWeight: '600',
+    textAlign: 'center',
+    fontSize: 13,
   },
 });

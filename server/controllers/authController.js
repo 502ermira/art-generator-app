@@ -294,8 +294,25 @@ exports.followUser = async (req, res) => {
     });
 
     await newFollow.save();
+
+    await Notification.deleteMany({
+      user: followingUser._id,
+      fromUser: followerId,
+      type: 'follow',
+    });
+
+    const notification = new Notification({
+      user: followingUser._id,
+      fromUser: followerId,
+      message: 'started following you',
+      type: 'follow',
+    });
+
+    await notification.save();
+
     res.status(200).json({ message: 'Followed successfully' });
   } catch (error) {
+    console.error('Error following user:', error);
     res.status(500).json({ error: 'Failed to follow user' });
   }
 };
@@ -353,6 +370,12 @@ exports.unfollowUser = async (req, res) => {
     if (!followRecord) {
       return res.status(400).json({ error: 'You are not following this user' });
     }
+
+     await Notification.deleteMany({
+      user: followingUser._id,
+      fromUser: followerId,
+      type: 'follow',
+    });
 
     res.status(200).json({ message: 'Unfollowed successfully' });
   } catch (error) {
@@ -455,6 +478,18 @@ exports.likePost = async (req, res) => {
     });
 
     await newLike.save();
+
+    if (post.user.toString() !== user._id.toString()) {
+      const notification = new Notification({
+        user: post.user,
+        fromUser: user._id,
+        post: postId,
+        message: `${user.username} liked your post`,
+        type: 'like',
+      });
+      await notification.save();
+    }
+
     res.status(201).json({ message: 'Post liked', like: newLike });
   } catch (err) {
     console.error('Error liking post:', err);
@@ -508,8 +543,12 @@ exports.addCommentToPost = async (req, res) => {
       return res.status(401).json({ error: 'User not found' });
     }
 
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
     const mentionedUsernames = content.match(/@(\w+)/g)?.map((m) => m.slice(1)) || [];
-    
     const mentionedUsers = await User.find({ username: { $in: mentionedUsernames } });
 
     const newComment = new Comment({
@@ -521,12 +560,24 @@ exports.addCommentToPost = async (req, res) => {
 
     await newComment.save();
 
+    if (post.user.toString() !== user._id.toString()) {
+      const notification = new Notification({
+        user: post.user,
+        fromUser: user._id,
+        post: postId,
+        message: `${user.username} commented on your post`,
+        type: 'comment',
+      });
+      await notification.save();
+    }
+
     for (const mentionedUser of mentionedUsers) {
       const notification = new Notification({
         user: mentionedUser._id,
         fromUser: user._id,
         post: postId,
         message: `${user.username} mentioned you in a comment`,
+        type: 'mention',
       });
       await notification.save();
     }
@@ -564,6 +615,17 @@ exports.repostPost = async (req, res) => {
 
     const repost = new Repost({ user: user._id, post: postId });
     await repost.save();
+
+    if (post.user.toString() !== user._id.toString()) {
+      const notification = new Notification({
+        user: post.user,
+        fromUser: user._id,
+        post: postId,
+        message: `${user.username} reposted your post`,
+        type: 'repost',
+      });
+      await notification.save();
+    }
 
     res.status(201).json({ message: 'Post reposted successfully', repost });
   } catch (error) {
@@ -620,16 +682,30 @@ exports.getNotifications = async (req, res) => {
     const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
 
-    if (!user) {
-      return res.status(401).json({ error: 'User not found' });
-    }
-
+    if (!user) return res.status(401).json({ error: 'User not found' });
     const notifications = await Notification.find({ user: user._id })
-      .populate('fromUser', 'username')
-      .populate('post', '_id')
+      .populate('fromUser', 'username profilePicture')
+      .populate({
+        path: 'post',
+        populate: { path: 'image', select: 'image' },
+      })
       .sort({ createdAt: -1 });
 
-    res.json(notifications);
+    const filteredNotifications = await Promise.all(
+      notifications.map(async (notification) => {
+        if (notification.type === 'follow') {
+          const followRecord = await Follower.findOne({
+            followerId: notification.fromUser._id,
+            followingId: user._id,
+          });
+
+          if (!followRecord) return null;
+        }
+        return notification;
+      })
+    );
+
+    res.json(filteredNotifications.filter(Boolean));
   } catch (error) {
     console.error('Error fetching notifications:', error);
     res.status(500).json({ error: 'Failed to fetch notifications' });
