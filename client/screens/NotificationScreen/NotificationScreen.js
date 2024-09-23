@@ -9,11 +9,8 @@ export default function NotificationScreen() {
   const { token, username: loggedInUsername } = useContext(UserContext);
   const [notifications, setNotifications] = useState([]);
   const [followingStatus, setFollowingStatus] = useState({});
-  const [popupMessage, setPopupMessage] = useState(null);
-  const [popupVisible, setPopupVisible] = useState(false);
   const navigation = useNavigation();
   const socket = useRef(null);
-  const popupAnimation = useRef(new Animated.Value(-100)).current;
 
   useEffect(() => {
     socket.current = io('http://192.168.1.145:5000');
@@ -21,12 +18,6 @@ export default function NotificationScreen() {
 
     const handleNewNotification = (notification) => {
       setNotifications((prevNotifications) => [notification, ...prevNotifications]);
-      showPopup(
-        notification.message,
-        notification.fromUser?.username,
-        notification.fromUser?.profilePicture,
-        notification.post?.image?.image
-      );
     };
 
     socket.current.on('newNotification', handleNewNotification);
@@ -36,32 +27,6 @@ export default function NotificationScreen() {
       socket.current.disconnect();
     };
   }, [loggedInUsername]);
-
-  const showPopup = (message, fromUser, profilePicture, postImage) => {
-    setPopupMessage({ message, fromUser, profilePicture, postImage });
-    setPopupVisible(true);
-
-    Animated.timing(popupAnimation, {
-      toValue: 0,
-      duration: 5000,
-      useNativeDriver: true,
-    }).start();
-
-    setTimeout(() => {
-      hidePopup();
-    }, 5000);
-  };
-
-  const hidePopup = () => {
-    Animated.timing(popupAnimation, {
-      toValue: -100,
-      duration: 5000,
-      useNativeDriver: true,
-    }).start(() => {
-      setPopupVisible(false);
-      setPopupMessage(null);
-    });
-  };
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -150,28 +115,6 @@ export default function NotificationScreen() {
 
   return (
     <View>
-      {popupVisible && popupMessage && (
-        <Animated.View style={[styles.popup, { transform: [{ translateY: popupAnimation }] }]}>
-          <View style={styles.popupContainer}>
-            <View style={styles.popupUserInfo}>
-              <Image 
-                source={{ uri: popupMessage.profilePicture }}
-                style={styles.popupProfileImage}
-              />
-              <Text style={styles.popupMessage}>
-                {popupMessage.message}
-              </Text>
-            </View>
-            {popupMessage.postImage && (
-              <Image
-                source={{ uri: popupMessage.postImage }}
-                style={styles.popupPostImage}
-              />
-            )}
-          </View>
-        </Animated.View>
-      )}
-
       <ScrollView contentContainerStyle={styles.container}>
         {notifications.map((notification) => (
           <TouchableOpacity
