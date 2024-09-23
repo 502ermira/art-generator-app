@@ -1,14 +1,67 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import React, { useRef, useEffect, useState, useContext } from 'react';
+import { View, Animated, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './NotificationScreenStyles.js';
+import io from 'socket.io-client';
 
 export default function NotificationScreen() {
   const { token, username: loggedInUsername } = useContext(UserContext);
   const [notifications, setNotifications] = useState([]);
   const [followingStatus, setFollowingStatus] = useState({});
+  const [popupMessage, setPopupMessage] = useState(null);
+  const [popupVisible, setPopupVisible] = useState(false);
   const navigation = useNavigation();
+  const socket = useRef(null);
+  const popupAnimation = useRef(new Animated.Value(-100)).current;
+
+  useEffect(() => {
+    socket.current = io('http://192.168.1.145:5000');
+    socket.current.emit('joinRoom', loggedInUsername);
+
+    const handleNewNotification = (notification) => {
+      setNotifications((prevNotifications) => [notification, ...prevNotifications]);
+      showPopup(
+        notification.message,
+        notification.fromUser?.username,
+        notification.fromUser?.profilePicture,
+        notification.post?.image?.image
+      );
+    };
+
+    socket.current.on('newNotification', handleNewNotification);
+
+    return () => {
+      socket.current.off('newNotification', handleNewNotification);
+      socket.current.disconnect();
+    };
+  }, [loggedInUsername]);
+
+  const showPopup = (message, fromUser, profilePicture, postImage) => {
+    setPopupMessage({ message, fromUser, profilePicture, postImage });
+    setPopupVisible(true);
+
+    Animated.timing(popupAnimation, {
+      toValue: 0,
+      duration: 5000,
+      useNativeDriver: true,
+    }).start();
+
+    setTimeout(() => {
+      hidePopup();
+    }, 5000);
+  };
+
+  const hidePopup = () => {
+    Animated.timing(popupAnimation, {
+      toValue: -100,
+      duration: 5000,
+      useNativeDriver: true,
+    }).start(() => {
+      setPopupVisible(false);
+      setPopupMessage(null);
+    });
+  };
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -96,70 +149,99 @@ export default function NotificationScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {notifications.map((notification) => (
-        <TouchableOpacity
-          key={notification._id}
-          style={styles.notification}
-          onPress={() => {
-            if (notification.type !== 'follow') {
-              handlePostPress(notification.post._id);
-            }
-          }}
-        >
-          <View style={styles.notificationContent}>
-            <View style={styles.profileContainer}>
-              <TouchableOpacity onPress={() => handleUserPress(notification.fromUser.username)}>
-                <Image
-                  source={{ uri: notification.fromUser.profilePicture }}
-                  style={styles.profilePicture}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.notificationTextContainer}>
-             <View style={styles.usernameAndTextContainer}>
-              <TouchableOpacity onPress={() => handleUserPress(notification.fromUser.username)}>
-                <Text style={styles.usernameText}>{notification.fromUser.username}</Text>
-              </TouchableOpacity>
-              <Text style={styles.notificationText}>
-                {notification.type === 'like' && ' liked your post'}
-                {notification.type === 'comment' && ` commented on your post: ${truncateComment(notification.comment?.content || '')}`}
-                {notification.type === 'mention' && ` mentioned you in a comment: ${truncateComment(notification.comment?.content || '')}`}
-                {notification.type === 'repost' && ' reposted your post'}
-                {notification.type === 'follow' && ' started following you'}
-              </Text>
-              </View>
-              <Text style={styles.notificationTime}>
-                {new Date(notification.createdAt).toLocaleString()}
+    <View>
+      {popupVisible && popupMessage && (
+        <Animated.View style={[styles.popup, { transform: [{ translateY: popupAnimation }] }]}>
+          <View style={styles.popupContainer}>
+            <View style={styles.popupUserInfo}>
+              <Image 
+                source={{ uri: popupMessage.profilePicture }}
+                style={styles.popupProfileImage}
+              />
+              <Text style={styles.popupMessage}>
+                {popupMessage.message}
               </Text>
             </View>
-
-            {notification.type !== 'follow' && notification.post?.image && (
+            {popupMessage.postImage && (
               <Image
-                source={{ uri: notification.post.image.image }}
-                style={styles.notificationImage}
+                source={{ uri: popupMessage.postImage }}
+                style={styles.popupPostImage}
               />
             )}
-
-            {notification.type === 'follow' && (
-              <TouchableOpacity
-                style={[
-                  styles.followButton,
-                  followingStatus[notification.fromUser.username]
-                    ? styles.following
-                    : styles.notFollowing,
-                ]}
-                onPress={() => handleFollowToggle(notification.fromUser)}
-              >
-                <Text style={styles.followButtonText}>
-                  {followingStatus[notification.fromUser.username] ? 'Following' : 'Follow Back'}
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+        </Animated.View>
+      )}
+
+      <ScrollView contentContainerStyle={styles.container}>
+        {notifications.map((notification) => (
+          <TouchableOpacity
+            key={notification._id}
+            style={styles.notification}
+            onPress={() => {
+              if (notification.type !== 'follow') {
+                handlePostPress(notification.post._id);
+              }
+            }}
+          >
+            <View style={styles.notificationContent}>
+              <View style={styles.profileContainer}>
+                <TouchableOpacity onPress={() => handleUserPress(notification.fromUser?.username)}>
+                  <Image
+                    source={{ uri: notification.fromUser?.profilePicture }}
+                    style={styles.profilePicture}
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.notificationTextContainer}>
+                <View style={styles.usernameAndTextContainer}>
+                  {notification.fromUser?.username ? (
+                    <TouchableOpacity onPress={() => handleUserPress(notification.fromUser.username)}>
+                      <Text style={styles.usernameText}>{notification.fromUser.username}</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <Text style={styles.usernameText}>Unknown User</Text>
+                  )}
+                  <Text style={styles.notificationText}>
+                    {notification.type === 'like' && ' liked your post'}
+                    {notification.type === 'comment' && ` commented on your post: ${truncateComment(notification.comment?.content || '')}`}
+                    {notification.type === 'mention' && ` mentioned you in a comment: ${truncateComment(notification.comment?.content || '')}`}
+                    {notification.type === 'repost' && ' reposted your post'}
+                    {notification.type === 'follow' && ' started following you'}
+                  </Text>
+                </View>
+                
+                <Text style={styles.notificationTime}>
+                  {new Date(notification.createdAt).toLocaleString()}
+                </Text>
+              </View>
+
+              {notification.type !== 'follow' && notification.post?.image && (
+                <Image
+                  source={{ uri: notification.post.image.image }}
+                  style={styles.notificationImage}
+                />
+              )}
+
+              {notification.type === 'follow' && (
+                <TouchableOpacity
+                  style={[
+                    styles.followButton,
+                    followingStatus[notification.fromUser.username]
+                      ? styles.following
+                      : styles.notFollowing,
+                  ]}
+                  onPress={() => handleFollowToggle(notification.fromUser)}
+                >
+                  <Text style={styles.followButtonText}>
+                    {followingStatus[notification.fromUser.username] ? 'Following' : 'Follow Back'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
   );
 }

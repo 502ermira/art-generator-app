@@ -4,6 +4,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const imageRoutes = require('./routes/imageRoutes');
 const authRoutes = require('./routes/authRoutes');
+const http = require('http');
+const { initSocket } = require('./socket');
 
 dotenv.config();
 const app = express();
@@ -18,11 +20,14 @@ mongoose.connect(process.env.MONGO_URI, {
 
 app.use(cors());
 app.use(express.json({ limit: '16mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use('/api', imageRoutes);
 app.use('/auth', authRoutes);
 
-app.listen(port, () => {
+const server = http.createServer(app);
+
+initSocket(server);
+
+server.listen(port, () => {
   console.log(`Backend running on http://localhost:${port}`);
 });

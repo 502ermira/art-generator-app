@@ -9,6 +9,7 @@ const Like = require('../models/Like');
 const Comment = require('../models/Comment');
 const Repost = require('../models/Repost');
 const Notification = require('../models/Notification');
+const { sendNotification } = require('../services/notificationService');
 
 exports.signup = async (req, res) => {
   const { username, email, password, fullname, profilePicture } = req.body;
@@ -460,30 +461,19 @@ exports.likePost = async (req, res) => {
       return res.status(401).json({ error: 'User not found' });
     }
 
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate('user', 'username');
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
 
     const existingLike = await Like.findOne({ post: postId, user: user._id });
-
     if (existingLike) {
       await Like.deleteOne({ _id: existingLike._id });
-
-      await Notification.deleteOne({
-        post: postId,
-        fromUser: user._id,
-        type: 'like',
-      });
-
+      await Notification.deleteOne({ post: postId, fromUser: user._id, type: 'like' });
       return res.status(200).json({ message: 'Post unliked' });
     }
 
-    const newLike = new Like({
-      post: postId,
-      user: user._id,
-    });
-
+    const newLike = new Like({ post: postId, user: user._id });
     await newLike.save();
 
     const existingNotification = await Notification.findOne({
@@ -496,7 +486,7 @@ exports.likePost = async (req, res) => {
       existingNotification.createdAt = Date.now();
       await existingNotification.save();
     } else {
-      if (post.user.toString() !== user._id.toString()) {
+      if (post.user && post.user.toString() !== user._id.toString()) {
         const notification = new Notification({
           user: post.user,
           fromUser: user._id,
@@ -505,6 +495,25 @@ exports.likePost = async (req, res) => {
           type: 'like',
         });
         await notification.save();
+
+        const populatedNotification = await Notification.findById(notification._id)
+          .populate('fromUser', 'username profilePicture')
+          .populate({
+            path: 'post',
+            populate: { path: 'image', model: 'Image', select: 'image' },
+          })
+          .exec();
+
+        if (populatedNotification) {
+          sendNotification(post.user.username, {
+            message: populatedNotification.message,
+            type: 'like',
+            postId: postId,
+            fromUser: populatedNotification.fromUser,
+            createdAt: populatedNotification.createdAt,
+            post: populatedNotification.post,
+          });
+        }
       }
     }
 
@@ -760,7 +769,7 @@ exports.getNotifications = async (req, res) => {
       .populate('fromUser', 'username profilePicture')
       .populate({
         path: 'post',
-        populate: { path: 'image', select: 'image' },
+        populate: { path: 'image', model: 'Image', select: 'image' },
       })
       .populate('comment', 'content')
       .sort({ createdAt: -1 });
