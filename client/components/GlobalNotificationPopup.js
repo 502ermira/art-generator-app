@@ -1,8 +1,9 @@
 import React, { useRef, useEffect, useState, useContext } from 'react';
-import { View, Animated, Text, Image } from 'react-native';
+import { View, Animated, Text, Image, TouchableOpacity, PanResponder } from 'react-native';
 import { UserContext } from '../contexts/UserContext';
 import { styles } from './GlobalNotificationPopupStyles.js';
 import io from 'socket.io-client';
+import { useNavigation, useNavigationState } from '@react-navigation/native';
 
 export default function GlobalNotificationPopup() {
   const { token, username: loggedInUsername } = useContext(UserContext);
@@ -10,18 +11,55 @@ export default function GlobalNotificationPopup() {
   const [popupVisible, setPopupVisible] = useState(false);
   const popupAnimation = useRef(new Animated.Value(-100)).current;
   const socket = useRef(null);
+  const navigation = useNavigation();
+
+  const currentRouteName = useNavigationState((state) => {
+    if (!state || !state.routes || state.routes.length === 0) {
+      return null;
+    }
+    const route = state.routes[state.index];
+    return route.name;
+  });
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (evt, gestureState) => {
+        return Math.abs(gestureState.dy) > 10 || Math.abs(gestureState.dx) > 10;
+      },
+      onPanResponderMove: (evt, gestureState) => {
+        if (gestureState.dy < 0 || gestureState.dx < 0) {
+          popupAnimation.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (evt, gestureState) => {
+        if (gestureState.dy < -50 || gestureState.dx < -50) {
+          hidePopup();
+        } else {
+          Animated.timing(popupAnimation, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   useEffect(() => {
+    if (currentRouteName === 'NotificationScreen') return;
+
     socket.current = io('http://192.168.1.145:5000');
     socket.current.emit('joinRoom', loggedInUsername);
 
     const handleNewNotification = (notification) => {
-      showPopup(
-        notification.message,
-        notification.fromUser?.username,
-        notification.fromUser?.profilePicture,
-        notification.post?.image?.image
-      );
+      if (currentRouteName !== 'NotificationScreen') {
+        showPopup(
+          notification.message,
+          notification.fromUser?.username,
+          notification.fromUser?.profilePicture,
+          notification.post?.image?.image
+        );
+      }
     };
 
     socket.current.on('newNotification', handleNewNotification);
@@ -30,7 +68,7 @@ export default function GlobalNotificationPopup() {
       socket.current.off('newNotification', handleNewNotification);
       socket.current.disconnect();
     };
-  }, [loggedInUsername]);
+  }, [loggedInUsername, currentRouteName]);
 
   const showPopup = (message, fromUser, profilePicture, postImage) => {
     setPopupMessage({ message, fromUser, profilePicture, postImage });
@@ -58,11 +96,19 @@ export default function GlobalNotificationPopup() {
     });
   };
 
+  const handlePopupPress = () => {
+    hidePopup();
+    navigation.navigate('NotificationScreen');
+  };
+
   if (!popupVisible || !popupMessage) return null;
 
   return (
-    <Animated.View style={[styles.popup, { transform: [{ translateY: popupAnimation }] }]}>
-      <View style={styles.popupContainer}>
+    <Animated.View
+      style={[styles.popup, { transform: [{ translateY: popupAnimation }] }]}
+      {...panResponder.panHandlers}
+    >
+      <TouchableOpacity onPress={handlePopupPress} style={styles.popupContainer}>
         <View style={styles.popupUserInfo}>
           <Image 
             source={{ uri: popupMessage.profilePicture }}
@@ -78,7 +124,7 @@ export default function GlobalNotificationPopup() {
             style={styles.popupPostImage}
           />
         )}
-      </View>
+      </TouchableOpacity>
     </Animated.View>
   );
 }

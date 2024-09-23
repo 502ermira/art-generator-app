@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useContext } from 'react';
-import { View, Animated, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, RefreshControl, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './NotificationScreenStyles.js';
@@ -11,6 +11,7 @@ export default function NotificationScreen() {
   const [followingStatus, setFollowingStatus] = useState({});
   const navigation = useNavigation();
   const socket = useRef(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     socket.current = io('http://192.168.1.145:5000');
@@ -29,47 +30,70 @@ export default function NotificationScreen() {
   }, [loggedInUsername]);
 
   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await fetch('http://192.168.1.145:5000/auth/notifications', {
-          headers: { Authorization: token },
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setNotifications(data);
-        } else {
-          console.error('Failed to fetch notifications:', data.error);
+    socket.current = io('http://192.168.1.145:5000');
+    socket.current.emit('joinRoom', loggedInUsername);
+
+    const handleNewNotification = (notification) => {
+      setNotifications((prevNotifications) => [notification, ...prevNotifications]);
+    };
+
+    socket.current.on('newNotification', handleNewNotification);
+
+    return () => {
+      socket.current.off('newNotification', handleNewNotification);
+      socket.current.disconnect();
+    };
+  }, [loggedInUsername]);
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch('http://192.168.1.145:5000/auth/notifications', {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setNotifications(data);
+      } else {
+        console.error('Failed to fetch notifications:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  const fetchFollowingStatus = async () => {
+    try {
+      const statusResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${loggedInUsername}`, {
+        headers: { Authorization: token },
+      });
+      const statusData = await statusResponse.json();
+
+      const status = {};
+      statusData.following.forEach(user => {
+        status[user.followingId.username] = true;
+      });
+      statusData.followers.forEach(user => {
+        if (!status[user.followerId.username]) {
+          status[user.followerId.username] = false;
         }
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-      }
-    };
+      });
+      setFollowingStatus(status);
+    } catch (error) {
+      console.error('Error fetching follow status:', error);
+    }
+  };
 
-    const fetchFollowingStatus = async () => {
-      try {
-        const statusResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${loggedInUsername}`, {
-          headers: { Authorization: token },
-        });
-        const statusData = await statusResponse.json();
-
-        const status = {};
-        statusData.following.forEach(user => {
-          status[user.followingId.username] = true;
-        });
-        statusData.followers.forEach(user => {
-          if (!status[user.followerId.username]) {
-            status[user.followerId.username] = false;
-          }
-        });
-        setFollowingStatus(status);
-      } catch (error) {
-        console.error('Error fetching follow status:', error);
-      }
-    };
-
+  useEffect(() => {
     fetchNotifications();
     fetchFollowingStatus();
   }, [token, loggedInUsername]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchNotifications();
+    await fetchFollowingStatus();
+    setRefreshing(false);
+  };
 
   const handleFollowToggle = async (user) => {
     const isFollowing = followingStatus[user.username];
@@ -115,7 +139,9 @@ export default function NotificationScreen() {
 
   return (
     <View>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}
+       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
         {notifications.map((notification) => (
           <TouchableOpacity
             key={notification._id}
