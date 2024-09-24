@@ -16,34 +16,35 @@ export default function NotificationScreen() {
   useEffect(() => {
     socket.current = io('http://192.168.1.145:5000');
     socket.current.emit('joinRoom', loggedInUsername);
-
+  
     const handleNewNotification = (notification) => {
-      setNotifications((prevNotifications) => [notification, ...prevNotifications]);
+      setNotifications((prevNotifications) => {
+        const isDuplicate = prevNotifications.some(
+          (existingNotification) =>
+            existingNotification.fromUser?._id === notification.fromUser?._id &&
+            existingNotification.type === notification.type &&
+            (notification.type === 'like' || notification.type === 'repost' || notification.type === 'follow')
+        );
+  
+        const filteredNotifications = prevNotifications.filter(
+          (existingNotification) =>
+            !(
+              existingNotification.fromUser?._id === notification.fromUser?._id &&
+              existingNotification.type === notification.type &&
+              (notification.type === 'like' || notification.type === 'repost' || notification.type === 'follow')
+            )
+        );
+  
+        return [notification, ...filteredNotifications];
+      });
     };
-
+  
     socket.current.on('newNotification', handleNewNotification);
-
+  
     return () => {
-      socket.current.off('newNotification', handleNewNotification);
       socket.current.disconnect();
     };
-  }, [loggedInUsername]);
-
-  useEffect(() => {
-    socket.current = io('http://192.168.1.145:5000');
-    socket.current.emit('joinRoom', loggedInUsername);
-
-    const handleNewNotification = (notification) => {
-      setNotifications((prevNotifications) => [notification, ...prevNotifications]);
-    };
-
-    socket.current.on('newNotification', handleNewNotification);
-
-    return () => {
-      socket.current.off('newNotification', handleNewNotification);
-      socket.current.disconnect();
-    };
-  }, [loggedInUsername]);
+  }, [loggedInUsername]);  
 
   const fetchNotifications = async () => {
     try {
@@ -164,6 +165,7 @@ export default function NotificationScreen() {
 
               <View style={styles.notificationTextContainer}>
                 <View style={styles.usernameAndTextContainer}>
+                  <Text style={styles.notificationText}>
                   {notification.fromUser?.username ? (
                     <TouchableOpacity onPress={() => handleUserPress(notification.fromUser.username)}>
                       <Text style={styles.usernameText}>{notification.fromUser.username}</Text>
@@ -171,9 +173,8 @@ export default function NotificationScreen() {
                   ) : (
                     <Text style={styles.usernameText}>Unknown User</Text>
                   )}
-                  <Text style={styles.notificationText}>
                     {notification.type === 'like' && ' liked your post'}
-                    {notification.type === 'comment' && ` commented on your post: ${truncateComment(notification.comment?.content || '')}`}
+                    {notification.type === 'comment' && ` commented on your post: ${truncateComment(notification.comment?.content || '')}`}                   
                     {notification.type === 'mention' && ` mentioned you in a comment: ${truncateComment(notification.comment?.content || '')}`}
                     {notification.type === 'repost' && ' reposted your post'}
                     {notification.type === 'follow' && ' started following you'}

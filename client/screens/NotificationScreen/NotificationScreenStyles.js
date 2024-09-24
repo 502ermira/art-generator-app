@@ -15,6 +15,7 @@ export const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
+  
   },
   notificationContent: {
     flexDirection: 'row',
@@ -41,7 +42,7 @@ export const styles = StyleSheet.create({
   },
   usernameAndTextContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
   },  
   notificationText: {
     fontSize: 14,

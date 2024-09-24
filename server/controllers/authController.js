@@ -293,7 +293,6 @@ exports.followUser = async (req, res) => {
       followerId,
       followingId: followingUser._id,
     });
-
     await newFollow.save();
 
     await Notification.deleteMany({
@@ -302,14 +301,28 @@ exports.followUser = async (req, res) => {
       type: 'follow',
     });
 
+    const followerUser = await User.findById(followerId);
+
     const notification = new Notification({
       user: followingUser._id,
       fromUser: followerId,
-      message: 'started following you',
+      message: `${followerUser.username} started following you`,
       type: 'follow',
     });
-
     await notification.save();
+
+    const populatedNotification = await Notification.findById(notification._id)
+      .populate('fromUser', 'username profilePicture fullname')
+      .exec();  
+
+    if (populatedNotification) {
+      sendNotification(followingUser.username, {
+        message: populatedNotification.message,
+        type: 'follow',
+        fromUser: populatedNotification.fromUser,
+        createdAt: populatedNotification.createdAt,
+      });
+    }
 
     res.status(200).json({ message: 'Followed successfully' });
   } catch (error) {
@@ -570,7 +583,7 @@ exports.addCommentToPost = async (req, res) => {
       return res.status(401).json({ error: 'User not found' });
     }
 
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate('user', 'username');
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -584,12 +597,11 @@ exports.addCommentToPost = async (req, res) => {
       content,
       mentions: mentionedUsers.map((u) => u._id),
     });
-
     await newComment.save();
 
-    if (post.user.toString() !== user._id.toString()) {
+    if (post.user._id.toString() !== user._id.toString()) {
       const notification = new Notification({
-        user: post.user,
+        user: post.user._id,
         fromUser: user._id,
         post: postId,
         comment: newComment._id,
@@ -597,6 +609,27 @@ exports.addCommentToPost = async (req, res) => {
         type: 'comment',
       });
       await notification.save();
+
+      const populatedNotification = await Notification.findById(notification._id)
+        .populate('fromUser', 'username profilePicture')
+        .populate({
+          path: 'post',
+          populate: { path: 'image', model: 'Image', select: 'image' },
+        })
+        .populate('comment', 'content') 
+        .exec();
+
+      if (populatedNotification) {
+        sendNotification(post.user.username, {
+          message: populatedNotification.message,
+          type: 'comment',
+          postId: postId,
+          fromUser: populatedNotification.fromUser,
+          createdAt: populatedNotification.createdAt,
+          post: populatedNotification.post,
+          comment: populatedNotification.comment,
+        });
+      }
     }
 
     for (const mentionedUser of mentionedUsers) {
@@ -609,9 +642,28 @@ exports.addCommentToPost = async (req, res) => {
         type: 'mention',
       });
       await notification.save();
+
+      const populatedNotification = await Notification.findById(notification._id)
+        .populate('fromUser', 'username profilePicture')
+        .populate({
+          path: 'post',
+          populate: { path: 'image', model: 'Image', select: 'image' },
+        })
+        .exec();
+
+      if (populatedNotification) {
+        sendNotification(mentionedUser.username, {
+          message: populatedNotification.message,
+          type: 'mention',
+          postId: postId,
+          fromUser: populatedNotification.fromUser,
+          createdAt: populatedNotification.createdAt,
+          post: populatedNotification.post,
+        });
+      }
     }
 
-    res.json(newComment);
+    res.status(201).json({ message: 'Comment added', comment: newComment });
   } catch (error) {
     console.error('Error adding comment:', error);
     res.status(500).json({ error: 'Failed to add comment' });
@@ -664,7 +716,7 @@ exports.repostPost = async (req, res) => {
       return res.status(401).json({ error: 'User not found' });
     }
 
-    const post = await Post.findById(postId);
+    const post = await Post.findById(postId).populate('user', 'username');
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -673,13 +725,7 @@ exports.repostPost = async (req, res) => {
 
     if (existingRepost) {
       await Repost.deleteOne({ _id: existingRepost._id });
-
-      await Notification.deleteOne({
-        post: postId,
-        fromUser: user._id,
-        type: 'repost',
-      });
-
+      await Notification.deleteOne({ post: postId, fromUser: user._id, type: 'repost' });
       return res.status(200).json({ message: 'Post unreposted successfully' });
     }
 
@@ -696,15 +742,34 @@ exports.repostPost = async (req, res) => {
       existingNotification.createdAt = Date.now();
       await existingNotification.save();
     } else {
-      if (post.user.toString() !== user._id.toString()) {
+      if (post.user && post.user._id.toString() !== user._id.toString()) {
         const notification = new Notification({
-          user: post.user,
+          user: post.user._id,
           fromUser: user._id,
           post: postId,
           message: `${user.username} reposted your post`,
           type: 'repost',
         });
         await notification.save();
+
+        const populatedNotification = await Notification.findById(notification._id)
+          .populate('fromUser', 'username profilePicture')
+          .populate({
+            path: 'post',
+            populate: { path: 'image', model: 'Image', select: 'image' },
+          })
+          .exec();
+
+        if (populatedNotification) {
+          sendNotification(post.user.username, {
+            message: populatedNotification.message,
+            type: 'repost',
+            postId: postId,
+            fromUser: populatedNotification.fromUser,
+            createdAt: populatedNotification.createdAt,
+            post: populatedNotification.post,
+          });
+        }
       }
     }
 
@@ -766,7 +831,7 @@ exports.getNotifications = async (req, res) => {
     if (!user) return res.status(401).json({ error: 'User not found' });
 
     let notifications = await Notification.find({ user: user._id })
-      .populate('fromUser', 'username profilePicture')
+      .populate('fromUser', 'username profilePicture fullname')
       .populate({
         path: 'post',
         populate: { path: 'image', model: 'Image', select: 'image' },
