@@ -69,23 +69,37 @@ export default function TextPromptScreen() {
   };  
 
   const saveFavorite = async (image) => {
-    if (token) {
-      // Save to backend if user is logged in
-      await fetch('http://192.168.1.145:5000/auth/favorites', {
-        method: 'POST',
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ image }),
-      });
-    } else {
-      // Save to AsyncStorage for guest users
-      const updatedFavorites = [...favorites, image];
-      setFavorites(updatedFavorites);
-      await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+    try {
+      if (token) {
+        // Save to backend if user is logged in
+        const response = await fetch('http://192.168.1.145:5000/auth/favorites', {
+          method: 'POST',
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ image }),
+        });
+  
+        const data = await response.json();
+  
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to save favorite');
+        } else {
+          alert('Favorite saved successfully');
+        }
+      } else {
+        // Save to AsyncStorage for guest users
+        const updatedFavorites = [...favorites, image];
+        setFavorites(updatedFavorites);
+        await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+        alert('Favorite saved locally');
+      }
+    } catch (error) {
+      console.error('Error saving favorite:', error);
+      alert('Error saving favorite: ' + error.message);
     }
-  };
+  };  
   
   const previewFavorites = favorites.slice(0, 6);
 
@@ -111,12 +125,12 @@ export default function TextPromptScreen() {
           {error && <Text style={styles.error}>{error}</Text>}
 
           {imageUrl && (
-            <>
-              <Image source={{ uri: imageUrl }} style={styles.image} />
-              <TouchableOpacity style={styles.button} onPress={() => saveFavorite(imageUrl)}>
-                <Text style={styles.buttonText}>Favorite</Text>
-              </TouchableOpacity>
-            </>
+           <>
+            <Image source={{ uri: imageUrl }} style={styles.image} />
+            <TouchableOpacity style={styles.button} onPress={() => saveFavorite(imageUrl)}>
+             <Text style={styles.buttonText}>Favorite</Text>
+            </TouchableOpacity>
+           </>
           )}
 
           {previewFavorites.length > 0 && (

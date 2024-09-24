@@ -1,44 +1,74 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
-export default StyleSheet.create({
+const { width, height } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#151419',
-    paddingTop: 80,
+    padding: 15,
+    backgroundColor: '#f5f5f5',
+    paddingTop: 40,
+  },
+  searchContainer : {
+    justifyContent: 'center',
+    flexDirection: 'row',
   },
   searchInput: {
-    padding: 10,
-    borderColor: '#eee',
+    height: 43,
+    borderColor: '#cccccc',
     borderWidth: 1,
-    borderRadius: 12,
-    marginBottom: 20,
-    color: '#eee',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    fontSize: 15,
+    marginRight: 8,
+    width: '82%',
   },
-  searchResult: {
-    flexDirection: 'row',
+  button: {
+    backgroundColor: '#7049f6',
+    paddingHorizontal: 20,
+    borderRadius: 50,
     alignItems: 'center',
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
+    justifyContent: 'center',
+    shadowColor: '#6200ea',
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 10,
   },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#7049f6',
+  navIcon: {
+    color: '#fff',
+    fontWeight: '500',
+    fontSize: 18,
   },
-  textContainer: {
-    marginLeft: 10,
+  loadingIndicator: {
+    marginTop: 20,
   },
-  fullname: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#eee',
+  noResultsText: {
+    fontSize: 18,
+    color: '#333',
+    textAlign: 'center',
+    marginTop: 30,
   },
-  username: {
-    fontSize: 14,
-    color: '#888',
+  imageContainer: {
+    flex: 1,
+    margin: 7,
+    marginTop:25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  photoImage: {
+    width: (width / 2) - 30,
+    height: (height / 4) - 20,
+    resizeMode: 'cover',
   },
 });
+
+export default styles;

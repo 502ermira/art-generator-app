@@ -1,71 +1,74 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { View, TextInput, FlatList, Text, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, TextInput, FlatList, ScrollView, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from './SearchScreenStyles';
 
 export default function SearchScreen() {
-  const { token, username: loggedInUsername } = useContext(UserContext);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const { token } = useContext(UserContext);
+  const [imageQuery, setImageQuery] = useState('');
+  const [imageResults, setImageResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    if (searchQuery.trim() !== '') {
-      const searchUsers = async () => {
-        try {
-          const response = await fetch(`http://192.168.1.145:5000/auth/search-users?searchQuery=${searchQuery}`, {
-            headers: { Authorization: token },
-          });
-          const data = await response.json();
-          setSearchResults(data);
-        } catch (error) {
-          console.error('Error searching users:', error);
-        }
-      };
-
-      searchUsers();
-    } else {
-      setSearchResults([]);
+  const handleSearch = async () => {
+    if (imageQuery.trim() === '') {
+      return;
     }
-  }, [searchQuery]);
 
-  const handleUserPress = (user) => {
-    if (user.username === loggedInUsername) {
-      navigation.navigate('Profile');
-    } else {
-      navigation.navigate('UserProfile', { username: user.username });
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/api/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+        },
+        body: JSON.stringify({ query: imageQuery }),
+      });
+
+      const data = await response.json();
+      setImageResults(data.results || []);
+    } catch (error) {
+      console.error('Error searching photos:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      <View style={styles.searchContainer}>
       <TextInput
         style={styles.searchInput}
-        placeholder="Search for users..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
+        placeholder="Search for images..."
+        value={imageQuery}
+        onChangeText={setImageQuery}
       />
 
-      {searchResults.length > 0 ? (
+      <TouchableOpacity title="Search" onPress={handleSearch} style={styles.button} >
+        <Icon name="search" style={styles.navIcon} />
+      </TouchableOpacity>
+      </View>
+
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
+      ) : imageResults.length > 0 ? (
         <FlatList
-          data={searchResults}
-          keyExtractor={(item) => item.username}
+          data={imageResults}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleUserPress(item)}>
-              <View style={styles.searchResult}>
-                <Image source={{ uri: item.profilePicture }} style={styles.profileImage} />
-                <View style={styles.textContainer}>
-                  <Text style={styles.fullname}>{item.fullname}</Text>
-                  <Text style={styles.username}>@{item.username}</Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+            <View style={styles.imageContainer}>
+              <Image source={{ uri: item.image }} style={styles.photoImage} />
+            </View>
           )}
         />
       ) : (
-        <Text>No users found</Text>
+        <Text style={styles.noResultsText}>No images found</Text>
       )}
-    </View>
+    </ScrollView>
   );
 }

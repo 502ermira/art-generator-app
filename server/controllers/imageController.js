@@ -27,9 +27,25 @@ exports.generateImage = async (req, res) => {
       const base64Image = Buffer.from(await result.arrayBuffer()).toString('base64');
       const imageUrl = `data:image/png;base64,${base64Image}`;
 
+      const fetch = (await import('node-fetch')).default;
+
+      console.log(`Sending request to Flask service for embedding: ${prompt}`);
+      const embeddingResponse = await fetch('http://192.168.1.145:5001/embed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sentence: prompt }),
+      });
+
+      if (!embeddingResponse.ok) {
+        throw new Error('Failed to get embedding from Flask service');
+      }
+
+      const embedding = await embeddingResponse.json();
+
       const newImage = new Image({
         prompt,
         image: imageUrl,
+        embedding: embedding,
         user: userId || null,
       });
       await newImage.save();
@@ -45,5 +61,45 @@ exports.generateImage = async (req, res) => {
       console.error('Error generating image:', error);
       res.status(500).json({ error: 'Error generating image' });
     }
+  }
+};
+
+exports.searchImages = async (req, res) => {
+  const { query } = req.body;
+
+  if (!query) {
+    return res.status(400).json({ error: 'Query is required' });
+  }
+
+  try {
+    const fetch = (await import('node-fetch')).default;
+    console.log(`Sending search request to Flask service: ${query}`);
+
+    const response = await fetch('http://192.168.1.145:5001/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Search failed with status ' + response.status);
+    }
+
+    const data = await response.json();
+
+    const imageIds = data.results.map(result => result.id);
+
+    const images = await Image.find({ _id: { $in: imageIds } });
+
+    const results = images.map(image => ({
+      id: image._id,
+      image: image.image,
+      prompt: image.prompt,
+    }));
+
+    res.status(200).json({ results });
+  } catch (error) {
+    console.error('Search error:', error.message);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };

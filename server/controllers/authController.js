@@ -58,39 +58,32 @@ exports.login = async (req, res) => {
     }
   };
   
-  exports.addFavorite = async (req, res) => {
+  exports.saveFavorite = async (req, res) => {
     const { image } = req.body;
-  
-    if (!image) {
-      return res.status(400).json({ error: 'Image is required' });
-    }
-  
-    if (typeof image !== 'string') {
-      return res.status(400).json({ error: 'Image must be a string (URL)' });
-    }
+    const { authorization } = req.headers;
   
     try {
-      const userId = req.userId;
-  
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).json({ error: 'Invalid user ID' });
-      }
-  
-      const user = await User.findById(userId);
+      const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.userId);
   
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(401).json({ error: 'User not found' });
+      }
+  
+      const isFavorite = user.favorites.includes(image);
+      if (isFavorite) {
+        return res.status(400).json({ error: 'Image is already a favorite' });
       }
   
       user.favorites.push(image);
       await user.save();
   
-      res.status(200).json({ message: 'Favorite added', favorites: user.favorites });
-    } catch (error) {
-      console.error('Error adding favorite:', error.errors || error);
-      res.status(500).json({ error: 'Failed to add favorite' });
+      res.status(200).json({ message: 'Favorite saved successfully' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal server error' });
     }
-  };  
+  };    
 
   exports.getProfile = async (req, res) => {
     try {
