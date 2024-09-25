@@ -16,10 +16,10 @@ export default function SearchScreen() {
 
   const handleSearch = async (type) => {
     if (searchQuery.trim() === '') return;
-
+  
     setIsLoading(true);
     setSearchType(type);
-
+  
     try {
       let response;
       if (type === 'images') {
@@ -28,6 +28,7 @@ export default function SearchScreen() {
           headers: {
             'Content-Type': 'application/json',
             Authorization: token,
+            'Cache-Control': 'no-cache',
           },
           body: JSON.stringify({ query: searchQuery }),
         });
@@ -36,7 +37,7 @@ export default function SearchScreen() {
           headers: { Authorization: token },
         });
       }
-
+  
       const data = await response.json();
       setSearchResults(type === 'images' ? data.results || [] : data);
     } catch (error) {
@@ -44,7 +45,7 @@ export default function SearchScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  };  
 
   const handleResultPress = (item) => {
     if (searchType === 'images') {

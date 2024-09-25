@@ -43,8 +43,13 @@ def search():
     for doc in image_docs:
         if 'embedding' not in doc:
             continue
+        
+        # Ensure prompt_embedding is explicitly converted to a torch tensor with float32 dtype
         prompt_embedding = np.array(doc['embedding'], dtype=np.float32)
-        similarity_score = util.pytorch_cos_sim(query_embedding, torch.tensor(prompt_embedding)).item()
+        prompt_embedding_tensor = torch.tensor(prompt_embedding, dtype=torch.float32)
+
+        # Calculate similarity
+        similarity_score = util.pytorch_cos_sim(query_embedding, prompt_embedding_tensor).item()
         similarities.append((doc['_id'], doc['prompt'], similarity_score))
 
     # Sort by similarity score
