@@ -7,41 +7,22 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
     backgroundColor: '#f5f5f5',
-    paddingTop: 40,
+    paddingTop: 62,
   },
-  searchContainer : {
+  searchContainer: {
     justifyContent: 'center',
     flexDirection: 'row',
   },
   searchInput: {
-    height: 43,
+    height: 40,
     borderColor: '#cccccc',
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 20,
     paddingHorizontal: 16,
     backgroundColor: '#fff',
     fontSize: 15,
-    marginRight: 8,
-    width: '82%',
-  },
-  button: {
-    backgroundColor: '#7049f6',
-    paddingHorizontal: 20,
-    borderRadius: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#6200ea',
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-  navIcon: {
-    color: '#fff',
-    fontWeight: '500',
-    fontSize: 18,
-  },
-  loadingIndicator: {
-    marginTop: 20,
+    marginRight: 14,
+    width: '85%',
   },
   noResultsText: {
     fontSize: 18,
@@ -49,12 +30,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 30,
   },
-  imageContainer: {
+  resultContainer: {
     flex: 1,
     margin: 7,
-    marginTop:25,
+    marginTop:15,
     justifyContent: 'center',
-    alignItems: 'center',
     borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: '#fff',
@@ -64,10 +44,54 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+  userResult: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+    justifyItems: 'flex-start',
+  },
+  profileImage: {
+    width: 47,
+    height: 47,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: '#7049f6',
+    left: 8,
+    marginRight: 11,
+  },
+  textContainer: {
+    marginLeft: 10,
+    flexDirection: 'column',
+  },
+  fullname: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#000',
+    marginTop: 2.5,
+  },
+  username: {
+    fontSize: 15,
+    color: '#888',
+    marginTop: 1,
+  },
   photoImage: {
     width: (width / 2) - 30,
     height: (height / 4) - 20,
     resizeMode: 'cover',
+  },
+  tabBar: {
+    marginTop: 10,
+    backgroundColor: 'none',
+  },
+  tabIndicator: {
+    backgroundColor: '#7049f6',
+    marginBottom: 2,
+  },
+  tabLabel: {
+    color: '#000',
+    fontSize: 13,
   },
 });
 

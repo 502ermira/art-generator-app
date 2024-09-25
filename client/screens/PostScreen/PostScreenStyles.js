@@ -21,26 +21,26 @@ export const styles = StyleSheet.create({
   },
   userInfo: {
     flexDirection: 'row',
-    marginBottom: 13,
+    marginBottom: 8,
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 11,
   },
   profileImage: {
-    width: 50,
-    height: 50,
+    width: 48,
+    height: 48,
     borderRadius: 25,
-    marginRight: 10,
+    marginRight: 9,
   },
   userDetails: {
     justifyContent: 'center',
   },
   fullname: {
     fontWeight: '600',
-    fontSize: 17,
+    fontSize: 16,
   },
   username: {
     color: '#888',
-    fontSize: 15,
+    fontSize: 14,
   },
   postImage: {
     width: '100%',
@@ -70,7 +70,7 @@ export const styles = StyleSheet.create({
   likesContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 6,
+    marginVertical: 4,
     textAlign: 'center',
     paddingHorizontal: 16,
   },

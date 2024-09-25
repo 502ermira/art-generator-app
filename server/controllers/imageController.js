@@ -1,7 +1,7 @@
 const { HfInference } = require('@huggingface/inference');
 const inference = new HfInference(process.env.HUGGINGFACE_API_KEY);
 const Image = require('../models/Image');
-const User = require('../models/User');
+const Post = require('../models/Post');
 
 exports.generateImage = async (req, res) => {
   const { prompt } = req.body;
@@ -86,15 +86,22 @@ exports.searchImages = async (req, res) => {
     }
 
     const data = await response.json();
-
     const imageIds = data.results.map(result => result.id);
 
     const images = await Image.find({ _id: { $in: imageIds } });
+
+    const posts = await Post.find({ image: { $in: imageIds } }).populate('image');
+
+    const postMap = posts.reduce((acc, post) => {
+      acc[post.image._id] = post._id;
+      return acc;
+    }, {});
 
     const results = images.map(image => ({
       id: image._id,
       image: image.image,
       prompt: image.prompt,
+      postId: postMap[image._id],
     }));
 
     res.status(200).json({ results });
