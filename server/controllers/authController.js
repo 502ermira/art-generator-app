@@ -10,6 +10,8 @@ const Comment = require('../models/Comment');
 const Repost = require('../models/Repost');
 const Notification = require('../models/Notification');
 const { sendNotification } = require('../services/notificationService');
+const Search = require('../models/Search');
+const PostView = require('../models/PostView');
 
 exports.signup = async (req, res) => {
   const { username, email, password, fullname, profilePicture } = req.body;
@@ -148,6 +150,7 @@ exports.login = async (req, res) => {
 
 exports.searchUsers = async (req, res) => {
   const { searchQuery } = req.query;
+  const userId = req.userId;
 
   if (!searchQuery) {
     return res.status(400).json({ error: 'Search query is required' });
@@ -161,6 +164,10 @@ exports.searchUsers = async (req, res) => {
       ]
     }).select('username fullname profilePicture');
 
+    if (userId) {
+      await Search.create({ user: userId, query: searchQuery, type: 'users' });
+    }
+    
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: 'Failed to search users' });
@@ -245,6 +252,21 @@ exports.getPostById = async (req, res) => {
 
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const existingPostView = await PostView.findOne({ post: postId, user: user._id });
+
+    if (existingPostView) {
+      existingPostView.viewCount += 1;
+      existingPostView.viewedAt = Date.now();
+      await existingPostView.save();
+    } else {
+      await PostView.create({
+        post: postId,
+        user: user._id,
+        viewedAt: Date.now(),
+        viewCount: 1,
+      });
     }
 
     const likesCount = await Like.countDocuments({ post: postId });

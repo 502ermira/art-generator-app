@@ -50,6 +50,9 @@ export default function Navbar() {
       ) : (
         // Navbar for Logged In Users (Bottom Navbar)
         <View style={styles.navbarBottomContainer}>
+          <TouchableOpacity onPress={() => handleNavigation('HomeScreen')}>
+            <Icon name="user" style={styles.navIcon} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => handleNavigation('TextPromptScreen')}>
             <Icon name="home" style={styles.navIcon} />
           </TouchableOpacity>

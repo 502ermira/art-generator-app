@@ -2,6 +2,7 @@ const { HfInference } = require('@huggingface/inference');
 const inference = new HfInference(process.env.HUGGINGFACE_API_KEY);
 const Image = require('../models/Image');
 const Post = require('../models/Post');
+const Search = require('../models/Search'); 
 
 exports.generateImage = async (req, res) => {
   const { prompt } = req.body;
@@ -66,6 +67,7 @@ exports.generateImage = async (req, res) => {
 
 exports.searchImages = async (req, res) => {
   const { query } = req.body;
+  const userId = req.userId;
 
   if (!query) {
     return res.status(400).json({ error: 'Query is required' });
@@ -85,6 +87,8 @@ exports.searchImages = async (req, res) => {
     }
 
     const data = await response.json();
+
+    await Search.create({ user: userId, query, type: 'images' });
 
     console.log('Data received from Flask:', data.results);
 

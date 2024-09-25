@@ -5,6 +5,7 @@ from pymongo import MongoClient
 import numpy as np
 import torch
 from dotenv import load_dotenv
+from sklearn.metrics.pairwise import cosine_similarity
 
 load_dotenv()
 
@@ -70,6 +71,25 @@ def embed():
     # Compute the embedding
     embedding = model.encode(sentence).tolist()
     return jsonify(embedding), 200
+
+# Relevance API endpoint
+@app.route('/relevance', methods=['POST'])
+def relevance():
+    post_embedding = request.json.get('embedding')
+    interaction_embeddings = request.json.get('interactionEmbeddings')
+
+    post_embedding_tensor = torch.tensor(post_embedding, dtype=torch.float32)
+
+    # Calculate similarity with each interaction embedding
+    similarity_scores = []
+    for interaction_embedding in interaction_embeddings:
+        interaction_tensor = torch.tensor(interaction_embedding, dtype=torch.float32)
+        similarity = util.pytorch_cos_sim(post_embedding_tensor, interaction_tensor).item()
+        similarity_scores.append(similarity)
+
+    # Return the highest similarity score
+    max_similarity = max(similarity_scores) if similarity_scores else 0
+    return jsonify({'similarity': max_similarity}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)
