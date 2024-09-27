@@ -53,6 +53,48 @@ export const styles = StyleSheet.create({
   userInfoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  userInfoAndEngagement: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 10,
+  },
+  engagementContainer: {
+    flexDirection: 'row',
+    right:7,
+  },
+  likes: {
+    fontWeight: '500',
+    marginHorizontal: 7,
+    alignContent: 'center'
+  },
+  comments: {
+    fontWeight: '500',
+    marginHorizontal: 7,
+    alignContent: 'center',
+  },
+  commentIcon : {
+    top:-2
+  },
+  reposts: {
+    fontWeight: '500',
+    marginHorizontal: 7,
+    alignContent: 'center',
+    alignItems: 'center'
+  },
+  repostIcon : {
+    top:-1.5,
+  },
+  prompt : {
+    fontSize: 13,
+    color: '#808080',
+    fontStyle: 'italic',
+    marginBottom: 5,
+  },
+  readMoreText: {
+    color: '#7049f6',
+    fontWeight: 'bold',
+    marginTop: 5,
   },
 });

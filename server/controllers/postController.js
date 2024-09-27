@@ -35,9 +35,27 @@ exports.getRelevantPosts = async (req, res) => {
         const engagementScore = await getEngagementScore(post._id);
         const relevanceScore = await getRelevanceScore(post, userId);
         const recencyScore = new Date() - post.sharedAt;
+
+        const likesCount = await Like.countDocuments({ post: post._id });
+        const commentsCount = await Comment.countDocuments({ post: post._id });
+        const repostsCount = await Repost.countDocuments({ post: post._id });
+
+        const isLikedByUser = await Like.exists({ post: post._id, user: userId });
+        const isRepostedByUser = await Repost.exists({ post: post._id, user: userId });
         
         const finalScore = (engagementScore * 0.3) + (relevanceScore * 0.5) - (recencyScore * 0.2);
-        return { post, finalScore };
+        
+        return {
+          post: {
+            ...post.toObject(),
+            likes: likesCount,
+            comments: commentsCount,
+            reposts: repostsCount,
+            isLikedByUser,
+            isRepostedByUser
+          },
+          finalScore
+        };
       })
     );
 

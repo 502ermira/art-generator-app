@@ -22,7 +22,6 @@ export default function PostScreen() {
   const [isRepostedByUser, setIsRepostedByUser] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [inputLayout, setInputLayout] = useState(null);
   const [inputPosition, setInputPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
