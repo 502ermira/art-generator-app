@@ -72,6 +72,7 @@ exports.searchImages = async (req, res) => {
   if (!query) {
     return res.status(400).json({ error: 'Query is required' });
   }
+
   try {
     const fetch = (await import('node-fetch')).default;
     console.log(`Sending search request to Flask service: ${query}`);
@@ -94,24 +95,18 @@ exports.searchImages = async (req, res) => {
 
     const imageIds = data.results.map(result => result.id);
 
-    const images = await Image.find({ _id: { $in: imageIds } });
+    const posts = await Post.find({ image: { $in: imageIds } })
+      .populate('image')
+      .populate('user', 'username profilePicture');
 
-    const posts = await Post.find({ image: { $in: imageIds } }).populate('image');
-
-    const postMap = posts.reduce((acc, post) => {
-      acc[post.image._id] = post._id;
-      return acc;
-    }, {});
-
-    const results = data.results.map(result => {
-      const image = images.find(img => String(img._id) === result.id);
-      return {
-        id: image._id,
-        image: image.image,
-        prompt: image.prompt,
-        postId: postMap[image._id],
-      };
-    });
+    const results = posts.map(post => ({
+      id: post.image._id,
+      image: post.image.image,
+      prompt: post.image.prompt,
+      postId: post._id,
+      username: post.user.username,
+      profilePicture: post.user.profilePicture,
+    }));
 
     res.status(200).json({ results });
   } catch (error) {

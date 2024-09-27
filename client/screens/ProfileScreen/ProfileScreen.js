@@ -14,9 +14,11 @@ export default function ProfileScreen({ navigation }) {
   const [followingCount, setFollowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
+  const [likes, setLikes] = useState([]);
   const [routes] = useState([
     { key: 'posts', title: 'Posts' },
     { key: 'reposts', title: 'Reposts' },
+    { key: 'likes', title: 'Likes' },
   ]);
 
   const screenWidth = Dimensions.get('window').width;
@@ -54,6 +56,17 @@ export default function ProfileScreen({ navigation }) {
           } else {
             console.error('Failed to fetch reposts:', repostsData.error);
           }
+
+          const likesResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/likes`, {
+            headers: { Authorization: token },
+          });
+          const likesData = await likesResponse.json();
+          
+          if (likesResponse.ok) {
+            setLikes(likesData);
+          } else {
+            console.error('Failed to fetch likes:', likesData.error);
+          }          
 
           const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${loggedInUsername}`);
           const followData = await followResponse.json();
@@ -94,7 +107,7 @@ export default function ProfileScreen({ navigation }) {
           ))}
         </View>
       ) : (
-        <Text>No posts available</Text>
+        <Text style={styles.noPostsText}>No posts available</Text>
       )}
     </View>
   );
@@ -116,14 +129,36 @@ export default function ProfileScreen({ navigation }) {
           ))}
         </View>
       ) : (
-        <Text>No reposts available</Text>
+        <Text style={styles.noPostsText}>No reposts available</Text>
       )}
     </View>
   );
 
+  const LikesRoute = () => (
+    <View style={styles.tabContent}>
+      {likes.length > 0 ? (
+        <View style={[styles.previewGrid, { width: screenWidth }]}>
+          {likes
+            .map((like, index) => (
+              <TouchableOpacity 
+                key={index} 
+                style={[styles.postContainer, { width: imageSize, height: imageSize }]} 
+                onPress={() => navigation.navigate('PostScreen', { postId: like.post._id })}
+              >
+                <Image source={{ uri: like.post.image.image }} style={styles.previewImage} />
+              </TouchableOpacity>
+          ))}
+        </View>
+      ) : (
+        <Text style={styles.noPostsText}>No liked posts available</Text>
+      )}
+    </View>
+  );  
+
   const renderScene = SceneMap({
     posts: PostsRoute,
     reposts: RepostsRoute,
+    likes: LikesRoute,
   });
 
   if (contextLoading || loading) {

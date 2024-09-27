@@ -49,6 +49,37 @@ exports.getRelevantPosts = async (req, res) => {
   }
 };
 
+exports.getPopularizedPosts = async (req, res) => {
+  const userId = req.userId;
+  try {
+    const following = await Follower.find({ followerId: userId }).select('followingId');
+    const followedUserIds = following.map(f => f.followingId);
+
+    const popularPosts = await Post.find({ user: { $nin: followedUserIds } })
+      .populate('user')
+      .populate('image')
+      .sort({ sharedAt: -1 })
+      .limit(40);
+
+    const scoredPosts = await Promise.all(
+      popularPosts.map(async (post) => {
+        const engagementScore = await getEngagementScore(post._id);
+        const recencyScore = new Date() - post.sharedAt;
+
+        const finalScore = (engagementScore * 0.7) - (recencyScore * 0.3);
+        return { post, finalScore };
+      })
+    );
+
+    scoredPosts.sort((a, b) => b.finalScore - a.finalScore);
+
+    return res.json(scoredPosts.map(sp => sp.post));
+  } catch (error) {
+    console.error('Error fetching popularized posts:', error);
+    return res.status(500).json({ error: 'Unable to get posts.' });
+  }
+};
+
 const getEngagementScore = async (postId) => {
   const viewCount = await PostView.countDocuments({ post: postId });
   const commentCount = await Comment.countDocuments({ post: postId });

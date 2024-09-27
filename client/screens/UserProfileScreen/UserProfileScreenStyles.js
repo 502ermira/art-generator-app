@@ -72,8 +72,12 @@ export const styles = StyleSheet.create({
   },
   tabBar: {
     backgroundColor: '#fafafa',
-    marginTop: 20,
-    marginRight: 15,
-    marginLeft: 15,
+    marginTop: 15,
+    marginHorizontal: 8,
   },
+  noPostsText : {
+    textAlign: 'center',
+    top:25,
+    fontSize: 15.5,
+  }
 });

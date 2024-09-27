@@ -12,16 +12,17 @@ const styles = StyleSheet.create({
   searchContainer: {
     justifyContent: 'center',
     flexDirection: 'row',
+    alignItems: 'center',
   },
   searchInput: {
-    height: 40,
+    height: 38,
     borderColor: '#cccccc',
     borderWidth: 1,
     borderRadius: 20,
     paddingHorizontal: 16,
     backgroundColor: '#fff',
     fontSize: 15,
-    marginRight: 14,
+    marginRight: 8,
     width: '85%',
   },
   noResultsText: {
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
   },
   resultContainer: {
     flex: 1,
-    margin: 7,
+    margin: 5,
     marginTop:15,
     justifyContent: 'center',
     borderRadius: 8,
@@ -61,6 +62,17 @@ const styles = StyleSheet.create({
     left: 8,
     marginRight: 11,
   },
+  userInfoContainer : {
+    padding: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profilePicture : {
+    width:21,
+    height:21,
+    borderRadius: 50,
+    marginRight: 6,
+  },
   textContainer: {
     marginLeft: 10,
     flexDirection: 'column',
@@ -73,13 +85,21 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 15,
-    color: '#888',
+    color: '#777',
     marginTop: 1,
   },
+  usernamePost : {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#777',
+  },
   photoImage: {
-    width: (width / 2) - 30,
+    width: (width / 2) ,
     height: (height / 4) - 20,
     resizeMode: 'cover',
+  },
+  searchIconContainer : {
+    color: '#7049f6',
   },
   tabBar: {
     marginTop: 10,

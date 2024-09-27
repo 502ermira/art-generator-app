@@ -881,3 +881,29 @@ exports.suggestUsers = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch user suggestions' });
   }
 };
+
+exports.getLikedPosts = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const likedPosts = await Like.find({ user: user._id })
+      .populate({
+        path: 'post',
+        populate: { path: 'image', model: 'Image' },
+      })
+      .sort({ likedAt: -1 })
+      .exec();
+
+    if (!likedPosts) {
+      return res.status(404).json({ error: 'No liked posts found' });
+    }
+
+    res.json(likedPosts);
+  } catch (error) {
+    console.error('Error fetching liked posts:', error);
+    res.status(500).json({ error: 'Failed to fetch liked posts' });
+  }
+};

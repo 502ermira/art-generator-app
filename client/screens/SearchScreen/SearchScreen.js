@@ -1,8 +1,10 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { View, TextInput, FlatList, Text, TouchableOpacity, Image, ActivityIndicator, Dimensions } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import { UserContext } from '../../contexts/UserContext';
+import ExploreScreen from '../ExploreScreen/ExploreScreen';
 import styles from './SearchScreenStyles';
 
 export default function SearchScreen() {
@@ -16,10 +18,10 @@ export default function SearchScreen() {
 
   const handleSearch = async (type) => {
     if (searchQuery.trim() === '') return;
-  
+
     setIsLoading(true);
     setSearchType(type);
-  
+
     try {
       let response;
       if (type === 'images') {
@@ -37,7 +39,7 @@ export default function SearchScreen() {
           headers: { Authorization: token },
         });
       }
-  
+
       const data = await response.json();
       setSearchResults(type === 'images' ? data.results || [] : data);
     } catch (error) {
@@ -45,7 +47,7 @@ export default function SearchScreen() {
     } finally {
       setIsLoading(false);
     }
-  };  
+  };
 
   const handleResultPress = (item) => {
     if (searchType === 'images') {
@@ -75,7 +77,13 @@ export default function SearchScreen() {
             onPress={() => handleResultPress(item)}
           >
             {type === 'images' ? (
-              <Image source={{ uri: item.image }} style={styles.photoImage} />
+              <View style={styles.postContainer}>
+                <Image source={{ uri: item.image }} style={styles.photoImage} />
+                <View style={styles.userInfoContainer}>
+                  <Image source={{ uri: item.profilePicture }} style={styles.profilePicture} />
+                  <Text style={styles.usernamePost}>{item.username}</Text>
+                </View>
+              </View>
             ) : (
               <View style={styles.userResult}>
                 <Image source={{ uri: item.profilePicture }} style={styles.profileImage} />
@@ -124,6 +132,12 @@ export default function SearchScreen() {
           }}
           returnKeyType="search"
         />
+        <TouchableOpacity
+          style={styles.searchIconContainer}
+          onPress={() => handleSearch(index === 0 ? 'images' : 'users')}
+        >
+          <Icon name="search" size={28} style={styles.searchIconContainer}/>
+        </TouchableOpacity>
       </View>
 
       {isLoading ? (
@@ -137,7 +151,7 @@ export default function SearchScreen() {
           renderTabBar={renderTabBar}
         />
       ) : (
-        <Text style={styles.noResultsText}>No results found</Text>
+        <ExploreScreen />
       )}
     </View>
   );
