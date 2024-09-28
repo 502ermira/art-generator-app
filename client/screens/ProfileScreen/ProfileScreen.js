@@ -34,7 +34,7 @@ export default function ProfileScreen({ navigation }) {
           });
           const data = await response.json();
           setUserData(data);
-
+        
           const postsResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/posts`, {
             headers: { Authorization: token },
           });

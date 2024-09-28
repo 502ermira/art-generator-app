@@ -4,38 +4,33 @@ import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Loader from '../../components/Loader.js';
 import { styles } from './SignupScreenStyles';
+import * as FileSystem from 'expo-file-system';
 
 export default function SignupScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullname, setFullname] = useState('');
-  const [profilePicture, setProfilePicture] = useState('');
+  const [profilePicture, setProfilePicture] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const signupUser = async () => {
     setLoading(true);
-    
-    const defaultProfilePicture = 'https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg';
-    const finalProfilePicture = profilePicture || defaultProfilePicture;
 
-    const normalizedUsername = username.toLowerCase();
-    const normalizedEmail = email.toLowerCase();
+    const formData = {
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
+      password: password,
+      fullname: fullname,
+      profilePicture: profilePicture,
+    };
 
     try {
       const response = await fetch('http://192.168.1.145:5000/auth/signup', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: normalizedUsername,
-          email: normalizedEmail,
-          password,
-          fullname,
-          profilePicture: finalProfilePicture,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
@@ -44,16 +39,10 @@ export default function SignupScreen({ navigation }) {
         Alert.alert(
           "Signup Successful",
           "You have signed up successfully! Please proceed to login with your credentials.",
-          [
-            { text: "OK", onPress: () => navigation.replace('Login') }
-          ]
+          [{ text: "OK", onPress: () => navigation.replace('Login') }]
         );
       } else {
-        if (data.error) {
-          setError(data.error);
-        } else {
-          setError('An unknown error occurred. Please try again.');
-        }
+        setError(data.error || 'An unknown error occurred. Please try again.');
         setLoading(false);
       }
     } catch (err) {
@@ -78,7 +67,10 @@ export default function SignupScreen({ navigation }) {
     });
 
     if (!result.canceled) {
-      setProfilePicture(result.assets[0].uri);
+      const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      setProfilePicture(`data:image/jpeg;base64,${base64}`);
     }
   };
 

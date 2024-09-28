@@ -8,6 +8,7 @@ export default StyleSheet.create({
   scrollContainer: {
     padding: 20,
     alignItems: 'center',
+    paddingBottom: 100,
   },
   imageContainer: {
     width: 150,

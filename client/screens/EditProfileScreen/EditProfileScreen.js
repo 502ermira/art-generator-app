@@ -1,19 +1,28 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Image, View } from 'react-native';
+import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Image, View, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { UserContext } from '../../contexts/UserContext';
 import styles from './EditProfileScreenStyles';
+import * as FileSystem from 'expo-file-system';
 
 export default function EditProfileScreen({ navigation, route }) {
   const { token } = useContext(UserContext);
   const { updateUserData } = route.params;
+  
   const [fullname, setFullname] = useState('');
   const [profilePicture, setProfilePicture] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
+  
+  const [initialFullname, setInitialFullname] = useState('');
+  const [initialProfilePicture, setInitialProfilePicture] = useState('');
+  const [initialUsername, setInitialUsername] = useState('');
+  const [initialEmail, setInitialEmail] = useState('');
+
+  const [oldPassword, setOldPassword] = useState(''); 
+  const [newPassword, setNewPassword] = useState(''); 
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -26,6 +35,11 @@ export default function EditProfileScreen({ navigation, route }) {
         setProfilePicture(data.profilePicture || '');
         setUsername(data.username || '');
         setEmail(data.email || '');
+        
+        setInitialFullname(data.fullname || '');
+        setInitialProfilePicture(data.profilePicture || '');
+        setInitialUsername(data.username || '');
+        setInitialEmail(data.email || '');
       } catch (error) {
         setError('Failed to load profile');
       }
@@ -35,6 +49,17 @@ export default function EditProfileScreen({ navigation, route }) {
   }, [token]);
 
   const handleSave = async () => {
+    if (
+      fullname === initialFullname &&
+      profilePicture === initialProfilePicture &&
+      username.toLowerCase() === initialUsername.toLowerCase() &&
+      email.toLowerCase() === initialEmail.toLowerCase()
+    ) {
+      navigation.goBack();
+      return;
+    }
+  
+    setLoading(true);
     try {
       const response = await fetch('http://192.168.1.145:5000/auth/profile', {
         method: 'PUT',
@@ -42,29 +67,35 @@ export default function EditProfileScreen({ navigation, route }) {
           'Content-Type': 'application/json',
           Authorization: token,
         },
-        body: JSON.stringify({ fullname, profilePicture, username, email }),
+        body: JSON.stringify({
+          fullname,
+          profilePicture,
+          username: username.toLowerCase(),
+          email: email.toLowerCase(),
+        }),
       });
-
+  
       const result = await response.json();
-
+      setLoading(false);
+  
       if (response.ok) {
         let successMessage = 'Profile updated successfully';
-
         if (result.updates) {
-          const updatedFields = Object.keys(result.updates).join(', ');
-          successMessage = `${updatedFields} updated successfully`;
+          successMessage = 'Changes saved successfully.';
           updateUserData(result.updates);
         }
-
-        setError(successMessage);
-        setTimeout(() => navigation.goBack(), 2000);
+  
+        Alert.alert('Success', successMessage);
+        navigation.goBack();
       } else {
         setError(result.error || 'Failed to update profile');
       }
     } catch (err) {
       setError('Update failed');
+      setLoading(false);
     }
   };
+  
 
   const handleChangePassword = async () => {
     try {
@@ -76,18 +107,20 @@ export default function EditProfileScreen({ navigation, route }) {
         },
         body: JSON.stringify({ oldPassword, newPassword }),
       });
-
+  
       const result = await response.json();
-
+  
       if (response.ok) {
-        setError('Password updated successfully');
+        Alert.alert('Success', 'Password updated successfully');
+        setOldPassword('');
+        setNewPassword('');
       } else {
         setError(result.error || 'Failed to update password');
       }
     } catch (err) {
       setError('Password change failed');
     }
-  };
+  };   
 
   const selectImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -105,7 +138,10 @@ export default function EditProfileScreen({ navigation, route }) {
     });
 
     if (!result.canceled) {
-      setProfilePicture(result.assets[0].uri);
+      const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      setProfilePicture(`data:image/jpeg;base64,${base64}`);
     }
   };
 

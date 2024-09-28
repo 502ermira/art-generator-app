@@ -12,26 +12,60 @@ const Notification = require('../models/Notification');
 const { sendNotification } = require('../services/notificationService');
 const Search = require('../models/Search');
 const PostView = require('../models/PostView');
+const { bucket } = require('../firebaseAdmin');
+const { Buffer } = require('buffer');
 
 exports.signup = async (req, res) => {
   const { username, email, password, fullname, profilePicture } = req.body;
+
+  if (!profilePicture) {
+    console.error('Profile picture is missing');
+    return res.status(400).json({ error: 'Profile picture is missing' });
+  }
+
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
+    const base64EncodedImageString = profilePicture.replace(/^data:image\/\w+;base64,/, '');
+    const imageBuffer = Buffer.from(base64EncodedImageString, 'base64');
 
-    const defaultProfilePicture = 'https://thumbs.dreamstime.com/b/default-avatar-profile-vector-user-profile-default-avatar-profile-vector-user-profile-profile-179376714.jpg';
-    const finalProfilePicture = profilePicture || defaultProfilePicture;
+    const fileName = `profilePictures/${Date.now()}_${username}.jpg`;
 
-    const user = new User({
-      username,
-      email,
-      password: hashedPassword,
-      fullname, 
-      profilePicture: finalProfilePicture
+    const blob = bucket.file(fileName);
+
+    const blobStream = blob.createWriteStream({
+      resumable: false,
+      metadata: {
+        contentType: 'image/jpeg',
+      },
     });
 
-    await user.save();
-    res.status(201).json({ message: 'User registered successfully' });
+    blobStream.on('error', (err) => {
+      console.error('Error uploading file to Firebase:', err);
+      return res.status(500).json({ error: 'Failed to upload image' });
+    });
+
+    blobStream.on('finish', async () => {
+      await blob.makePublic();
+
+      const firebaseUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+
+      const user = new User({
+        username,
+        email,
+        password: hashedPassword,
+        fullname,
+        profilePicture: firebaseUrl,
+      });
+
+      await user.save();
+
+      res.status(201).json({ message: 'User registered successfully', profilePicture: firebaseUrl });
+    });
+
+    blobStream.end(imageBuffer);
+
   } catch (error) {
+    console.error('Error during signup process:', error);
     res.status(500).json({ error: 'Failed to register user' });
   }
 };
@@ -97,6 +131,7 @@ exports.login = async (req, res) => {
       }
   
       res.json(user);
+
     } catch (error) {
       console.error('Error fetching user profile:', error);
       res.status(500).json({ error: 'Failed to fetch user profile' });
@@ -443,16 +478,61 @@ exports.updateProfile = async (req, res) => {
       updates.fullname = fullname;
     }
 
-    Object.assign(user, updates);
-    user.profilePicture = profilePicture || user.profilePicture;
+    if (profilePicture && profilePicture.startsWith('data:image')) {
+      console.log('Decoding the Base64 image');
+      const base64EncodedImageString = profilePicture.replace(/^data:image\/\w+;base64,/, '');
+      const imageBuffer = Buffer.from(base64EncodedImageString, 'base64');
+      console.log('Image decoded successfully');
 
-    await user.save();
+      const fileName = `profilePictures/${Date.now()}_${username}.jpg`;
+      const blob = bucket.file(fileName);
 
-    res.status(200).json({ message: 'Profile updated successfully', updates });
+      const blobStream = blob.createWriteStream({
+        resumable: false,
+        metadata: {
+          contentType: 'image/jpeg',
+        },
+      });
+
+      blobStream.on('error', (err) => {
+        console.error('Error uploading file to Firebase:', err);
+        return res.status(500).json({ error: 'Failed to upload image' });
+      });
+
+      blobStream.on('finish', async () => {
+        await blob.makePublic();
+
+        const firebaseUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+        console.log('File uploaded and made public:', firebaseUrl);
+
+        updates.profilePicture = firebaseUrl;
+
+        Object.assign(user, updates);
+        await user.save();
+
+        res.status(200).json({
+          message: 'Profile updated successfully',
+          profilePicture: firebaseUrl,
+          updates,
+        });
+      });
+
+      console.log('Uploading image to Firebase');
+      blobStream.end(imageBuffer);
+    } else {
+      Object.assign(user, updates);
+      await user.save();
+      res.status(200).json({
+        message: 'Profile updated successfully',
+        updates,
+      });
+    }
   } catch (error) {
+    console.error('Error during profile update:', error);
     res.status(500).json({ error: 'Failed to update profile' });
   }
 };
+
 
 exports.changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
