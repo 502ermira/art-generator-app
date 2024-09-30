@@ -1,27 +1,34 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Image, View, Alert } from 'react-native';
+import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Image, View, Alert, Platform  } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { UserContext } from '../../contexts/UserContext';
 import styles from './EditProfileScreenStyles';
 import * as FileSystem from 'expo-file-system';
 
+let debounceTimeout;
+
 export default function EditProfileScreen({ navigation, route }) {
-  const { token } = useContext(UserContext);
+  const { token, setUsername: setContextUsername } = useContext(UserContext);
   const { updateUserData } = route.params;
-  
+
   const [fullname, setFullname] = useState('');
   const [profilePicture, setProfilePicture] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  
+  const [bio, setBio] = useState('');
+
+  const [validationLoading, setValidationLoading] = useState(false);
   const [initialFullname, setInitialFullname] = useState('');
   const [initialProfilePicture, setInitialProfilePicture] = useState('');
   const [initialUsername, setInitialUsername] = useState('');
   const [initialEmail, setInitialEmail] = useState('');
+  const [initialBio, setInitialBio] = useState('');
 
-  const [oldPassword, setOldPassword] = useState(''); 
-  const [newPassword, setNewPassword] = useState(''); 
-  const [error, setError] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [fullnameError, setFullnameError] = useState('');
+  const [bioError, setBioError] = useState('');
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -35,22 +42,100 @@ export default function EditProfileScreen({ navigation, route }) {
         setProfilePicture(data.profilePicture || '');
         setUsername(data.username || '');
         setEmail(data.email || '');
-        
+        setBio(data.bio || '');
+
         setInitialFullname(data.fullname || '');
         setInitialProfilePicture(data.profilePicture || '');
         setInitialUsername(data.username || '');
         setInitialEmail(data.email || '');
+        setInitialBio(data.bio || '');
       } catch (error) {
-        setError('Failed to load profile');
+        Alert.alert('Error', 'Failed to load profile data');
       }
     };
 
     fetchUserData();
   }, [token]);
 
+  const debounce = (func, delay) => {
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+    debounceTimeout = setTimeout(func, delay);
+  };
+
+  useEffect(() => {
+    if (email && email.trim().toLowerCase() !== initialEmail.trim().toLowerCase() && initialEmail) {
+      debounce(async () => {
+        try {
+          const response = await fetch(`http://192.168.1.145:5000/auth/validate-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: token,
+            },
+            body: JSON.stringify({ email: email.trim().toLowerCase() }),
+          });
+          const result = await response.json();
+          if (result.error) {
+            setEmailError('Email already in use');
+          } else {
+            setEmailError('');
+          }
+        } catch (err) {
+          setEmailError('Error validating email');
+        }
+      }, 1000);
+    } else if (!email.trim()) {
+      setEmailError(''); // Reset error if the email field is empty
+    }
+  }, [email, initialEmail]);
+  
+  useEffect(() => {
+    if (username && username !== initialUsername && initialUsername) {
+      setValidationLoading(true);
+      debounce(async () => {
+        try {
+          const response = await fetch(`http://192.168.1.145:5000/auth/validate-username`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: token,
+            },
+            body: JSON.stringify({ username }),
+          });
+          const result = await response.json();
+          if (result.error) {
+            setUsernameError('Username already taken');
+          } else {
+            setUsernameError('');
+          }
+        } catch (err) {
+          setUsernameError('Error validating username');
+        } finally {
+          setValidationLoading(false);
+        }
+      }, 1000);
+    } else if (!username.trim()) {
+      setUsernameError(''); // Reset error if the username field is empty
+    }
+  }, [username, initialUsername]);  
+
   const handleSave = async () => {
+    if (validationLoading) {
+      Alert.alert('Error', 'Please wait for validation to finish.');
+      return;
+    }
+  
+    setUsernameError('');
+    setEmailError('');
+    setFullnameError('');
+    setBioError('');
+  
+    // Check if any field has been changed
     if (
       fullname === initialFullname &&
+      bio === initialBio &&
       profilePicture === initialProfilePicture &&
       username.toLowerCase() === initialUsername.toLowerCase() &&
       email.toLowerCase() === initialEmail.toLowerCase()
@@ -72,6 +157,7 @@ export default function EditProfileScreen({ navigation, route }) {
           profilePicture,
           username: username.toLowerCase(),
           email: email.toLowerCase(),
+          bio,
         }),
       });
   
@@ -79,54 +165,39 @@ export default function EditProfileScreen({ navigation, route }) {
       setLoading(false);
   
       if (response.ok) {
-        let successMessage = 'Profile updated successfully';
         if (result.updates) {
-          successMessage = 'Changes saved successfully.';
           updateUserData(result.updates);
-        }
   
-        Alert.alert('Success', successMessage);
+          if (result.updates.username && result.updates.username !== initialUsername) {
+            setUsername(result.updates.username);
+            setContextUsername(result.updates.username);
+  
+            // Save updated username to AsyncStorage
+            await AsyncStorage.setItem('username', result.updates.username);
+          }
+        }
+        Alert.alert('Success', 'Profile updated successfully');
         navigation.goBack();
       } else {
-        setError(result.error || 'Failed to update profile');
+        if (result.error.includes('Username already taken')) {
+          setUsernameError('Username already taken');
+        }
+        if (result.error.includes('Email already in use')) {
+          setEmailError('Email already in use');
+        }
       }
     } catch (err) {
-      setError('Update failed');
       setLoading(false);
+      console.error('Update failed:', err);
+      Alert.alert('Error', 'Update failed');
     }
-  };
+  };  
   
-
-  const handleChangePassword = async () => {
-    try {
-      const response = await fetch('http://192.168.1.145:5000/auth/change-password', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token,
-        },
-        body: JSON.stringify({ oldPassword, newPassword }),
-      });
-  
-      const result = await response.json();
-  
-      if (response.ok) {
-        Alert.alert('Success', 'Password updated successfully');
-        setOldPassword('');
-        setNewPassword('');
-      } else {
-        setError(result.error || 'Failed to update password');
-      }
-    } catch (err) {
-      setError('Password change failed');
-    }
-  };   
-
   const selectImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
-      setError('Permission to access gallery is required!');
+      Alert.alert('Error', 'Permission to access gallery is required!');
       return;
     }
 
@@ -138,10 +209,15 @@ export default function EditProfileScreen({ navigation, route }) {
     });
 
     if (!result.canceled) {
-      const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      setProfilePicture(`data:image/jpeg;base64,${base64}`);
+      if (Platform.OS === 'web') {
+        const webUri = result.assets[0].uri;
+        setProfilePicture(webUri);
+      } else {
+        const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        setProfilePicture(`data:image/jpeg;base64,${base64}`);
+      }
     }
   };
 
@@ -160,45 +236,43 @@ export default function EditProfileScreen({ navigation, route }) {
         <Pressable onPress={selectImage} style={styles.imageButton}>
           <Text style={styles.imageButtonText}>Select Profile Picture</Text>
         </Pressable>
+
         <TextInput
           placeholder="Full Name"
           value={fullname}
           onChangeText={setFullname}
           style={styles.input}
         />
+        {fullnameError ? <Text style={styles.fieldErrorText}>{fullnameError}</Text> : null}
+
         <TextInput
           placeholder="Username"
           value={username}
           onChangeText={setUsername}
           style={styles.input}
         />
+        {usernameError ? <Text style={styles.fieldErrorText}>{usernameError}</Text> : null}
+
+        <TextInput
+          placeholder="Add bio"
+          placeholderTextColor='#aaa'
+          value={bio}
+          onChangeText={setBio}
+          style={styles.input}
+        />
+        {bioError ? <Text style={styles.fieldErrorText}>{bioError}</Text> : null}
+
         <TextInput
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
           style={styles.input}
         />
-        <TextInput
-          placeholder="Old Password"
-          value={oldPassword}
-          onChangeText={setOldPassword}
-          secureTextEntry={true}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="New Password"
-          value={newPassword}
-          onChangeText={setNewPassword}
-          secureTextEntry={true}
-          style={styles.input}
-        />
+        {emailError ? <Text style={styles.fieldErrorText}>{emailError}</Text> : null}
+
         <Pressable onPress={handleSave} style={styles.saveButton}>
           <Text style={styles.saveButtonText}>Save</Text>
         </Pressable>
-        <Pressable onPress={handleChangePassword} style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Change Password</Text>
-        </Pressable>
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </ScrollView>
     </SafeAreaView>
   );

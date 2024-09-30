@@ -129,7 +129,7 @@ export default function UserProfileScreen() {
           ))}
         </View>
       ) : (
-        <Text>No posts available</Text>
+        <Text style={styles.noPostsText}>No posts available</Text>
       )}
     </View>
   );
@@ -151,7 +151,7 @@ export default function UserProfileScreen() {
           ))}
         </View>
       ) : (
-        <Text>No reposts available</Text>
+        <Text style={styles.noPostsText}>No reposts available</Text>
       )}
     </View>
   );
@@ -182,11 +182,12 @@ export default function UserProfileScreen() {
                 <Text style={styles.followers}>{followerCount} Followers</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={navigateToFollowing}>
-                <Text>{followingCount} Following</Text>
+                <Text style={styles.following}>{followingCount} Following</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
+        <Text style={styles.bio}>{profileData.bio}</Text>
 
         <TouchableOpacity 
           style={styles.followButton} 
@@ -205,9 +206,9 @@ export default function UserProfileScreen() {
           renderTabBar={props => (
             <TabBar
               {...props}
-              indicatorStyle={{ backgroundColor: '#7049f6', marginBottom:1 }}
+              indicatorStyle={{ backgroundColor: '#7049f6', marginBottom:1.5 }}
               style={styles.tabBar}
-              labelStyle={{ color: 'black' }}
+              labelStyle={{ color: 'black', fontWeight: '400', fontSize: 13 }}
             />
           )}
         />

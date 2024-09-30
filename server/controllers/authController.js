@@ -124,7 +124,7 @@ exports.login = async (req, res) => {
   exports.getProfile = async (req, res) => {
     try {
       const user = await User.findById(req.userId)
-        .select('fullname username email profilePicture');
+        .select('fullname username email profilePicture bio');
   
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
@@ -214,7 +214,7 @@ exports.getUserProfileByUsername = async (req, res) => {
 
   try {
     const user = await User.findOne({ username })
-      .select('fullname username profilePicture posts')
+      .select('fullname username profilePicture posts bio')
       .populate({
         path: 'posts',
         populate: {
@@ -448,7 +448,7 @@ exports.unfollowUser = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
-  const { fullname, profilePicture, username, email } = req.body;
+  const { fullname, profilePicture, username, email, bio } = req.body;
 
   try {
     const user = await User.findById(req.userId);
@@ -478,11 +478,13 @@ exports.updateProfile = async (req, res) => {
       updates.fullname = fullname;
     }
 
+    if (bio && bio !== user.bio) {
+      updates.bio = bio;
+    }
+
     if (profilePicture && profilePicture.startsWith('data:image')) {
-      console.log('Decoding the Base64 image');
       const base64EncodedImageString = profilePicture.replace(/^data:image\/\w+;base64,/, '');
       const imageBuffer = Buffer.from(base64EncodedImageString, 'base64');
-      console.log('Image decoded successfully');
 
       const fileName = `profilePictures/${Date.now()}_${username}.jpg`;
       const blob = bucket.file(fileName);
@@ -503,7 +505,6 @@ exports.updateProfile = async (req, res) => {
         await blob.makePublic();
 
         const firebaseUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-        console.log('File uploaded and made public:', firebaseUrl);
 
         updates.profilePicture = firebaseUrl;
 
@@ -516,8 +517,7 @@ exports.updateProfile = async (req, res) => {
           updates,
         });
       });
-
-      console.log('Uploading image to Firebase');
+      
       blobStream.end(imageBuffer);
     } else {
       Object.assign(user, updates);
@@ -533,6 +533,40 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+exports.updateUsername = async (req, res) => {
+  const { username } = req.body;
+
+  if (!username || username.length < 3 || username.length > 20) {
+    return res.status(400).json({ error: 'Username must be between 3 and 20 characters' });
+  }
+
+  try {
+    const user = await User.findOne({ username });
+    if (user) {
+      return res.status(409).json({ error: 'Username already taken' });
+    }
+    res.status(200).json({ message: 'Username available' });
+  } catch (error) {
+    console.error('Error checking username:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.updateEmail = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      return res.status(409).json({ error: 'Email already in use' });
+    }
+    res.status(200).json({ message: 'Email available' });
+
+  } catch (error) {
+    console.error('Error checking email:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
 
 exports.changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;

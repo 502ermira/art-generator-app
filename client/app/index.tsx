@@ -16,6 +16,7 @@ import CommentsScreen from '../screens/CommentsScreen/CommentsScreen';
 import RepostsScreen from '../screens/RepostsScreen/RepostsScreen';
 import NotificationScreen from '../screens/NotificationScreen/NotificationScreen';
 import HomeScreen from '../screens/HomeScreen/HomeScreen';
+import ChangePasswordScreen from '../screens/ChangePasswordScreen/ChangePasswordScreen';
 import Navbar from '../components/Navbar';
 import CustomHeader from '../components/CustomHeader';
 import GlobalNotificationPopup from '../components/GlobalNotificationPopup';
@@ -45,6 +46,7 @@ export default function Index() {
           <Stack.Screen name="RepostsScreen" component={RepostsScreen} options={{ headerShown: false }} />
           <Stack.Screen name="NotificationScreen" component={NotificationScreen} options={{ headerShown: false }} />
           <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
         </Stack.Navigator>
         <GlobalNotificationPopup />
       </NavigationContainer>

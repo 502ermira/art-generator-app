@@ -38,14 +38,14 @@ export default StyleSheet.create({
     color: '#888',
   },
   imageButton: {
-    padding: 10,
-    backgroundColor: '#007BFF',
+    padding: 11,
+    backgroundColor: '#28a745',
     borderRadius: 8,
     marginBottom: 20,
   },
   imageButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
   },
   input: {
@@ -59,7 +59,7 @@ export default StyleSheet.create({
   },
   saveButton: {
     width: '100%',
-    padding: 15,
+    padding: 12,
     backgroundColor: '#28a745',
     borderRadius: 8,
     alignItems: 'center',
@@ -67,8 +67,9 @@ export default StyleSheet.create({
   },
   saveButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16.5,
     fontWeight: 'bold',
+    textTransform: 'uppercase',
   },
   errorText: {
     color: 'red',
@@ -79,5 +80,13 @@ export default StyleSheet.create({
     color: 'green',
     textAlign: 'center',
     marginVertical: 10,
-  }
+  },
+  fieldErrorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: -5,
+    marginBottom: 10,
+    textAlign: 'left',
+    width: '100%',
+  },
 });

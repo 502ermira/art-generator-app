@@ -54,6 +54,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     fontSize: 16,
   },
+  errorText: {
+    color: 'red',
+    marginVertical: 10,
+    fontSize: 16
+  },
   imageButton: {
     padding: 40,
     backgroundColor: '#7049f6',

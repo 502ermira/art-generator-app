@@ -184,11 +184,13 @@ export default function ProfileScreen({ navigation }) {
                   <Text style={styles.followers}>{followerCount} Followers</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={navigateToFollowing}>
-                  <Text>{followingCount} Following</Text>
+                  <Text style={styles.following}>{followingCount} Following</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
+          <Text style={styles.bio}>{userData.bio}</Text>
+
 
           <TouchableOpacity
             style={styles.followButton}
@@ -205,9 +207,9 @@ export default function ProfileScreen({ navigation }) {
             renderTabBar={props => (
               <TabBar
                 {...props}
-                indicatorStyle={{ backgroundColor: '#7049f6', marginBottom: 1 }}
+                indicatorStyle={{ backgroundColor: '#7049f6', marginBottom: 1.5 }}
                 style={styles.tabBar}
-                labelStyle={{ color: 'black' }}
+                labelStyle={{ color: 'black' ,fontWeight: '400', fontSize: 13 }}
               />
             )}
           />

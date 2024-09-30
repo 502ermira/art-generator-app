@@ -20,11 +20,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     paddingHorizontal: 20,
-    paddingTop:20,
+    paddingTop: 16,
   },
   profileImage: {
-    width: 100,
-    height: 100,
+    width: 95,
+    height: 95,
     borderRadius: 50,
     marginRight: 20,
   },
@@ -32,16 +32,22 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   fullname: {
-    fontSize: 24,
+    fontSize: 23,
     fontWeight: 'bold',
     color: '#333',
+    top: 8,
+  },
+  bio : {
+    paddingHorizontal: 21,
+    marginTop:-10,
+    fontSize: 15,
   },
   followInfo: {
     flexDirection: 'row',
-    marginTop: 10,
+    marginTop: 17,
   },
   followers: {
-    marginRight: 9,
+    marginRight: 10,
   },
   previewGrid: {
     flexDirection: 'row',
@@ -59,11 +65,12 @@ export const styles = StyleSheet.create({
   },
   followButton: {
     backgroundColor: '#7049f6',
-    paddingVertical: 10,
+    paddingVertical: 9,
     paddingHorizontal: 20,
     borderRadius: 5,
-    marginTop: 10,
+    marginTop: 11,
     marginHorizontal: 20,
+    marginBottom: -3,
   },
   followButtonText: {
     color: 'white',
@@ -72,12 +79,12 @@ export const styles = StyleSheet.create({
   },
   tabBar: {
     backgroundColor: '#fafafa',
-    marginTop: 15,
+    marginTop: 13,
     marginHorizontal: 8,
   },
   noPostsText : {
     textAlign: 'center',
-    top:25,
-    fontSize: 15.5,
+    top:23,
+    fontSize: 15,
   }
 });
