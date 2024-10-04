@@ -16,57 +16,78 @@ const { bucket } = require('../firebaseAdmin');
 const { Buffer } = require('buffer');
 
 exports.signup = async (req, res) => {
-  const { username, email, password, fullname, profilePicture } = req.body;
+  const { username, email, password, fullname, profilePicture, bio } = req.body;
 
-  if (!profilePicture) {
-    console.error('Profile picture is missing');
-    return res.status(400).json({ error: 'Profile picture is missing' });
+  if (!username || !email || !password || !fullname) {
+    return res.status(400).json({ error: 'All fields except profile picture and bio are required' });
   }
 
+  let firebaseUrl = profilePicture || 'https://t3.ftcdn.net/jpg/05/66/32/22/360_F_566322207_Fa1DSykWMr5IjvNFFdgKapoCHJn36RgV.jpg';
+
   try {
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+
+    if (existingUser) {
+      if (existingUser.email === email) {
+        return res.status(400).json({ error: 'Email is already in use' });
+      }
+      if (existingUser.username === username) {
+        return res.status(400).json({ error: 'Username is already in use' });
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const base64EncodedImageString = profilePicture.replace(/^data:image\/\w+;base64,/, '');
-    const imageBuffer = Buffer.from(base64EncodedImageString, 'base64');
 
-    const fileName = `profilePictures/${Date.now()}_${username}.jpg`;
+    if (profilePicture) {
+      const base64EncodedImageString = profilePicture.replace(/^data:image\/\w+;base64,/, '');
+      const imageBuffer = Buffer.from(base64EncodedImageString, 'base64');
 
-    const blob = bucket.file(fileName);
+      const fileName = `profilePictures/${Date.now()}_${username}.jpg`;
+      const blob = bucket.file(fileName);
+      const blobStream = blob.createWriteStream({
+        resumable: false,
+        metadata: { contentType: 'image/jpeg' },
+      });
 
-    const blobStream = blob.createWriteStream({
-      resumable: false,
-      metadata: {
-        contentType: 'image/jpeg',
-      },
-    });
+      blobStream.on('error', (err) => {
+        console.error('Error uploading file to Firebase:', err);
+        return res.status(500).json({ error: 'Failed to upload image' });
+      });
 
-    blobStream.on('error', (err) => {
-      console.error('Error uploading file to Firebase:', err);
-      return res.status(500).json({ error: 'Failed to upload image' });
-    });
+      blobStream.on('finish', async () => {
+        await blob.makePublic();
+        firebaseUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
 
-    blobStream.on('finish', async () => {
-      await blob.makePublic();
+        const user = new User({
+          username,
+          email,
+          password: hashedPassword,
+          fullname,
+          profilePicture: firebaseUrl,
+          bio,
+        });
 
-      const firebaseUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+        await user.save();
+        return res.status(201).json({ message: 'User registered successfully', profilePicture: firebaseUrl });
+      });
 
+      blobStream.end(imageBuffer);
+    } else {
       const user = new User({
         username,
         email,
         password: hashedPassword,
         fullname,
         profilePicture: firebaseUrl,
+        bio,
       });
 
       await user.save();
-
       res.status(201).json({ message: 'User registered successfully', profilePicture: firebaseUrl });
-    });
-
-    blobStream.end(imageBuffer);
-
+    }
   } catch (error) {
     console.error('Error during signup process:', error);
-    res.status(500).json({ error: 'Failed to register user' });
+    return res.status(500).json({ error: 'Failed to register user' });
   }
 };
 
@@ -536,12 +557,12 @@ exports.updateProfile = async (req, res) => {
 exports.updateUsername = async (req, res) => {
   const { username } = req.body;
 
-  if (!username || username.length < 3 || username.length > 20) {
-    return res.status(400).json({ error: 'Username must be between 3 and 20 characters' });
+  if (!username || username.length < 3 || username.length > 18) {
+    return res.status(400).json({ error: 'Username must be between 3 and 18 characters' });
   }
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
     if (user) {
       return res.status(409).json({ error: 'Username already taken' });
     }
@@ -555,13 +576,16 @@ exports.updateUsername = async (req, res) => {
 exports.updateEmail = async (req, res) => {
   const { email } = req.body;
 
+  if (!email || !/\S+@\S+\.\S+/.test(email)) {
+    return res.status(400).json({ error: 'Invalid email address' });
+  }
+
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: { $regex: new RegExp(`^${email}$`, 'i') } });
     if (user) {
       return res.status(409).json({ error: 'Email already in use' });
     }
     res.status(200).json({ message: 'Email available' });
-
   } catch (error) {
     console.error('Error checking email:', error);
     res.status(500).json({ error: 'Server error' });

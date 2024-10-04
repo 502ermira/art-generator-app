@@ -1,11 +1,10 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
     backgroundColor: '#151419',
   },
   title: {
@@ -14,11 +13,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 20,
     textAlign: 'center',
-    marginTop: -50,
   },
   input: {
     width: '100%',
-    padding: 14,
+    padding: 13,
     borderRadius: 12,
     backgroundColor: '#7049f6',
     borderWidth: 0,
@@ -30,6 +28,15 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
   },
+  bioInput: {
+    height: 100
+  },  
+  characterCount: {
+    color: '#C6B4FF',
+    alignSelf: 'flex-end',
+    marginBottom: 10,
+    marginTop: -10,
+  },  
   button: {
     backgroundColor: '#7049f6',
     paddingVertical: 13,
@@ -50,14 +57,18 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
   error: {
-    color: 'red',
-    marginVertical: 10,
-    fontSize: 16,
+    color: '#C6B4FF',
+    fontSize: 14,
+    top: -10,
+    bottom: 7,
+    textAlign: 'left',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start'
   },
   errorText: {
     color: 'red',
     marginVertical: 10,
-    fontSize: 16
+    fontSize: 16,
   },
   imageButton: {
     padding: 40,
@@ -79,13 +90,43 @@ const styles = StyleSheet.create({
   profileImage: {
     width:120,
     height:120,
+    borderRadius: 100,
   },
   label : {
-    color: '#f0f0f0',
+    color: '#C6B4FF',
     fontSize: 15,
     fontWeight: '500',
     marginTop: -8,
     marginBottom: 18,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 15,
+  },
+  buttonStyle : {
+    backgroundColor: '#7049f6',
+    paddingHorizontal: 17,
+    paddingVertical: 7,
+    borderRadius: 10
+  },
+  buttonText : {
+    color:'white',
+    fontSize: 18,
+    fontWeight: 500
   }
 });
 

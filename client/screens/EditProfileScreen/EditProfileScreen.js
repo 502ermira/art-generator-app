@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Image, View, Alert, Platform  } from 'react-native';
+import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Image, View, Alert, Platform, KeyboardAvoidingView } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { UserContext } from '../../contexts/UserContext';
 import styles from './EditProfileScreenStyles';
@@ -68,7 +68,7 @@ export default function EditProfileScreen({ navigation, route }) {
     if (email && email.trim().toLowerCase() !== initialEmail.trim().toLowerCase() && initialEmail) {
       debounce(async () => {
         try {
-          const response = await fetch(`http://192.168.1.145:5000/auth/validate-email`, {
+          const response = await fetch(`http://192.168.1.145:5000/auth/update-email`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ export default function EditProfileScreen({ navigation, route }) {
         }
       }, 1000);
     } else if (!email.trim()) {
-      setEmailError(''); // Reset error if the email field is empty
+      setEmailError('');
     }
   }, [email, initialEmail]);
   
@@ -96,7 +96,7 @@ export default function EditProfileScreen({ navigation, route }) {
       setValidationLoading(true);
       debounce(async () => {
         try {
-          const response = await fetch(`http://192.168.1.145:5000/auth/validate-username`, {
+          const response = await fetch(`http://192.168.1.145:5000/auth/update-username`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export default function EditProfileScreen({ navigation, route }) {
         }
       }, 1000);
     } else if (!username.trim()) {
-      setUsernameError(''); // Reset error if the username field is empty
+      setUsernameError('');
     }
   }, [username, initialUsername]);  
 
@@ -132,7 +132,6 @@ export default function EditProfileScreen({ navigation, route }) {
     setFullnameError('');
     setBioError('');
   
-    // Check if any field has been changed
     if (
       fullname === initialFullname &&
       bio === initialBio &&
@@ -172,7 +171,6 @@ export default function EditProfileScreen({ navigation, route }) {
             setUsername(result.updates.username);
             setContextUsername(result.updates.username);
   
-            // Save updated username to AsyncStorage
             await AsyncStorage.setItem('username', result.updates.username);
           }
         }
@@ -223,57 +221,66 @@ export default function EditProfileScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.imageContainer}>
-          {profilePicture ? (
-            <Image source={{ uri: profilePicture }} style={styles.profileImage} />
-          ) : (
-            <View style={styles.placeholderImage}>
-              <Text style={styles.placeholderText}>No Image</Text>
-            </View>
-          )}
-        </View>
-        <Pressable onPress={selectImage} style={styles.imageButton}>
-          <Text style={styles.imageButtonText}>Select Profile Picture</Text>
-        </Pressable>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 95 : 0}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.imageContainer}>
+            {profilePicture ? (
+              <Image source={{ uri: profilePicture }} style={styles.profileImage} />
+            ) : (
+              <View style={styles.placeholderImage}>
+                <Text style={styles.placeholderText}>No Image</Text>
+              </View>
+            )}
+          </View>
+          <Pressable onPress={selectImage} style={styles.imageButton}>
+            <Text style={styles.imageButtonText}>Select Profile Picture</Text>
+          </Pressable>
 
-        <TextInput
-          placeholder="Full Name"
-          value={fullname}
-          onChangeText={setFullname}
-          style={styles.input}
-        />
-        {fullnameError ? <Text style={styles.fieldErrorText}>{fullnameError}</Text> : null}
+          <TextInput
+            placeholder="Full Name"
+            value={fullname}
+            onChangeText={setFullname}
+            style={styles.input}
+          />
+          {fullnameError ? <Text style={styles.fieldErrorText}>{fullnameError}</Text> : null}
 
-        <TextInput
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-          style={styles.input}
-        />
-        {usernameError ? <Text style={styles.fieldErrorText}>{usernameError}</Text> : null}
+          <TextInput
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername}
+            style={styles.input}
+          />
+          {usernameError ? <Text style={styles.fieldErrorText}>{usernameError}</Text> : null}
 
-        <TextInput
-          placeholder="Add bio"
-          placeholderTextColor='#aaa'
-          value={bio}
-          onChangeText={setBio}
-          style={styles.input}
-        />
-        {bioError ? <Text style={styles.fieldErrorText}>{bioError}</Text> : null}
+          <TextInput
+            placeholder="Add bio"
+            placeholderTextColor='#aaa'
+            value={bio}
+            onChangeText={setBio}
+            style={styles.input}
+          />
+          {bioError ? <Text style={styles.fieldErrorText}>{bioError}</Text> : null}
 
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-        />
-        {emailError ? <Text style={styles.fieldErrorText}>{emailError}</Text> : null}
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+            keyboardType="email-address"
+          />
+          {emailError ? <Text style={styles.fieldErrorText}>{emailError}</Text> : null}
 
-        <Pressable onPress={handleSave} style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </Pressable>
-      </ScrollView>
+          <Pressable onPress={handleSave} style={styles.saveButton} disabled={loading}>
+            <Text style={styles.saveButtonText}>
+              {loading ? 'Saving...' : 'Save'}
+            </Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
