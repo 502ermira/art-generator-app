@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions, RefreshControl } from 'react-native';
 import { UserContext } from '../../contexts/UserContext.js';
 import CustomHeader from '@/components/CustomHeader.js';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
@@ -21,67 +21,75 @@ export default function ProfileScreen({ navigation }) {
     { key: 'reposts', title: 'Reposts' },
     { key: 'likes', title: 'Likes' },
   ]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const screenWidth = Dimensions.get('window').width;
   const numColumns = screenWidth > 600 ? 3 : 2;
   const imageSize = screenWidth / numColumns - 10;
 
+  const fetchUserData = async () => {
+    try {
+      const response = await fetch('http://192.168.1.145:5000/auth/profile', {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+      setUserData(data);
+    
+      const postsResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/posts`, {
+        headers: { Authorization: token },
+      });
+      const postsData = await postsResponse.json();
+
+      if (postsResponse.ok) {
+        setPosts(postsData);
+      } else {
+        console.error('Failed to fetch posts:', postsData.error);
+      }
+
+      const repostsResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/reposts`, {
+        headers: { Authorization: token },
+      });
+      const repostsData = await repostsResponse.json();
+
+      if (repostsResponse.ok) {
+        setReposts(repostsData);
+      } else {
+        console.error('Failed to fetch reposts:', repostsData.error);
+      }
+
+      const likesResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/likes`, {
+        headers: { Authorization: token },
+      });
+      const likesData = await likesResponse.json();
+      
+      if (likesResponse.ok) {
+        setLikes(likesData);
+      } else {
+        console.error('Failed to fetch likes:', likesData.error);
+      }          
+
+      const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${loggedInUsername}`);
+      const followData = await followResponse.json();
+      setFollowerCount(followData.followers.length);
+      setFollowingCount(followData.following.length);
+    } catch (err) {
+      console.error('Error fetching user data:', err);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     if (!contextLoading && token) {
-      const fetchUserData = async () => {
-        try {
-          const response = await fetch('http://192.168.1.145:5000/auth/profile', {
-            headers: { Authorization: token },
-          });
-          const data = await response.json();
-          setUserData(data);
-        
-          const postsResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/posts`, {
-            headers: { Authorization: token },
-          });
-          const postsData = await postsResponse.json();
-
-          if (postsResponse.ok) {
-            setPosts(postsData);
-          } else {
-            console.error('Failed to fetch posts:', postsData.error);
-          }
-
-          const repostsResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/reposts`, {
-            headers: { Authorization: token },
-          });
-          const repostsData = await repostsResponse.json();
-
-          if (repostsResponse.ok) {
-            setReposts(repostsData);
-          } else {
-            console.error('Failed to fetch reposts:', repostsData.error);
-          }
-
-          const likesResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/likes`, {
-            headers: { Authorization: token },
-          });
-          const likesData = await likesResponse.json();
-          
-          if (likesResponse.ok) {
-            setLikes(likesData);
-          } else {
-            console.error('Failed to fetch likes:', likesData.error);
-          }          
-
-          const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${loggedInUsername}`);
-          const followData = await followResponse.json();
-          setFollowerCount(followData.followers.length);
-          setFollowingCount(followData.following.length);
-        } catch (err) {
-          console.error('Error fetching user data:', err);
-        } finally {
-          setLoading(false);
-        }
-      };
       fetchUserData();
     }
   }, [token, contextLoading, loggedInUsername]);
+
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    fetchUserData();
+  };
 
   const navigateToFollowers = () => {
     navigation.push('Followers', { username: loggedInUsername, type: 'followers' });
@@ -171,7 +179,19 @@ export default function ProfileScreen({ navigation }) {
   return (
     <>
       <CustomHeader title={loggedInUsername} screenType="ProfileScreen" />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        style={{ backgroundColor: '#fafafa' }}
+        refreshControl={
+          <RefreshControl
+           refreshing={isRefreshing} 
+           onRefresh={onRefresh}
+           tintColor="#7049f6"
+           colors={['#7049f6', '#ff6347', '#32cd32']}
+           progressBackgroundColor="#fafafa"
+          />
+        }
+      >
         <View style={styles.container}>
           <View style={styles.profileHeader}>
             <Image source={{ uri: userData.profilePicture }} style={styles.profileImage} />
@@ -189,7 +209,6 @@ export default function ProfileScreen({ navigation }) {
             </View>
           </View>
           <Text style={styles.bio}>{userData.bio}</Text>
-
 
           <TouchableOpacity
             style={styles.followButton}

@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, RefreshControl, Dimensions } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
@@ -16,6 +16,7 @@ export default function UserProfileScreen() {
   const [posts, setPosts] = useState([]);
   const [reposts, setReposts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -75,6 +76,13 @@ export default function UserProfileScreen() {
     } catch (error) {
       console.error('Error fetching user posts:', error);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchUserProfile();
+    await fetchUserPosts();
+    setRefreshing(false);
   };
 
   useEffect(() => {
@@ -145,7 +153,7 @@ export default function UserProfileScreen() {
               <TouchableOpacity 
                 key={index} 
                 style={[styles.postContainer, { width: imageSize, height: imageSize }]} 
-                onPress={() => navigation.navigate('PostScreen', { postId: repost.post._id, repostedBy: username ,repostedAt: repost.repostedAt })} 
+                onPress={() => navigation.navigate('PostScreen', { postId: repost.post._id, repostedBy: username, repostedAt: repost.repostedAt })} 
               >
                 <Image source={{ uri: repost.post.image.image }} style={styles.previewImage} />
               </TouchableOpacity>
@@ -169,8 +177,21 @@ export default function UserProfileScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <CustomHeader title={username} screenType="UserProfileScreen" />
+  <>
+    <CustomHeader title={username} screenType="UserProfileScreen" />
+    <ScrollView 
+      contentContainerStyle={styles.scrollContainer}
+      style={{ backgroundColor: '#fafafa' }}
+      refreshControl={ 
+        <RefreshControl 
+          refreshing={refreshing} 
+          onRefresh={onRefresh} 
+          tintColor="#7049f6"
+          colors={['#7049f6', '#ff6347', '#32cd32']}
+          progressBackgroundColor="#fafafa"
+        />
+      }
+    >
       <View style={styles.container}>
         <View style={styles.profileHeader}>
           <Image source={{ uri: profileData.profilePicture }} style={styles.profileImage} />
@@ -213,5 +234,6 @@ export default function UserProfileScreen() {
         />
       </View>
     </ScrollView>
+  </>
   );
 }

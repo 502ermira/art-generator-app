@@ -7,6 +7,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     paddingVertical:60,
     minHeight: height,
+    paddingBottom:100,
   },
   notification: {
     flexDirection: 'row',
@@ -79,4 +80,13 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 13,
   },
+  loaderContainer: {
+    paddingTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loader: {
+    paddingVertical: 10,
+    alignItems: 'center',
+  }
 });

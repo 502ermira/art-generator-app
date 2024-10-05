@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useContext } from 'react';
-import { View, RefreshControl, Text, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, RefreshControl, Text, ScrollView, TouchableOpacity, Image, Dimensions, ActivityIndicator } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './NotificationScreenStyles.js';
@@ -12,6 +12,9 @@ export default function NotificationScreen() {
   const navigation = useNavigation();
   const socket = useRef(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     socket.current = io('http://192.168.1.145:5000');
@@ -25,7 +28,7 @@ export default function NotificationScreen() {
             existingNotification.type === notification.type &&
             (notification.type === 'like' || notification.type === 'repost' || notification.type === 'follow')
         );
-  
+
         const filteredNotifications = prevNotifications.filter(
           (existingNotification) =>
             !(
@@ -34,7 +37,7 @@ export default function NotificationScreen() {
               (notification.type === 'like' || notification.type === 'repost' || notification.type === 'follow')
             )
         );
-  
+
         return [notification, ...filteredNotifications];
       });
     };
@@ -47,18 +50,22 @@ export default function NotificationScreen() {
   }, [loggedInUsername]);  
 
   const fetchNotifications = async () => {
+    setLoading(true);
     try {
-      const response = await fetch('http://192.168.1.145:5000/auth/notifications', {
+      const response = await fetch(`http://192.168.1.145:5000/auth/notifications?page=${page}&limit=10`, {
         headers: { Authorization: token },
       });
       const data = await response.json();
       if (response.ok) {
-        setNotifications(data);
+        setNotifications((prevNotifications) => [...prevNotifications, ...data]);
+        setHasMore(data.length > 0);
       } else {
         console.error('Failed to fetch notifications:', data.error);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,10 +94,12 @@ export default function NotificationScreen() {
   useEffect(() => {
     fetchNotifications();
     fetchFollowingStatus();
-  }, [token, loggedInUsername]);
+  }, [token, loggedInUsername, page]);
 
   const onRefresh = async () => {
     setRefreshing(true);
+    setPage(1);
+    setNotifications([]);
     await fetchNotifications();
     await fetchFollowingStatus();
     setRefreshing(false);
@@ -138,11 +147,32 @@ export default function NotificationScreen() {
     navigation.push('UserProfile', { username });
   };
 
+  const handleScroll = (event) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+
+    if (isCloseToBottom && hasMore && !loading) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
   return (
     <View>
-      <ScrollView contentContainerStyle={styles.container}
-       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }>
+      <ScrollView 
+        contentContainerStyle={styles.container}
+        style={{ backgroundColor: '#fafafa' }}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+            tintColor="#7049f6"
+            colors={['#7049f6', '#ff6347', '#32cd32']}
+            progressBackgroundColor="#fafafa"
+          />
+        }
+        onScroll={handleScroll}
+        scrollEventThrottle={400}
+      >
         {notifications.map((notification) => (
           <TouchableOpacity
             key={notification._id}
@@ -166,13 +196,13 @@ export default function NotificationScreen() {
               <View style={styles.notificationTextContainer}>
                 <View style={styles.usernameAndTextContainer}>
                   <Text style={styles.notificationText}>
-                  {notification.fromUser?.username ? (
-                    <TouchableOpacity onPress={() => handleUserPress(notification.fromUser.username)}>
-                      <Text style={styles.usernameText}>{notification.fromUser.username}</Text>
-                    </TouchableOpacity>
-                  ) : (
-                    <Text style={styles.usernameText}>Unknown User</Text>
-                  )}
+                    {notification.fromUser?.username ? (
+                      <TouchableOpacity onPress={() => handleUserPress(notification.fromUser.username)}>
+                        <Text style={styles.usernameText}>{notification.fromUser.username}</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <Text style={styles.usernameText}>Unknown User</Text>
+                    )}
                     {notification.type === 'like' && ' liked your post'}
                     {notification.type === 'comment' && ` commented on your post: ${truncateComment(notification.comment?.content || '')}`}                   
                     {notification.type === 'mention' && ` mentioned you in a comment: ${truncateComment(notification.comment?.content || '')}`}
@@ -211,6 +241,11 @@ export default function NotificationScreen() {
             </View>
           </TouchableOpacity>
         ))}
+        {loading && !refreshing && (
+          <View style={styles.loader}>
+            <ActivityIndicator size="large" color="#7049f6" />
+          </View>
+        )}
       </ScrollView>
     </View>
   );

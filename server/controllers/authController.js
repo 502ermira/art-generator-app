@@ -998,6 +998,7 @@ exports.getRepostsByUsername = async (req, res) => {
 
 exports.getNotifications = async (req, res) => {
   const { authorization } = req.headers;
+  const { page = 1, limit = 10 } = req.query;
 
   try {
     const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
@@ -1005,21 +1006,16 @@ exports.getNotifications = async (req, res) => {
 
     if (!user) return res.status(401).json({ error: 'User not found' });
 
-    let notifications = await Notification.find({ user: user._id })
+    const notifications = await Notification.find({ user: user._id })
       .populate('fromUser', 'username profilePicture fullname')
       .populate({
         path: 'post',
         populate: { path: 'image', model: 'Image', select: 'image' },
       })
       .populate('comment', 'content')
-      .sort({ createdAt: -1 });
-
-    notifications = notifications.filter(notification => {
-      if (notification.type === 'comment' || notification.type === 'mention') {
-        return notification.post && notification.post._id;
-      }
-      return true;
-    });
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     res.json(notifications);
   } catch (error) {
