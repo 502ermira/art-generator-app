@@ -1,39 +1,64 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, FlatList, Text, Image, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, FlatList, Text, Image, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import { UserContext } from '../../contexts/UserContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { styles } from './HomeScreenStyles.js';
+import Loader from '@/components/Loader';
 
 export default function HomeScreen() {
   const [posts, setPosts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [page, setPage] = useState(1);
   const { token, username } = useContext(UserContext);
   const navigation = useNavigation();
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(1);
   }, []);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (page) => {
+    if (!hasMorePosts && page > 1) return;
     try {
-      const response = await axios.get('http://192.168.1.145:5000/api/posts/relevant', {
+      if (page === 1) setIsLoading(true);
+      const response = await axios.get(`http://192.168.1.145:5000/api/posts/relevant?page=${page}&limit=20`, {
         headers: {
           Authorization: token,
         },
       });
-      setPosts(response.data);
+      
+      const newPosts = response.data;
+      if (newPosts.length < 10) setHasMorePosts(false);
+      
+      setPosts(prevPosts => (page === 1 ? newPosts : [...prevPosts, ...newPosts]));
+      setPage(page + 1);
     } catch (error) {
       console.error('Error fetching posts:', error);
+    }
+    finally {
+      setIsLoading(false);
     }
   };
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchPosts();
+    setPage(1);
+    await fetchPosts(1);
     setRefreshing(false);
+    setHasMorePosts(true);
+  };
+
+  const loadMorePosts = async () => {
+    if (!loadingMore && hasMorePosts) {
+      setLoadingMore(true);
+      await fetchPosts(page);
+      setLoadingMore(false);
+    }
   };
 
   const handleLike = async (postId, isLikedByUser) => {
@@ -157,6 +182,9 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
+      {isLoading ? (
+        <Loader/>
+      ) : (
       <FlatList
         data={posts}
         keyExtractor={(item) => item._id}
@@ -219,8 +247,12 @@ export default function HomeScreen() {
             onRefresh={onRefresh}
           />
         }
-        showsVerticalScrollIndicator={false}        
+        onEndReached={loadMorePosts}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={loadingMore ? <ActivityIndicator /> : null}
+        showsVerticalScrollIndicator={false}              
       />
+      )}
     </View>
   );
 }

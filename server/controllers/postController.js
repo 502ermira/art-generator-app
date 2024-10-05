@@ -9,6 +9,9 @@ const Like = require('../models/Like');
 
 exports.getRelevantPosts = async (req, res) => {
   const userId = req.userId;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
   try {
     const following = await Follower.find({ followerId: userId }).select('followingId');
     const followedUserIds = following.map(f => f.followingId);
@@ -17,7 +20,8 @@ exports.getRelevantPosts = async (req, res) => {
       .populate('user')
       .populate('image')
       .sort({ sharedAt: -1 })
-      .limit(20);
+      .skip(skip)
+      .limit(10);
 
       const additionalPosts = await Post.find({
         user: { $nin: followedUserIds },
@@ -25,8 +29,8 @@ exports.getRelevantPosts = async (req, res) => {
        .populate('user')
        .populate('image')
        .sort({ sharedAt: -1 })
-       .limit(20);
-
+       .skip(skip)
+       .limit(10);
 
     const allPosts = [...followedPosts, ...additionalPosts];
 
