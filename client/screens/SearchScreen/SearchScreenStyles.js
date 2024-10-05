@@ -5,9 +5,10 @@ const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
+    padding: 14,
     backgroundColor: '#f5f5f5',
     paddingTop: 62,
+    paddingBottom: 100,
   },
   searchContainer: {
     justifyContent: 'center',
@@ -24,12 +25,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginRight: 8,
     width: '85%',
-  },
-  noResultsText: {
-    fontSize: 18,
-    color: '#333',
-    textAlign: 'center',
-    marginTop: 30,
   },
   resultContainer: {
     flex: 1,
@@ -112,6 +107,12 @@ const styles = StyleSheet.create({
   tabLabel: {
     color: '#000',
     fontSize: 13,
+  },
+  noResultsText: {
+    fontSize: 17,
+    color: '#888',
+    top: 32,
+    textAlign: 'center'
   },
 });
 

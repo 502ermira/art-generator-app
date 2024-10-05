@@ -5,6 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { styles } from './UserProfileScreenStyles';
 import CustomHeader from '@/components/CustomHeader';
+import Loader from '@/components/Loader';
 
 export default function UserProfileScreen() {
   const { token, username: loggedInUsername } = useContext(UserContext);
@@ -163,9 +164,7 @@ export default function UserProfileScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
+      <Loader />
     );
   }
 

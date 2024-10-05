@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions } from 'rea
 import { UserContext } from '../../contexts/UserContext.js';
 import CustomHeader from '@/components/CustomHeader.js';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import Loader from '@/components/Loader.js';
 import { styles } from '../UserProfileScreen/UserProfileScreenStyles.js';
 
 export default function ProfileScreen({ navigation }) {
@@ -163,9 +164,7 @@ export default function ProfileScreen({ navigation }) {
 
   if (contextLoading || loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
+      <Loader />
     );
   }
 

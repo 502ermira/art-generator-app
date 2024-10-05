@@ -75,7 +75,6 @@ exports.searchImages = async (req, res) => {
 
   try {
     const fetch = (await import('node-fetch')).default;
-    console.log(`Sending search request to Flask service: ${query}`);
 
     const response = await fetch('http://192.168.1.145:5001/search', {
       method: 'POST',
@@ -88,18 +87,19 @@ exports.searchImages = async (req, res) => {
     }
 
     const data = await response.json();
+    const imageIds = data.results.map(result => result.id);
 
     await Search.create({ user: userId, query, type: 'images' });
-
-    console.log('Data received from Flask:', data.results);
-
-    const imageIds = data.results.map(result => result.id);
 
     const posts = await Post.find({ image: { $in: imageIds } })
       .populate('image')
       .populate('user', 'username profilePicture');
 
-    const results = posts.map(post => ({
+    const sortedPosts = imageIds.map(id => 
+      posts.find(post => post.image._id.toString() === id)
+    );
+
+    const results = sortedPosts.map(post => ({
       id: post.image._id,
       image: post.image.image,
       prompt: post.image.prompt,

@@ -10,38 +10,39 @@ import styles from './SearchScreenStyles';
 export default function SearchScreen() {
   const { token, username: loggedInUsername } = useContext(UserContext);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [imageResults, setImageResults] = useState([]);
+  const [userResults, setUserResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchType, setSearchType] = useState('images');
   const navigation = useNavigation();
   const layout = Dimensions.get('window');
 
-  const handleSearch = async (type) => {
+  const handleSearch = async () => {
     if (searchQuery.trim() === '') return;
 
     setIsLoading(true);
-    setSearchType(type);
 
     try {
-      let response;
-      if (type === 'images') {
-        response = await fetch(`http://192.168.1.145:5000/api/search`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: token,
-            'Cache-Control': 'no-cache',
-          },
-          body: JSON.stringify({ query: searchQuery }),
-        });
-      } else {
-        response = await fetch(`http://192.168.1.145:5000/auth/search-users?searchQuery=${searchQuery}`, {
-          headers: { Authorization: token },
-        });
-      }
+      const imageResponse = await fetch(`http://192.168.1.145:5000/api/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: token,
+          'Cache-Control': 'no-cache',
+        },
+        body: JSON.stringify({ query: searchQuery }),
+      });
 
-      const data = await response.json();
-      setSearchResults(type === 'images' ? data.results || [] : data);
+      const imageData = await imageResponse.json();
+      setImageResults(imageData.results || []);
+
+      const userResponse = await fetch(`http://192.168.1.145:5000/auth/search-users?searchQuery=${searchQuery}`, {
+        headers: { Authorization: token },
+      });
+
+      const userData = await userResponse.json();
+      setUserResults(userData);
+
     } catch (error) {
       console.error('Error searching:', error);
     } finally {
@@ -62,13 +63,21 @@ export default function SearchScreen() {
   };
 
   const renderSearchResults = (type) => {
-    const filteredResults = searchResults.filter(item => {
-      return type === 'images' ? item.image : item.username;
-    });
-
+    const results = type === 'images' ? imageResults : userResults;
+  
+    if (!isLoading && results.length === 0) {
+      return (
+        <View style={styles.noResultsContainer}>
+          <Text style={styles.noResultsText}>
+            {type === 'images' ? 'No images found' : 'No users found'}
+          </Text>
+        </View>
+      );
+    }
+    
     return (
       <FlatList
-        data={filteredResults}
+        data={results}
         keyExtractor={(item) => (type === 'images' ? item.id : item.username)}
         numColumns={type === 'images' ? 2 : 1}
         renderItem={({ item }) => (
@@ -127,14 +136,12 @@ export default function SearchScreen() {
           placeholder="Search..."
           value={searchQuery}
           onChangeText={setSearchQuery}
-          onSubmitEditing={() => {
-            handleSearch(index === 0 ? 'images' : 'users');
-          }}
+          onSubmitEditing={handleSearch}
           returnKeyType="search"
         />
         <TouchableOpacity
           style={styles.searchIconContainer}
-          onPress={() => handleSearch(index === 0 ? 'images' : 'users')}
+          onPress={handleSearch}
         >
           <Icon name="search" size={28} style={styles.searchIconContainer}/>
         </TouchableOpacity>
@@ -142,7 +149,7 @@ export default function SearchScreen() {
 
       {isLoading ? (
         <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 20 }} />
-      ) : searchResults.length > 0 ? (
+      ) : (imageResults.length > 0 || userResults.length > 0) ? (
         <TabView
           navigationState={{ index, routes }}
           renderScene={renderScene}
