@@ -558,18 +558,39 @@ exports.updateUsername = async (req, res) => {
   const { username } = req.body;
 
   if (!username || username.length < 3 || username.length > 18) {
-    return res.status(400).json({ error: 'Username must be between 3 and 18 characters' });
+      return res.status(400).json({ error: 'Username must be between 3 and 18 characters' });
+  }
+
+  if (!/^[a-zA-Z]/.test(username)) {
+      return res.status(400).json({ error: 'Username must start with a letter' });
+  }
+
+  if (/\s/.test(username)) {
+      return res.status(400).json({ error: 'Username cannot contain spaces' });
+  }
+
+  if (!/^[a-zA-Z0-9_.]+$/.test(username)) {
+      return res.status(400).json({ error: 'Username can only contain letters, numbers, underscores, and full stops.' });
+  }
+
+  if (/_{2,}/.test(username) || /\.(?=\.)/.test(username)) {
+      return res.status(400).json({ error: 'Username cannot contain consecutive underscores or full stops.' });
+  }
+
+  if (!/[a-zA-Z]/.test(username)) {
+      return res.status(400).json({ error: 'Username must contain at least one letter' });
   }
 
   try {
-    const user = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
-    if (user) {
-      return res.status(409).json({ error: 'Username already taken' });
-    }
-    res.status(200).json({ message: 'Username available' });
+      const user = await User.findOne({ username: { $regex: new RegExp(`^${username}$`, 'i') } });
+      if (user) {
+          return res.status(409).json({ error: 'Username already taken' });
+      }
+
+      res.status(200).json({ message: 'Username available' });
   } catch (error) {
-    console.error('Error checking username:', error);
-    res.status(500).json({ error: 'Server error' });
+      console.error('Error checking username:', error);
+      res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -585,6 +606,7 @@ exports.updateEmail = async (req, res) => {
     if (user) {
       return res.status(409).json({ error: 'Email already in use' });
     }
+
     res.status(200).json({ message: 'Email available' });
   } catch (error) {
     console.error('Error checking email:', error);

@@ -57,6 +57,15 @@ export default StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#f9f9f9',
   },
+  bioInput: {
+    height: 100
+  },  
+  characterCount: {
+    color: '#999',
+    alignSelf: 'flex-end',
+    marginTop: -5,
+    fontSize:12.5,
+  }, 
   saveButton: {
     width: '100%',
     padding: 12,

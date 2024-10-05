@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
     required: true, 
     unique: true, 
     minlength: 3, 
-    maxlength: 17
+    maxlength: 17,
+    match: [/^(?=.*[a-zA-Z])[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores, and must have at least one letter']
   },
   email: { 
     type: String, 
@@ -24,7 +25,8 @@ const userSchema = new mongoose.Schema({
     type: String, 
     required: true, 
     minlength: 3, 
-    maxlength: 25
+    maxlength: 25,
+    match: [/^[a-zA-Z]+(?: [a-zA-Z]+)*$/, 'Full name must start with a letter, can contain spaces between letters, but no consecutive spaces.']
   },
   profilePicture: { 
     type: String, 

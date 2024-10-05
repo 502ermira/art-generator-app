@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Image, View, Alert, Platform, KeyboardAvoidingView } from 'react-native';
+import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Image, View, Alert, Platform, KeyboardAvoidingView, Keyboard } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { UserContext } from '../../contexts/UserContext';
 import styles from './EditProfileScreenStyles';
@@ -78,7 +78,7 @@ export default function EditProfileScreen({ navigation, route }) {
           });
           const result = await response.json();
           if (result.error) {
-            setEmailError('Email already in use');
+            setEmailError(result.error);
           } else {
             setEmailError('');
           }
@@ -89,37 +89,77 @@ export default function EditProfileScreen({ navigation, route }) {
     } else if (!email.trim()) {
       setEmailError('');
     }
-  }, [email, initialEmail]);
+  }, [email, initialEmail]);  
+
+  useEffect(() => {
+    if (fullname && fullname !== initialFullname) {
+      debounce(() => {
+        if (fullname.length < 3 || fullname.length > 25) {
+          setFullnameError('Full name must be between 3 and 25 characters.');
+        } else if (/\d/.test(fullname)) {
+          setFullnameError('Full name must not contain numbers.');
+        } else if (/ {2,}/.test(fullname)) {
+          setFullnameError('Full name must not contain consecutive spaces.');
+        } else if (!/^[a-zA-Z]+(?: [a-zA-Z]+)*$/.test(fullname)) {
+          setFullnameError('Full name must start with a letter and contain only letters and spaces.');
+        } else {
+          setFullnameError('');
+        }
+      }, 1000);
+    } else {
+      setFullnameError('');
+    }
+  }, [fullname, initialFullname]);  
+  
+  useEffect(() => {
+    if (bio && bio !== initialBio) {
+      debounce(() => {
+        if (bio.length > 150) {
+          setBioError('Bio cannot exceed 150 characters.');
+        } else {
+          setBioError('');
+        }
+      }, 1000);
+    } else {
+      setBioError('');
+    }
+  }, [bio, initialBio]);  
   
   useEffect(() => {
     if (username && username !== initialUsername && initialUsername) {
-      setValidationLoading(true);
-      debounce(async () => {
-        try {
-          const response = await fetch(`http://192.168.1.145:5000/auth/update-username`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: token,
-            },
-            body: JSON.stringify({ username }),
-          });
-          const result = await response.json();
-          if (result.error) {
-            setUsernameError('Username already taken');
-          } else {
-            setUsernameError('');
-          }
-        } catch (err) {
-          setUsernameError('Error validating username');
-        } finally {
-          setValidationLoading(false);
-        }
-      }, 1000);
+        setValidationLoading(true);
+        debounce(async () => {
+            try {
+                if (/_{2,}/.test(username) || /\.(?=\.)/.test(username) || /[_.]{2,}/.test(username)) {
+                    setUsernameError('Username cannot contain consecutive underscores or full stops.');
+                    setValidationLoading(false);
+                    return;
+                }
+
+                const response = await fetch(`http://192.168.1.145:5000/auth/update-username`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: token,
+                    },
+                    body: JSON.stringify({ username }),
+                });
+                const result = await response.json();
+                if (result.error) {
+                    setUsernameError(result.error);
+                } else {
+                    setUsernameError('');
+                }
+            } catch (err) {
+                setUsernameError('Error validating username');
+            } finally {
+                setValidationLoading(false);
+            }
+        }, 1000);
     } else if (!username.trim()) {
-      setUsernameError('');
+        setUsernameError('');
     }
-  }, [username, initialUsername]);  
+}, [username, initialUsername]);
 
   const handleSave = async () => {
     if (validationLoading) {
@@ -131,10 +171,13 @@ export default function EditProfileScreen({ navigation, route }) {
     setEmailError('');
     setFullnameError('');
     setBioError('');
+
+    const trimmedFullname = fullname.trim();
+    const trimmedBio = bio.trim();
   
     if (
-      fullname === initialFullname &&
-      bio === initialBio &&
+      trimmedFullname === initialFullname &&
+      trimmedBio === initialBio &&
       profilePicture === initialProfilePicture &&
       username.toLowerCase() === initialUsername.toLowerCase() &&
       email.toLowerCase() === initialEmail.toLowerCase()
@@ -152,11 +195,11 @@ export default function EditProfileScreen({ navigation, route }) {
           Authorization: token,
         },
         body: JSON.stringify({
-          fullname,
+          fullname: trimmedFullname,
           profilePicture,
           username: username.toLowerCase(),
           email: email.toLowerCase(),
-          bio,
+          bio: trimmedBio,
         }),
       });
   
@@ -257,13 +300,26 @@ export default function EditProfileScreen({ navigation, route }) {
           {usernameError ? <Text style={styles.fieldErrorText}>{usernameError}</Text> : null}
 
           <TextInput
-            placeholder="Add bio"
-            placeholderTextColor='#aaa'
-            value={bio}
-            onChangeText={setBio}
-            style={styles.input}
+           placeholder="Add bio"
+           placeholderTextColor='#aaa'
+           value={bio}
+           onChangeText={(text) => {
+             if (text.length <= 150) {
+             setBio(text);
+             }
+           }}
+           maxLength={150}
+           multiline={true}
+           onSubmitEditing={() => {
+            Keyboard.dismiss();
+           }}
+           style={[styles.input, styles.bioInput]}
+           blurOnSubmit={true}
           />
-          {bioError ? <Text style={styles.fieldErrorText}>{bioError}</Text> : null}
+           <Text style={styles.characterCount}>
+             {bio.length}/150 characters
+           </Text>
+           {bioError ? <Text style={styles.fieldErrorText}>{bioError}</Text> : null}
 
           <TextInput
             placeholder="Email"

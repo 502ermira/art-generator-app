@@ -1,17 +1,15 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, TextInput, ScrollView, TouchableOpacity, Text, Image, KeyboardAvoidingView, Platform, Modal, Dimensions } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, TextInput, ScrollView, TouchableOpacity, Text, Image, KeyboardAvoidingView, Platform, Modal, Dimensions, Keyboard } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Loader from '../../components/Loader.js';
 import { styles } from './SignupScreenStyles';
 import * as FileSystem from 'expo-file-system';
-import { UserContext } from '../../contexts/UserContext';
 
 const { width } =  Dimensions.get('window');
 
 export default function SignupScreen({ navigation }) {
   const [username, setUsername] = useState('');
-  const { token } = useContext(UserContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullname, setFullname] = useState('');
@@ -54,13 +52,26 @@ export default function SignupScreen({ navigation }) {
   const debouncedBioValue = useDebounce(bio, 500);
 
   useEffect(() => {
+    const hasSpace = /\s/;
+    const startsWithLetter = /^[a-zA-Z]/;
+    const validCharacters = /^[a-zA-Z0-9_.]+$/;
+    const hasConsecutiveSpecialChars = /[_.]{2,}/;
+
     if (username.length < 3 || username.length > 18) {
       setUsernameError('Username must be between 3 and 18 characters.');
+    } else if (hasSpace.test(username)) {
+      setUsernameError('Username cannot contain spaces.');
+    } else if (!startsWithLetter.test(username)) {
+      setUsernameError('Username must start with a letter.');
+    } else if (!validCharacters.test(username)) {
+      setUsernameError('Username can only contain letters, numbers, underscores, and full stops.');
+    } else if (hasConsecutiveSpecialChars.test(username)) {
+      setUsernameError('Username cannot contain consecutive special characters.');
     } else {
       setUsernameError('');
     }
-  }, [username]);
-
+}, [username]);
+  
   useEffect(() => {
     const emailRegex = /^\S+@\S+\.\S+$/;
     if (!emailRegex.test(email)) {
@@ -79,8 +90,23 @@ export default function SignupScreen({ navigation }) {
   }, [debouncedPasswordValue]);
 
   useEffect(() => {
-    if (debouncedFullnameValue.length < 3 || debouncedFullnameValue.length > 25) {
+    const hasNumber = /\d/;
+    const hasSpecialChar = /[^a-zA-Z\s]/;
+    const hasConsecutiveSpaces = /\s{2,}/;
+    const trimmedFullname = fullname.trim();
+  
+    if (trimmedFullname.length < 3 || trimmedFullname.length > 25) {
       setFullnameError('Fullname must be between 3 and 25 characters.');
+    } else if (trimmedFullname.startsWith(' ')) {
+      setFullnameError('Fullname cannot start with a space.');
+    } else if (trimmedFullname.endsWith(' ')) {
+      setFullnameError('Fullname cannot end with a space.');
+    } else if (hasNumber.test(trimmedFullname)) {
+      setFullnameError('Fullname cannot contain numbers.');
+    } else if (hasSpecialChar.test(trimmedFullname)) {
+      setFullnameError('Fullname cannot contain special characters.');
+    } else if (hasConsecutiveSpaces.test(trimmedFullname)) {
+      setFullnameError('Fullname cannot contain consecutive spaces.');
     } else {
       setFullnameError('');
     }
@@ -124,15 +150,16 @@ export default function SignupScreen({ navigation }) {
 
   useEffect(() => {
     const checkEmail = async () => {
-      if (debouncedEmailValue.trim() && !emailError) {
+      const emailToCheck = debouncedEmailValue.trim().toLowerCase();
+      
+      if (emailToCheck && !emailError) {
         try {
           const response = await fetch('http://192.168.1.145:5000/auth/validate-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: debouncedEmailValue }),
+            body: JSON.stringify({ email: emailToCheck }),
           });
-
-          const data = await response.json();
+  
           if (response.status === 409) {
             setEmailError('Email already in use');
           } else {
@@ -143,7 +170,7 @@ export default function SignupScreen({ navigation }) {
         }
       }
     };
-
+  
     checkEmail();
   }, [debouncedEmailValue]);
 
@@ -165,7 +192,7 @@ export default function SignupScreen({ navigation }) {
       username: username.toLowerCase(),
       email: email.toLowerCase(),
       password: password,
-      fullname: fullname,
+      fullname: fullname.trim(),
       profilePicture: profilePicture,
       bio: bio,
     };
@@ -292,7 +319,11 @@ export default function SignupScreen({ navigation }) {
             multiline
             numberOfLines={3}
             textAlignVertical="top"
-           />
+            onSubmitEditing={() => {
+              Keyboard.dismiss();
+            }}
+            blurOnSubmit={true}
+          />
             <Text style={styles.characterCount}>
              {bio.length}/150 characters
             </Text>
