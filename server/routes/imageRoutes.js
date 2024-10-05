@@ -7,5 +7,6 @@ const { authenticateUser } = require('../middleware/authMiddleware');
 router.post('/generate-image', imageController.generateImage);
 router.post('/search', authenticateUser, imageController.searchImages);
 router.get('/posts/relevant', authenticateUser, postController.getRelevantPosts);
+router.get('/posts/explore', authenticateUser, postController.getPopularizedPosts);
 
 module.exports = router;

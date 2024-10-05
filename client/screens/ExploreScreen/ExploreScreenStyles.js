@@ -8,7 +8,7 @@ export const styles = StyleSheet.create({
   },
   postContainer: {
     flex: 1,
-    margin: 5,
+    margin: 3,
     justifyContent: 'center',
     borderRadius: 6,
     overflow: 'hidden',

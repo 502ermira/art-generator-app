@@ -8,18 +8,28 @@ export default function ExploreScreen({ route }) {
   const { token } = useContext(UserContext);
   const [explorePosts, setExplorePosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true)
   const navigation = useNavigation();
 
-  const fetchExplorePosts = async () => {
+  const fetchExplorePosts = async (pageNumber = 1) => {
+    if (!hasMore) return;
+
     setIsLoading(true);
     try {
-      const response = await fetch(`http://192.168.1.145:5000/api/posts/explore`, {
+      const response = await fetch(`http://192.168.1.145:5000/api/posts/explore?page=${pageNumber}`, {
         headers: {
           Authorization: token,
         },
       });
       const data = await response.json();
-      setExplorePosts(data || []);
+
+      if (data.length > 0) {
+        setExplorePosts((prevPosts) => [...prevPosts, ...data]);
+        setPage(pageNumber + 1);
+      } else {
+        setHasMore(false);
+      }
     } catch (error) {
       console.error('Error fetching explore posts:', error);
     } finally {
@@ -56,6 +66,10 @@ export default function ExploreScreen({ route }) {
           keyExtractor={(item) => item._id}
           renderItem={renderPostItem}
           numColumns={2}
+          onEndReached={() => fetchExplorePosts(page)}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+          showsVerticalScrollIndicator={false}              
         />
       )}
     </View>

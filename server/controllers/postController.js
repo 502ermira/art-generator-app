@@ -73,15 +73,22 @@ exports.getRelevantPosts = async (req, res) => {
 
 exports.getPopularizedPosts = async (req, res) => {
   const userId = req.userId;
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
   try {
     const following = await Follower.find({ followerId: userId }).select('followingId');
     const followedUserIds = following.map(f => f.followingId);
 
-    const popularPosts = await Post.find({ user: { $nin: followedUserIds } })
+    const popularPosts = await Post.find({ 
+      user: { $nin: [...followedUserIds, userId] } 
+    })
       .populate('user')
       .populate('image')
       .sort({ sharedAt: -1 })
-      .limit(40);
+      .skip(skip)
+      .limit(limit);
 
     const scoredPosts = await Promise.all(
       popularPosts.map(async (post) => {
