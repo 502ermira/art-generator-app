@@ -108,8 +108,12 @@ exports.login = async (req, res) => {
 
   exports.getFavorites = async (req, res) => {
     try {
-      const user = await User.findById(req.userId).populate('favorites');
-      res.json({ favorites: user.favorites });
+      const user = await User.findById(req.userId);
+      const favoriteUrls = user.favorites;
+  
+      const favoriteImages = await Image.find({ image: { $in: favoriteUrls } });
+  
+      res.json({ favorites: favoriteImages });
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch favorites' });
     }

@@ -6,6 +6,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { styles } from './PostScreenStyles.js';
 import { UserContext } from '../../contexts/UserContext';
 import CustomHeader from '@/components/CustomHeader';
+import Loader from '@/components/Loader.js';
 
 const { height } = Dimensions.get('window');
 
@@ -216,9 +217,7 @@ export default function PostScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
+      <Loader />
     );
   }
 
@@ -284,7 +283,7 @@ export default function PostScreen() {
       </View>
 
       <Text style={styles.prompt}>Prompt: {postData.image.prompt || 'No prompt available'}</Text>
-      <Text style={styles.description}>{postData.description || 'No description available'}</Text>
+      <Text style={styles.description}>{postData.description}</Text>
 
       <View style={styles.commentsSection}>
       {comments.length > visibleComments && (

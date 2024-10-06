@@ -47,11 +47,15 @@ export default function GlobalNotificationPopup() {
 
   useEffect(() => {
     if (currentRouteName === 'NotificationScreen') return;
-
+  
     socket.current = io('http://192.168.1.145:5000');
     socket.current.emit('joinRoom', loggedInUsername);
-
+  
     const handleNewNotification = (notification) => {
+      if (notification.fromUser?.username === loggedInUsername) {
+        return;
+      }
+  
       if (currentRouteName !== 'NotificationScreen') {
         showPopup(
           notification.message,
@@ -61,15 +65,15 @@ export default function GlobalNotificationPopup() {
         );
       }
     };
-
+  
     socket.current.on('newNotification', handleNewNotification);
-
+  
     return () => {
       socket.current.off('newNotification', handleNewNotification);
       socket.current.disconnect();
     };
   }, [loggedInUsername, currentRouteName]);
-
+  
   const showPopup = (message, fromUser, profilePicture, postImage) => {
     setPopupMessage({ message, fromUser, profilePicture, postImage });
     setPopupVisible(true);

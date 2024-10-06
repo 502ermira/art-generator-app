@@ -116,6 +116,7 @@ export default function TextPromptScreen() {
             placeholder="Enter prompt"
             value={prompt}
             onChangeText={setPrompt}
+            placeholderTextColor='#aaa'
           />
           <TouchableOpacity style={styles.button} onPress={generateImage} disabled={loading}>
             <Text style={styles.buttonText}>Generate Image</Text>
@@ -137,9 +138,13 @@ export default function TextPromptScreen() {
             <View style={styles.previewContainer}>
               <Text style={styles.favoritesTitle}>Favorite Images</Text>
               <View style={styles.previewGrid}>
-                {previewFavorites.map((favorite, index) => (
-                  <Image key={index} source={{ uri: favorite }} style={styles.previewImage} />
-                ))}
+              {previewFavorites.map((favorite, index) => (
+              <Image
+               key={index}
+               source={{ uri: typeof favorite === 'string' ? favorite : favorite.image }}
+               style={styles.previewImage}
+              />
+              ))}
               </View>
               <TouchableOpacity style={styles.favoritesButton} onPress={() => navigation.navigate('FavoritesScreen')}>
                 <Text style={styles.buttonText}>See All Favorites</Text>
