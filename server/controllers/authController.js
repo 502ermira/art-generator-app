@@ -111,10 +111,8 @@ exports.login = async (req, res) => {
       const user = await User.findById(req.userId);
       const favoriteUrls = user.favorites;
   
-      // Find the images corresponding to the favorite URLs
       const favoriteImages = await Image.find({ image: { $in: favoriteUrls } });
   
-      // Map to include only the relevant fields (image, prompt, embedding) in the response
       const favoritesWithEmbeddings = favoriteImages.map(image => ({
         prompt: image.prompt,
         image: image.image,

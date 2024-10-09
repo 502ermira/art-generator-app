@@ -87,7 +87,7 @@ export default function TextPromptScreen() {
             Authorization: token,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ image: favoriteObject }),
+          body: JSON.stringify({ image: imageUrl }),
         });
   
         const data = await response.json();

@@ -80,6 +80,16 @@ export default function LoginScreen({ navigation, route }) {
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
           {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          <Text style={styles.signupText}>
+            Don't have an account?{' '}
+            <Text 
+              style={styles.signupLink}
+              onPress={() => navigation.navigate('Signup', { redirectTo, imageParams })}
+            >
+              Sign up
+            </Text>
+          </Text>
         </>
       )}
     </KeyboardAvoidingView>

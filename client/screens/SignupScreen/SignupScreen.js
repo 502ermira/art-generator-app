@@ -8,7 +8,7 @@ import * as FileSystem from 'expo-file-system';
 
 const { width } =  Dimensions.get('window');
 
-export default function SignupScreen({ navigation }) {
+export default function SignupScreen({ navigation, route }) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +28,8 @@ export default function SignupScreen({ navigation }) {
   const [passwordError, setPasswordError] = useState('');
   const [fullnameError, setFullnameError] = useState('');
   const [bioError, setBioError] = useState('');
+
+  const { redirectTo, imageParams } = route.params || {};
 
   const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -209,6 +211,9 @@ export default function SignupScreen({ navigation }) {
 
       if (response.ok) {
         setModalVisible(true);
+
+        navigation.replace('Login', { redirectTo, imageParams });
+        
       } else {
         setError(data.error || 'An unknown error occurred. Please try again.');
       }
@@ -340,13 +345,15 @@ export default function SignupScreen({ navigation }) {
             onRequestClose={() => setModalVisible(false)}
           >
             <View style={styles.modalView}>
+             <View style={styles.modalContent}>
               <Text style={styles.modalText}>Signup Successful!</Text>
               <TouchableOpacity onPress={() => {
-                navigation.navigate('LoginScreen');
-                setModalVisible(false);
+               navigation.replace('Login', { redirectTo, imageParams });
+               setModalVisible(false);
               }} style={styles.modalButton}>
                 <Text style={styles.modalButtonText}>Go to Login</Text>
               </TouchableOpacity>
+             </View>
             </View>
           </Modal>
         </>

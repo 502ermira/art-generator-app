@@ -14,7 +14,7 @@ router.put('/profile', authenticateUser, authController.updateProfile);
 router.post('/validate-username', authController.updateUsername);
 router.post('/update-email', authController.updateEmail);
 router.post('/update-username',authenticateUser, authController.updateUsername);
-router.post('/validate-email',authenticateUser, authController.updateEmail);
+router.post('/validate-email', authController.updateEmail);
 router.put('/change-password', authenticateUser, authController.changePassword);
 router.get('/search-users', authenticateUser, authController.searchUsers);
 router.post('/follow/:username', authenticateUser, authController.followUser);

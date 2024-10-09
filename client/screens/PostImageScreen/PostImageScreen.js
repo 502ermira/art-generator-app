@@ -10,31 +10,41 @@ export default function PostImageScreen({ route, navigation }) {
   const [description, setDescription] = useState('');
 
   useEffect(() => {
-    console.log('Selected image:', selectedImage);  // Log selected image
-    console.log('Image prompt:', imagePrompt);  // Log image prompt
+    console.log('Selected image:', selectedImage);
+    console.log('Image prompt:', imagePrompt);
   }, []);
 
   const handleShare = async () => {
     try {
       if (!token) {
-        // If user is not logged in, navigate to login screen
-        Alert.alert(
-          'Login Required',
-          'You need to log in to share images.',
-          [
-            {
-              text: 'Cancel',
-              style: 'cancel',
-            },
-            {
-              text: 'Login',
-              onPress: () => navigation.navigate('Login', { 
-                redirectTo: 'PostImageScreen', 
-                imageParams: { selectedImage, imagePrompt } 
-              }),
-            },
-          ]
-        );
+        // If user is not logged in, handle login based on platform
+        if (Platform.OS === 'web') {
+          const loginConfirm = window.confirm('Login Required: You need to log in to share images. Do you want to login?');
+          if (loginConfirm) {
+            navigation.navigate('Login', { 
+              redirectTo: 'PostImageScreen', 
+              imageParams: { selectedImage, imagePrompt } 
+            });
+          }
+        } else {
+          Alert.alert(
+            'Login Required',
+            'You need to log in to share images.',
+            [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+              },
+              {
+                text: 'Login',
+                onPress: () => navigation.navigate('Login', { 
+                  redirectTo: 'PostImageScreen', 
+                  imageParams: { selectedImage, imagePrompt } 
+                }),
+              },
+            ]
+          );
+        }
       } else {
         // User is logged in, proceed with the sharing process
         const response = await fetch('http://192.168.1.145:5000/auth/share', {
@@ -48,26 +58,40 @@ export default function PostImageScreen({ route, navigation }) {
             description,
           }),
         });
-
+  
         if (response.ok) {
-          Alert.alert('Success', 'Image shared successfully!', [
-            {
-              text: 'OK', 
-              onPress: () => navigation.goBack()
-            }
-          ]);
+          if (Platform.OS === 'web') {
+            window.alert('Image shared successfully!');
+            navigation.navigate('FavoritesScreen', { 
+            });
+          } else {
+            Alert.alert('Success', 'Image shared successfully!', [
+              {
+                text: 'OK', 
+                onPress: () => navigation.goBack(),
+              }
+            ]);
+          }
         } else {
           const errorData = await response.json();
           console.error(errorData);
-          Alert.alert('Error', 'Failed to share image.');
+          if (Platform.OS === 'web') {
+            window.alert('Failed to share image.');
+          } else {
+            Alert.alert('Error', 'Failed to share image.');
+          }
         }
       }
     } catch (err) {
       console.error(err);
-      Alert.alert('Error', 'Error occurred: ' + err.message);
+      if (Platform.OS === 'web') {
+        window.alert('Error occurred: ' + err.message);
+      } else {
+        Alert.alert('Error', 'Error occurred: ' + err.message);
+      }
     }
-  };
-
+  };  
+  
   const handleDescriptionChange = (text) => {
     if (text.length <= 250) {
       setDescription(text);
@@ -111,7 +135,7 @@ export default function PostImageScreen({ route, navigation }) {
           {description.length}/250 characters
         </Text>
 
-        <TouchableOpacity onPress={handleShare} style={styles.shareButton}>
+        <TouchableOpacity   onPress={() => {handleShare()}} style={styles.shareButton} >
           <Text style={styles.shareButtonText}>Share</Text>
         </TouchableOpacity>
       </ScrollView>

@@ -54,6 +54,15 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     fontSize: 16,
   },
+  signupText: {
+    marginTop: 20,
+    color: '#eee',
+    fontSize: 16,
+  },
+  signupLink: {
+    color: '#7049f6',
+    fontWeight: '900',
+  },
 });
 
 export { styles };
