@@ -24,12 +24,19 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
     paddingHorizontal: 16,
     paddingTop: 11,
+    justifyContent:'space-between',
+    alignItems: 'center'
+  },
+  userInfoInner : {
+    flexDirection: 'row',
   },
   profileImage: {
-    width: 48,
-    height: 48,
+    width: 49,
+    height: 49,
     borderRadius: 25,
     marginRight: 9,
+    borderColor: '#7049f6',
+    borderWidth: 1
   },
   userDetails: {
     justifyContent: 'center',
@@ -175,5 +182,58 @@ export const styles = StyleSheet.create({
   suggestionContainer : {
     flexDirection: 'row', 
     alignItems: 'center' ,
-  }
+  },
+  deleteButton: {
+    color: 'red',
+    fontWeight: 'bold',
+    marginLeft: 'auto',
+    marginRight: 0,
+  },
+  deleteMessage : {
+    color: '#7049f6',
+    paddingTop : 18,
+    textAlign: 'center',
+    fontWeight: 500,
+    fontSize: 14.5
+  },
+  modalView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '70%',
+    backgroundColor: '#eee',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  modalButton: {
+    backgroundColor: '#7049f6',
+    borderRadius: 5,
+    padding: 10,
+    width: '50%',
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });

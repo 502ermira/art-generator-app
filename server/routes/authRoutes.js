@@ -1,5 +1,6 @@
 const express = require('express');
 const authController = require('../controllers/authController');
+const postController = require('../controllers/postController');
 const { authenticateUser } = require('../middleware/authMiddleware');
 const router = express.Router();
 
@@ -23,6 +24,7 @@ router.get('/followers-following/:username', authController.getFollowersAndFollo
 router.post('/unfollow/:username', authenticateUser, authController.unfollowUser);
 router.get('/user/:username/posts', authenticateUser, authController.getUserPosts);
 router.get('/posts/:postId', authenticateUser, authController.getPostById);
+router.delete('/posts/:postId', authenticateUser, postController.deletePost);
 router.post('/posts/:postId/like', authenticateUser, authController.likePost);
 router.get('/posts/:postId/likes', authenticateUser, authController.getLikesByPostId);
 router.get('/posts/:postId/comments', authenticateUser, authController.getCommentsByPostId);

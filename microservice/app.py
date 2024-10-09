@@ -56,8 +56,8 @@ def search():
     # Sort by similarity score
     similarities = sorted(similarities, key=lambda x: x[2], reverse=True)
 
-    # Return top 5 results
-    results = [{'id': str(sim[0]), 'prompt': sim[1], 'score': sim[2]} for sim in similarities[:5]]
+    # Return top 50 results
+    results = [{'id': str(sim[0]), 'prompt': sim[1], 'score': sim[2]} for sim in similarities[:50]]
 
     return jsonify({'results': results}), 200
 

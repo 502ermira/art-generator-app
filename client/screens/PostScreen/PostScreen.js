@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
-import { View, KeyboardAvoidingView, Keyboard, Platform, Text, Image, ScrollView, TextInput, TouchableOpacity , Dimensions} from 'react-native';
+import { View, KeyboardAvoidingView, Keyboard, Platform, Text, Image, ScrollView, TextInput, TouchableOpacity , Dimensions, Modal} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -25,6 +25,8 @@ export default function PostScreen() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [inputPosition, setInputPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [deleteMessage, setDeleteMessage] = useState('');
+  const [isModalVisible, setModalVisible] = useState(false);
 
   const textInputRef = useRef(null);
 
@@ -137,6 +139,26 @@ export default function PostScreen() {
     }
   };  
 
+  const handleDeletePost = async () => {
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}`, {
+        method: 'DELETE',
+        headers: { Authorization: token },
+      });
+  
+      if (response.ok) {
+        setDeleteMessage('Post successfully deleted');
+        setModalVisible(true);
+        route.params?.onRefreshProfile?.();
+      } else {
+        const data = await response.json();
+        console.error('Failed to delete post:', data.error);
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    }
+  };
+
   const fetchUserSuggestions = async (searchTerm) => {
     try {
       const response = await fetch(`http://192.168.1.145:5000/auth/users/suggestions?searchTerm=${searchTerm}`, {
@@ -237,6 +259,11 @@ export default function PostScreen() {
    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
       <CustomHeader title="Post Details" />
+
+      {deleteMessage && (
+          <Text style={styles.deleteMessage}>{deleteMessage}</Text>
+        )}
+
       {repostedBy && repostedAt && (
         <Text style={styles.repostedByText}>
          <AntDesign name="retweet" style={styles.repostIcon} size={19} color={'#999'} />
@@ -244,11 +271,25 @@ export default function PostScreen() {
         </Text>
       )}
       <View style={styles.userInfo}>
+       <TouchableOpacity style={styles.userInfoInner}
+         onPress={() => {
+          if (postData.user.username === username) {
+            navigation.navigate('Profile');
+          } else {
+            navigation.navigate('UserProfile', { username: postData.user.username });
+          }
+        }} >
         <Image source={{ uri: postData.user.profilePicture }} style={styles.profileImage} />
         <View style={styles.userDetails}>
           <Text style={styles.fullname}>{postData.user.fullname}</Text>
           <Text style={styles.username}>@{postData.user.username}</Text>
         </View>
+        </TouchableOpacity>
+        {postData.user.username === username && (
+            <TouchableOpacity onPress={handleDeletePost}>
+              <AntDesign name="delete" size={22} color="#7049f6" />
+            </TouchableOpacity>
+          )}
       </View>
 
       <Image source={{ uri: postData.image.image }} style={styles.postImage} />
@@ -262,7 +303,7 @@ export default function PostScreen() {
           onPress={() => handleLike(postId)}
         >
           {postData.isLikedByUser ? (
-            <Icon name="heart" style={styles.likeIcon} size={25} color="red" />
+            <Icon name="heart" style={styles.likeIcon} size={25} color="#7049f6" />
           ) : (
             <Icon name="heart-o" style={styles.likeIcon} size={25} color="black" />
           )}
@@ -278,7 +319,7 @@ export default function PostScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleRepost} style={styles.repostButton}>
-          <AntDesign name="retweet" style={styles.commentIcon} size={25.5} color={isRepostedByUser ? 'green' : 'black'}  />
+          <AntDesign name="retweet" style={styles.commentIcon} size={25.5} color={isRepostedByUser ? '#7049f6' : 'black'}  />
         </TouchableOpacity>
       </View>
 
@@ -353,6 +394,26 @@ export default function PostScreen() {
       )}
     <Text style={styles.date}>Posted on {formattedDate} at {formattedTime}</Text>
     </ScrollView>
+
+        <Modal
+            animationType="slide"
+            transparent={true}
+            visible={isModalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalView}>
+             <View style={styles.modalContent}>
+              <Text style={styles.modalText}>Post deleted!</Text>
+              <TouchableOpacity onPress={() => {
+               navigation.goBack();
+               setModalVisible(false);
+              }} style={styles.modalButton}>
+                <Text style={styles.modalButtonText}>OK</Text>
+              </TouchableOpacity>
+             </View>
+            </View>
+          </Modal>
     </KeyboardAvoidingView>
+
   );
 }

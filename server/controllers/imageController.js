@@ -97,7 +97,7 @@ exports.searchImages = async (req, res) => {
     const posts = await Post.find({ image: { $in: imageIds } })
       .populate('image')
       .populate('user', 'username profilePicture');
-
+      
     const sortedPosts = imageIds.map(id => 
       posts.find(post => post.image._id.toString() === id)
     );

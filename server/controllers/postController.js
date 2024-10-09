@@ -6,6 +6,8 @@ const Repost = require('../models/Repost');
 const Comment = require('../models/Comment');
 const Search = require('../models/Search');
 const Like = require('../models/Like');
+const Notification = require('../models/Notification');
+const jwt = require('jsonwebtoken');
 
 exports.getRelevantPosts = async (req, res) => {
   const userId = req.userId;
@@ -139,3 +141,36 @@ const getRelevanceScore = async (post, userId) => {
 
   return isRelevant ? 10 : 0;
 }
+
+exports.deletePost = async (req, res) => {
+  const { postId } = req.params;
+  const { authorization } = req.headers;
+
+  try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    if (post.user.toString() !== userId) {
+      return res.status(403).json({ error: 'You can only delete your own posts' });
+    }
+
+    await Comment.deleteMany({ post: postId });
+    await Like.deleteMany({ post: postId });
+    await Repost.deleteMany({ post: postId });
+    await PostView.deleteMany({ post: postId });
+    await Notification.deleteMany({ post: postId });
+    await User.updateMany({ posts: postId }, { $pull: { posts: postId } });
+    await Post.findByIdAndDelete(postId);
+
+    res.status(200).json({ message: 'Post and related data deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(500).json({ error: 'Failed to delete post' });
+  }
+};

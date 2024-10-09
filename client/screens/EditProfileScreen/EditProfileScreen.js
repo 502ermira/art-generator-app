@@ -218,6 +218,7 @@ export default function EditProfileScreen({ navigation, route }) {
           }
         }
         Alert.alert('Success', 'Profile updated successfully');
+        route.params?.onRefreshProfile?.();
         navigation.goBack();
       } else {
         if (result.error.includes('Username already taken')) {

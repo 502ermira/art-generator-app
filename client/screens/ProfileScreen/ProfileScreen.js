@@ -80,6 +80,10 @@ export default function ProfileScreen({ navigation }) {
     }
   };
 
+  const handleRefreshProfile = () => {
+    fetchUserData();
+};
+
   useEffect(() => {
     if (!contextLoading && token) {
       fetchUserData();
@@ -109,7 +113,7 @@ export default function ProfileScreen({ navigation }) {
               <TouchableOpacity 
                 key={index} 
                 style={[styles.postContainer, { width: imageSize, height: imageSize }]} 
-                onPress={() => navigation.navigate('PostScreen', { postId: post._id })}
+                onPress={() => navigation.navigate('PostScreen', { postId: post._id , onRefreshProfile: handleRefreshProfile, })}
               >
                 <Image source={{ uri: post.image.image }} style={styles.previewImage} />
               </TouchableOpacity>
@@ -212,7 +216,7 @@ export default function ProfileScreen({ navigation }) {
 
           <TouchableOpacity
             style={styles.followButton}
-            onPress={() => navigation.navigate('EditProfile', { updateUserData: setUserData })}
+            onPress={() => navigation.navigate('EditProfile', { updateUserData: setUserData, onRefreshProfile: handleRefreshProfile })}
           >
             <Text style={styles.followButtonText}>Edit Profile</Text>
           </TouchableOpacity>
