@@ -5,12 +5,14 @@ import Loader from '../../components/Loader.js';
 import { UserContext } from '../../contexts/UserContext.js';
 import { styles } from './LoginScreenStyles';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ navigation, route }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { setIsLoggedIn, setUsername } = useContext(UserContext);
+
+  const { redirectTo, imageParams } = route.params || {};
 
   const loginUser = async () => {
     setLoading(true);
@@ -32,9 +34,12 @@ export default function LoginScreen({ navigation }) {
 
         setIsLoggedIn(true);
         setUsername(data.username);
-        setTimeout(() => {
+
+        if (redirectTo) {
+          navigation.replace(redirectTo, imageParams);
+        } else {
           navigation.replace('TextPromptScreen');
-        }, 100);
+        }
       } else {
         setError(data.error);
       }

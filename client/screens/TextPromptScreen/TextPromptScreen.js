@@ -15,6 +15,7 @@ export default function TextPromptScreen() {
   const [error, setError] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [token, setToken] = useState('');
+  const [embedding, setEmbedding] = useState(null);
 
   const navigation = useNavigation();
 
@@ -46,29 +47,37 @@ export default function TextPromptScreen() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://192.168.1.145:5000/api/generate-image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
-        },
-        body: JSON.stringify({ prompt }),
-      });
-      const data = await response.json();
-  
-      if (response.ok) {
-        setImageUrl(data.image);
-      } else {
-        setError(data.error || 'Failed to generate image');
-      }
-    } catch (err) {
-      setError('Error occurred: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };  
+        const response = await fetch('http://192.168.1.145:5000/api/generate-image', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: token ? `Bearer ${token}` : '',
+            },
+            body: JSON.stringify({ prompt }),
+        });
+        const data = await response.json();
 
-  const saveFavorite = async (image) => {
+        if (response.ok) {
+            setImageUrl(data.image);
+            const embedding = data.embedding;
+            setEmbedding(embedding);
+        } else {
+            setError(data.error || 'Failed to generate image');
+        }
+    } catch (err) {
+        setError('Error occurred: ' + err.message);
+    } finally {
+        setLoading(false);
+    }
+};
+
+  const saveFavorite = async () => {
+    const favoriteObject = {
+      prompt: prompt,
+      image: imageUrl,
+      embedding: embedding,
+    };
+  
     try {
       if (token) {
         // Save to backend if user is logged in
@@ -78,7 +87,7 @@ export default function TextPromptScreen() {
             Authorization: token,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ image }),
+          body: JSON.stringify({ image: favoriteObject }),
         });
   
         const data = await response.json();
@@ -90,10 +99,11 @@ export default function TextPromptScreen() {
         }
       } else {
         // Save to AsyncStorage for guest users
-        const updatedFavorites = [...favorites, image];
+        const updatedFavorites = [...favorites, favoriteObject];
         setFavorites(updatedFavorites);
         await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
         alert('Favorite saved locally');
+        console.log(favoriteObject);
       }
     } catch (error) {
       console.error('Error saving favorite:', error);
@@ -128,7 +138,7 @@ export default function TextPromptScreen() {
           {imageUrl && (
            <>
             <Image source={{ uri: imageUrl }} style={styles.image} />
-            <TouchableOpacity style={styles.button} onPress={() => saveFavorite(imageUrl)}>
+            <TouchableOpacity style={styles.button}onPress={saveFavorite}>
              <Text style={styles.buttonText}>Favorite</Text>
             </TouchableOpacity>
            </>

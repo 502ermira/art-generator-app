@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Text, Image, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard, ScrollView, Alert } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
 import CustomHeader from '../../components/CustomHeader';
@@ -6,34 +6,61 @@ import styles from './PostImageScreenStyles';
 
 export default function PostImageScreen({ route, navigation }) {
   const { selectedImage, imagePrompt } = route.params;
-  const { token } = useContext(UserContext);
+  const { token, setIsLoggedIn, setUsername } = useContext(UserContext);
   const [description, setDescription] = useState('');
+
+  useEffect(() => {
+    console.log('Selected image:', selectedImage);  // Log selected image
+    console.log('Image prompt:', imagePrompt);  // Log image prompt
+  }, []);
 
   const handleShare = async () => {
     try {
-      const response = await fetch('http://192.168.1.145:5000/auth/share', {
-        method: 'POST',
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image: { url: selectedImage },
-          description,
-        }),
-      });
-
-      if (response.ok) {
-        Alert.alert('Success', 'Image shared successfully!', [
-          {
-            text: 'OK', 
-            onPress: () => navigation.goBack()
-          }
-        ]);
+      if (!token) {
+        // If user is not logged in, navigate to login screen
+        Alert.alert(
+          'Login Required',
+          'You need to log in to share images.',
+          [
+            {
+              text: 'Cancel',
+              style: 'cancel',
+            },
+            {
+              text: 'Login',
+              onPress: () => navigation.navigate('Login', { 
+                redirectTo: 'PostImageScreen', 
+                imageParams: { selectedImage, imagePrompt } 
+              }),
+            },
+          ]
+        );
       } else {
-        const errorData = await response.json();
-        console.error(errorData);
-        Alert.alert('Error', 'Failed to share image.');
+        // User is logged in, proceed with the sharing process
+        const response = await fetch('http://192.168.1.145:5000/auth/share', {
+          method: 'POST',
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            image: { url: selectedImage },
+            description,
+          }),
+        });
+
+        if (response.ok) {
+          Alert.alert('Success', 'Image shared successfully!', [
+            {
+              text: 'OK', 
+              onPress: () => navigation.goBack()
+            }
+          ]);
+        } else {
+          const errorData = await response.json();
+          console.error(errorData);
+          Alert.alert('Error', 'Failed to share image.');
+        }
       }
     } catch (err) {
       console.error(err);

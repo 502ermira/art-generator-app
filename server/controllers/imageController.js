@@ -2,7 +2,7 @@ const { HfInference } = require('@huggingface/inference');
 const inference = new HfInference(process.env.HUGGINGFACE_API_KEY);
 const Image = require('../models/Image');
 const Post = require('../models/Post');
-const Search = require('../models/Search'); 
+const Search = require('../models/Search');
 
 exports.generateImage = async (req, res) => {
   const { prompt } = req.body;
@@ -13,6 +13,8 @@ exports.generateImage = async (req, res) => {
   }
 
   try {
+    const inference = new HfInference(process.env.HUGGINGFACE_API_KEY);
+
     const result = await inference.textToImage({
       model: 'stabilityai/stable-diffusion-2',
       inputs: prompt,
@@ -51,15 +53,16 @@ exports.generateImage = async (req, res) => {
       });
       await newImage.save();
 
-      res.status(200).json({ image: imageUrl });
+      res.status(200).json({ image: imageUrl, embedding: embedding });
     } else {
       res.status(500).json({ error: 'Failed to generate image' });
     }
   } catch (error) {
+    console.error('Error generating image:', error.message);
+
     if (error.message.includes('Rate limit')) {
       res.status(429).json({ error: 'Rate limit reached. Please try again later.' });
     } else {
-      console.error('Error generating image:', error);
       res.status(500).json({ error: 'Error generating image' });
     }
   }
