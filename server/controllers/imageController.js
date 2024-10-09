@@ -102,14 +102,22 @@ exports.searchImages = async (req, res) => {
       posts.find(post => post.image._id.toString() === id)
     );
 
-    const results = sortedPosts.map(post => ({
-      id: post.image._id,
-      image: post.image.image,
-      prompt: post.image.prompt,
-      postId: post._id,
-      username: post.user.username,
-      profilePicture: post.user.profilePicture,
-    }));
+    const results = sortedPosts.map(post => {
+      if (!post || !post.image) {
+        console.error('Post or image missing for post:', post);
+        return null;
+      }
+    
+      return {
+        id: post.image._id,
+        image: post.image.image,
+        prompt: post.image.prompt,
+        postId: post._id,
+        username: post.user.username,
+        profilePicture: post.user.profilePicture,
+      };
+    }).filter(post => post !== null);
+    
 
     res.status(200).json({ results });
   } catch (error) {

@@ -13,7 +13,6 @@ export default function SearchScreen() {
   const [imageResults, setImageResults] = useState([]);
   const [userResults, setUserResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [searchType, setSearchType] = useState('images');
   const navigation = useNavigation();
   const layout = Dimensions.get('window');
 
@@ -51,9 +50,9 @@ export default function SearchScreen() {
   };
 
   const handleResultPress = (item) => {
-    if (searchType === 'images') {
+    if (index === 0) {
       navigation.navigate('PostScreen', { postId: item.postId });
-    } else {
+    } else if (index === 1) {
       if (item.username === loggedInUsername) {
         navigation.navigate('Profile');
       } else {
