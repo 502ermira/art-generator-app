@@ -150,7 +150,34 @@ exports.login = async (req, res) => {
       console.error(err);
       res.status(500).json({ error: 'Internal server error' });
     }
-  };    
+  };   
+  
+  exports.unfavorite = async (req, res) => {
+    const { image } = req.body;
+    const { authorization } = req.headers;
+  
+    try {
+      const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.userId);
+  
+      if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+      }
+  
+      const favoriteIndex = user.favorites.indexOf(image);
+      if (favoriteIndex === -1) {
+        return res.status(400).json({ error: 'Image is not a favorite' });
+      }
+  
+      user.favorites.splice(favoriteIndex, 1);
+      await user.save();
+  
+      res.status(200).json({ message: 'Image unfavorited successfully' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };  
 
   exports.getProfile = async (req, res) => {
     try {

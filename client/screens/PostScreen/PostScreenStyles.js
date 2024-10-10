@@ -127,7 +127,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 3,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
   },
   commentInput: {
     flex: 1,

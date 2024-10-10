@@ -7,6 +7,11 @@ export default StyleSheet.create({
     flex: 1,
     backgroundColor: '#151419',
     },
+    imageContainer: {
+      width: width * 0.87,
+      marginBottom: 20,
+      position: 'relative',
+    },
   container: {
     flex: 1,
     padding: 20,
@@ -27,6 +32,14 @@ export default StyleSheet.create({
     marginBottom: 15,
     resizeMode: 'cover',
   },
+  unfavoriteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.77)',
+    padding: 8,
+    borderRadius: 50,
+  },
   shareButton: {
     backgroundColor: '#7049f6',
     paddingVertical: 10,
@@ -39,6 +52,11 @@ export default StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     fontSize: 16.5,
+  },
+  noFavorites : {
+    color: '#fff',
+    marginTop: 10,
+    textAlign: 'center',
   },
   modalBackground: {
     flex: 1,

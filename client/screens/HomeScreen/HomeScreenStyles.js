@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     padding: 10,
-    paddingTop: 60,
+    paddingTop: 50,
   },
   postContainer: {
     backgroundColor: '#fff',
@@ -20,17 +20,27 @@ export const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
+  logo: {
+    resizeMode: 'contain',
+    height:65,
+    width: 110,
+    marginTop:4,
+    marginBottom: 18,
+    alignSelf: 'center',
+    tintColor: 'rgba(0, 0, 0, 0.33)',
+  },
   image: {
     height: (height / 2) - 65,
     resizeMode: 'cover',
     borderRadius: 5,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   description: {
     fontSize: 15,
     fontWeight: '500',
     color: '#333',
     lineHeight: 22,
+    marginTop: 5,
   },
   profileImage: {
     width: 40,
@@ -58,7 +68,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 9,
   },
   engagementContainer: {
     flexDirection: 'row',

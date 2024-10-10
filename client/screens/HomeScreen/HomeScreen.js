@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { styles } from './HomeScreenStyles.js';
 import Loader from '@/components/Loader';
+const logo = require('../../assets/images/nav-logo.png');
 
 export default function HomeScreen() {
   const [posts, setPosts] = useState([]);
@@ -192,7 +193,9 @@ export default function HomeScreen() {
           <View style={styles.postContainer}>
             <RenderPromptWithReadMore text={item.image.prompt} />
             <Image source={{ uri: item.image.image }} style={styles.image} />
-            <RenderDescriptionWithReadMore text={item.description} />
+            {item.description ? (
+              <RenderDescriptionWithReadMore text={item.description} />
+            ) : null}
             <View style={styles.userInfoAndEngagement}>
               <View style={styles.userInfoContainer}>
                 <TouchableOpacity onPress={() => handleUserPress(item.user)}>
@@ -241,6 +244,9 @@ export default function HomeScreen() {
             </View>
           </View>
         )}
+        ListHeaderComponent={() => (
+          <Image source={logo} style={styles.logo} />
+        )}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -249,7 +255,7 @@ export default function HomeScreen() {
         }
         onEndReached={loadMorePosts}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={loadingMore ? <ActivityIndicator /> : null}
+        ListFooterComponent={loadingMore ? <Loader /> : null}
         showsVerticalScrollIndicator={false}              
       />
       )}

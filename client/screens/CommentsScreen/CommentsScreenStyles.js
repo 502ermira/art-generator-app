@@ -87,8 +87,11 @@ export const styles = StyleSheet.create({
     backgroundColor: 'red',
     justifyContent: 'center',
     alignItems: 'flex-end',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
+    marginRight:3,
     paddingVertical: 10,
-    marginBottom: 10,
+    marginVertical: 3,
+    marginBottom: 7,
+    borderRadius: 3,
   },
 });

@@ -43,6 +43,8 @@ export default function TextPromptScreen() {
     loadFavorites();
   }, [isLoggedIn]);
 
+  const isFavorited = favorites.some(favorite => favorite.image === imageUrl);
+
   const generateImage = async () => {
     setLoading(true);
     setError(null);
@@ -71,17 +73,51 @@ export default function TextPromptScreen() {
     }
 };
 
-  const saveFavorite = async () => {
-    const favoriteObject = {
-      prompt: prompt,
-      image: imageUrl,
-      embedding: embedding,
-    };
+const saveFavorite = async () => {
+  const favoriteObject = {
+    prompt: prompt,
+    image: imageUrl,
+    embedding: embedding,
+  };
+
+  try {
+    if (token) {
+      // Save to backend if user is logged in
+      const response = await fetch('http://192.168.1.145:5000/auth/favorites', {
+        method: 'POST',
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ image: imageUrl }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save favorite');
+      } else {
+        setFavorites(prevFavorites => [...prevFavorites, favoriteObject]);
+        alert('Favorite saved successfully');
+      }
+    } else {
+      // Save to AsyncStorage for guest users
+      const updatedFavorites = [...favorites, favoriteObject];
+      setFavorites(updatedFavorites);
+      await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+      alert('Favorite saved locally');
+    }
+  } catch (error) {
+    console.error('Error saving favorite:', error);
+    alert('Error saving favorite: ' + error.message);
+  }
+};
   
+const toggleFavorite = async () => {
+  if (isFavorited) {
     try {
       if (token) {
-        // Save to backend if user is logged in
-        const response = await fetch('http://192.168.1.145:5000/auth/favorites', {
+        const response = await fetch('http://192.168.1.145:5000/auth/unfavorite', {
           method: 'POST',
           headers: {
             Authorization: token,
@@ -89,26 +125,25 @@ export default function TextPromptScreen() {
           },
           body: JSON.stringify({ image: imageUrl }),
         });
-  
+
         const data = await response.json();
-  
         if (!response.ok) {
-          throw new Error(data.error || 'Failed to save favorite');
-        } else {
-          alert('Favorite saved successfully');
+          throw new Error(data.error || 'Failed to unfavorite');
         }
-      } else {
-        // Save to AsyncStorage for guest users
-        const updatedFavorites = [...favorites, favoriteObject];
-        setFavorites(updatedFavorites);
-        await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-        alert('Favorite saved locally');
       }
+
+      const updatedFavorites = favorites.filter(favorite => favorite.image !== imageUrl);
+      setFavorites(updatedFavorites);
+      await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+      alert('Image unfavorited');
     } catch (error) {
-      console.error('Error saving favorite:', error);
-      alert('Error saving favorite: ' + error.message);
+      console.error('Error unfavoriting image:', error);
+      alert('Error unfavoriting image: ' + error.message);
     }
-  };  
+  } else {
+    await saveFavorite();
+  }
+};
   
   const previewFavorites = favorites.slice(0, 6);
 
@@ -135,13 +170,13 @@ export default function TextPromptScreen() {
           {imageUrl && (
            <>
             <Image source={{ uri: imageUrl }} style={styles.image} />
-            <TouchableOpacity style={styles.button}onPress={saveFavorite}>
-             <Text style={styles.buttonText}>Favorite</Text>
+            <TouchableOpacity style={styles.favoritesButton} onPress={toggleFavorite}>
+            <Text style={styles.buttonText}>{isFavorited ? '  Unfavorite  ' : '  Favorite  '}</Text>
             </TouchableOpacity>
            </>
           )}
 
-          {previewFavorites.length > 0 && (
+          {previewFavorites.length > 0 ? (
             <View style={styles.previewContainer}>
               <Text style={styles.favoritesTitle}>Favorite Images</Text>
               <View style={styles.previewGrid}>
@@ -157,7 +192,7 @@ export default function TextPromptScreen() {
                 <Text style={styles.buttonText}>See All Favorites</Text>
               </TouchableOpacity>
             </View>
-          )}
+          ): null}
         </View>
       </ScrollView>
     </ImageBackground>

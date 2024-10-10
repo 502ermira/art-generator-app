@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity, TextInput } from 'reac
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
 import { styles } from './RepostsScreenStyles';
+import Loader from '@/components/Loader';
 import CustomHeader from '@/components/CustomHeader';
 
 export default function RepostsScreen() {
@@ -12,6 +13,7 @@ export default function RepostsScreen() {
   const { token, username: loggedInUsername } = useContext(UserContext);
   const [reposts, setReposts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchReposts = async () => {
@@ -28,6 +30,8 @@ export default function RepostsScreen() {
         }
       } catch (error) {
         console.error('Error fetching reposts:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -57,23 +61,28 @@ export default function RepostsScreen() {
         onChangeText={setSearchQuery}
         placeholderTextColor='#aaa'
       />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {filteredReposts.length > 0 ? (
-          filteredReposts.map((repost) => (
-            <TouchableOpacity key={repost._id} style={styles.repost} onPress={() => handleUserPress(repost.user)}>
-              <Image source={{ uri: repost.user.profilePicture }} style={styles.profileImage} />
-              <View style={styles.repostInfo}>
-                <Text style={styles.username}>{repost.user.fullname} (@{repost.user.username})</Text>
-                <Text style={styles.repostedAt}>
-                  Reposted on {new Date(repost.repostedAt).toLocaleTimeString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text style={styles.emptyText}>No reposts yet</Text>
-        )}
-      </ScrollView>
+      
+      {isLoading ? ( 
+        <Loader />
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {filteredReposts.length > 0 ? (
+            filteredReposts.map((repost) => (
+              <TouchableOpacity key={repost._id} style={styles.repost} onPress={() => handleUserPress(repost.user)}>
+                <Image source={{ uri: repost.user.profilePicture }} style={styles.profileImage} />
+                <View style={styles.repostInfo}>
+                  <Text style={styles.username}>{repost.user.fullname} (@{repost.user.username})</Text>
+                  <Text style={styles.repostedAt}>
+                    Reposted on {new Date(repost.repostedAt).toLocaleTimeString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.emptyText}>No reposts yet</Text>
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 }
