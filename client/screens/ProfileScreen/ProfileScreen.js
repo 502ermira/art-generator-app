@@ -25,7 +25,7 @@ export default function ProfileScreen({ navigation }) {
 
   const screenWidth = Dimensions.get('window').width;
   const numColumns = screenWidth > 600 ? 3 : 2;
-  const imageSize = screenWidth / numColumns - 10;
+  const imageSize = screenWidth / numColumns - 2.5;
 
   const fetchUserData = async () => {
     try {
@@ -217,7 +217,9 @@ const LikesRoute = () => (
               </View>
             </View>
           </View>
-          <Text style={styles.bio}>{userData.bio}</Text>
+          {userData.bio ? (
+         <Text style={styles.bio}>{userData.bio}</Text>
+          ) : null}
 
           <TouchableOpacity
             style={styles.followButton}

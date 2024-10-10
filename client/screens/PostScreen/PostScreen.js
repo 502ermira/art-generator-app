@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
-import { View, KeyboardAvoidingView, Keyboard, Platform, Text, Image, ScrollView, TextInput, TouchableOpacity , Dimensions, Modal} from 'react-native';
+import { View, KeyboardAvoidingView, Keyboard, Platform, Text, Image, ScrollView, TextInput, TouchableOpacity , Dimensions, Modal, RefreshControl} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -27,51 +27,53 @@ export default function PostScreen() {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [deleteMessage, setDeleteMessage] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const textInputRef = useRef(null);
 
+  const fetchPostData = async () => {
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}`, {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setPostData(data);
+        const repostResponse = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/reposts`, {
+          headers: { Authorization: token },
+        });
+        const reposts = await repostResponse.json();
+        const hasReposted = reposts.some(repost => repost.user.username === username);
+        setIsRepostedByUser(hasReposted);
+      } else {
+        console.error('Failed to fetch post:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching post:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/comments`, {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setComments(data);
+      } else {
+        console.error('Failed to fetch comments:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchPostData = async () => {
-      try {
-        const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}`, {
-          headers: { Authorization: token },
-        });
-        const data = await response.json();
-  
-        if (response.ok) {
-          setPostData(data);
-          const repostResponse = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/reposts`, {
-            headers: { Authorization: token },
-          });
-          const reposts = await repostResponse.json();
-          const hasReposted = reposts.some(repost => repost.user.username === username);
-          setIsRepostedByUser(hasReposted);
-        } else {
-          console.error('Failed to fetch post:', data.error);
-        }
-      } catch (error) {
-        console.error('Error fetching post:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchComments = async () => {
-      try {
-        const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/comments`, {
-          headers: { Authorization: token },
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-          setComments(data);
-        } else {
-          console.error('Failed to fetch comments:', data.error);
-        }
-      } catch (error) {
-        console.error('Error fetching comments:', error);
-      }
-    };
 
     fetchPostData();
     fetchComments();
@@ -185,6 +187,20 @@ export default function PostScreen() {
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
   
+    const optimisticComment = {
+      _id: Date.now().toString(),
+      content: newComment,
+      user: {
+        fullname: "Adding comment...",
+        username: username,
+        profilePicture: '',
+      },
+    };
+  
+    setComments((prev) => [optimisticComment, ...prev]);
+  
+    setNewComment('');
+  
     try {
       const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/comments`, {
         method: 'POST',
@@ -197,16 +213,17 @@ export default function PostScreen() {
   
       const data = await response.json();
       if (response.ok) {
-        setComments((prev) => [data, ...prev]);
-        setNewComment('');
+        await fetchComments();
       } else {
         console.error('Failed to add comment:', data.error);
+        setComments((prev) => prev.filter(comment => comment._id !== optimisticComment._id));
       }
     } catch (error) {
       console.error('Error adding comment:', error);
+      setComments((prev) => prev.filter(comment => comment._id !== optimisticComment._id));
     }
-  };  
-
+  };
+  
   const handleCommentChange = (text) => {
     setNewComment(text);
 
@@ -251,15 +268,39 @@ export default function PostScreen() {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchPostData();
+      await fetchComments();
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };  
+
   const formattedDate = new Date(postData.sharedAt).toLocaleDateString();
   const formattedTime = new Date(postData.sharedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
   const formattedRepostDate = repostedAt ? new Date(repostedAt).toLocaleTimeString([], { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }) : '';
 
   return (
    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-    <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <CustomHeader title="Post Details" />
-
+    <CustomHeader title="Post Details" />
+    <ScrollView
+     contentContainerStyle={styles.container}
+     keyboardShouldPersistTaps="handled"
+     style={{ backgroundColor: '#fafafa' }}
+     refreshControl={
+      <RefreshControl 
+      refreshing={refreshing} 
+      onRefresh={onRefresh}
+      tintColor="#7049f6"
+      colors={['#7049f6', '#ff6347', '#32cd32']}
+      progressBackgroundColor="#fafafa"
+      />
+    }
+    >
       {deleteMessage && (
           <Text style={styles.deleteMessage}>{deleteMessage}</Text>
         )}
@@ -274,9 +315,9 @@ export default function PostScreen() {
        <TouchableOpacity style={styles.userInfoInner}
          onPress={() => {
           if (postData.user.username === username) {
-            navigation.navigate('Profile');
+            navigation.push('Profile');
           } else {
-            navigation.navigate('UserProfile', { username: postData.user.username });
+            navigation.push('UserProfile', { username: postData.user.username });
           }
         }} >
         <Image source={{ uri: postData.user.profilePicture }} style={styles.profileImage} />
@@ -324,8 +365,11 @@ export default function PostScreen() {
       </View>
 
       <Text style={styles.prompt}>Prompt: {postData.image.prompt || 'No prompt available'}</Text>
-      <Text style={styles.description}>{postData.description}</Text>
+      {postData.description ? (
+         <Text style={styles.description}>{postData.description}</Text>
+      ) : null}
 
+      {comments ? (
       <View style={styles.commentsSection}>
       {comments.length > visibleComments && (
         <TouchableOpacity onPress={handleCommentsPress}>
@@ -339,6 +383,7 @@ export default function PostScreen() {
         </View>
       ))}
     </View>
+    ) : null}
 
       <View style={styles.commentInputContainer}>
         <TextInput
@@ -365,7 +410,7 @@ export default function PostScreen() {
         borderRadius: 5,
         paddingVertical: 10,
         zIndex: 1000,
-        bottom: 172,
+        bottom: 240,
         maxHeight: 155,
         zIndex: 1000,
        }}

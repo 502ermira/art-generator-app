@@ -28,7 +28,7 @@ export default function UserProfileScreen() {
 
   const screenWidth = Dimensions.get('window').width;
   const numColumns = screenWidth > 600 ? 3 : 2;
-  const imageSize = screenWidth / numColumns - 10;
+  const imageSize = screenWidth / numColumns - 2.5;
 
   const fetchUserProfile = async () => {
     try {
@@ -130,10 +130,10 @@ export default function UserProfileScreen() {
             .map((post, index) => (
               <TouchableOpacity 
                 key={index} 
-                style={styles.postContainer} 
+                style={[styles.postContainer, { width: imageSize, height: imageSize }]} 
                 onPress={() => navigation.navigate('PostScreen', { postId: post._id })}
               >
-                <Image source={{ uri: post.image.image }} style={[styles.postContainer, { width: imageSize, height: imageSize }]}  />
+                <Image source={{ uri: post.image.image }} style={styles.previewImage}  />
               </TouchableOpacity>
           ))}
         </View>
@@ -207,7 +207,9 @@ export default function UserProfileScreen() {
             </View>
           </View>
         </View>
-        <Text style={styles.bio}>{profileData.bio}</Text>
+        {profileData.bio ? (
+         <Text style={styles.bio}>{profileData.bio}</Text>
+          ) : null}
 
         <TouchableOpacity 
           style={styles.followButton} 

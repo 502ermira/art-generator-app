@@ -4,10 +4,10 @@ const { height, width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
+    backgroundColor: '#fafafa',
     minHeight: height,
     width: width,
-    paddingBottom: 100,
+    paddingBottom: 77,
   },
   loadingContainer: {
     flex: 1,
@@ -21,9 +21,9 @@ export const styles = StyleSheet.create({
   },
   userInfo: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: 5,
     paddingHorizontal: 16,
-    paddingTop: 11,
+    paddingTop: 6,
     justifyContent:'space-between',
     alignItems: 'center'
   },
@@ -57,7 +57,7 @@ export const styles = StyleSheet.create({
   },
   prompt: {
     fontStyle: 'italic',
-    marginBottom: 8,
+    marginBottom: 2,
     color: '#303030',
     fontSize: 15,
     paddingLeft: 16,
@@ -67,6 +67,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
     paddingLeft: 16,
+    marginTop: 6,
   },
   date: {
     color: '#888',
@@ -96,7 +97,7 @@ export const styles = StyleSheet.create({
   },
   commentsSection: {
     marginTop: 0,
-    paddingTop: 16,
+    paddingTop: 9,
     textAlign: 'center',
     justifyItems : 'center',
   },
@@ -150,9 +151,8 @@ export const styles = StyleSheet.create({
     paddingRight: 2,
   },
   viewMoreText : {
-    marginBottom: 6,
+    marginBottom: 4,
     paddingLeft: 16,
-    marginTop: -3,
   },
   repostedByText: {  
     fontSize: 15.5, 

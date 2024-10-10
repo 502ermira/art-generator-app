@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     margin: 3,
     justifyContent: 'center',
-    borderRadius: 6,
+    borderRadius: 4,
     overflow: 'hidden',
     backgroundColor: '#fff',
     shadowColor: '#000',

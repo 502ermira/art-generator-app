@@ -34,9 +34,8 @@ export default function CustomHeader({ title, screenType }) {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.menuButton}>
           <Ionicons name="settings" size={24} color="black" />
         </TouchableOpacity>
-      ) : screenType === 'FollwersFollowing' ? (
+      ) : screenType === 'FollowersFollowing' ? (
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.followersButton}>
-          <Ionicons name="settings" size={24} color="black" style={styles.followersButton} />
         </TouchableOpacity>
       ) : null}
     </View>
@@ -49,45 +48,45 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fafafa',
-    padding: 13,
+    padding: 11,
     borderBottomWidth: 0.5,
     borderColor: '#ccc',
     textAlign: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    paddingTop:60,
+    paddingTop:56,
   },
   headerContainerProfile: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fafafa',
-    padding: 13,
+    padding: 11,
     borderBottomWidth: 0.5,
     borderColor: '#ccc',
     textAlign: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    paddingTop:60,
+    paddingTop:56,
   },
   headerContainerNew: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fafafa',
-    padding: 13,
+    padding: 11,
     textAlign: 'center',
     width: '100%',
     justifyContent: 'space-between',
     paddingLeft: '44%',
-    paddingTop:60,
+    paddingTop:56,
     borderBottomWidth: 0.5,
     borderColor: '#ccc',
   },
   headerContainerNull: {
-    paddingTop:60,
+    paddingTop:56,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fafafa',
-    padding:13,
+    padding:11,
     borderBottomWidth: 0,
     textAlign: 'center',
     width: '100%',
@@ -98,12 +97,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fafafa',
-    padding: 13,
+    padding: 11,
     textAlign: 'center',
     width: '100%',
     justifyContent: 'space-between',
-    paddingRight: '44%',
-    paddingTop:60,
+    paddingRight: '14%',
+    paddingTop:56,
     borderBottomWidth: 0.5,
     borderColor: '#ccc',
   },

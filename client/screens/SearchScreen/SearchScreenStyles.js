@@ -5,10 +5,10 @@ const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 14,
+    padding: 7,
     backgroundColor: '#f5f5f5',
-    paddingTop: 62,
-    paddingBottom: 100,
+    paddingTop: 66,
+    paddingBottom: 77,
   },
   searchContainer: {
     justifyContent: 'center',
@@ -28,10 +28,9 @@ const styles = StyleSheet.create({
   },
   resultContainer: {
     flex: 1,
-    margin: 5,
-    marginTop:15,
+    margin: 3,
     justifyContent: 'center',
-    borderRadius: 8,
+    borderRadius: 5,
     overflow: 'hidden',
     backgroundColor: '#fff',
     shadowColor: '#000',
@@ -39,7 +38,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
-  },
+    maxWidth: '48%'
+    },
   userResult: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
   tabBar: {
     marginTop: 10,
     backgroundColor: 'none',
+    marginHorizontal: 5,
   },
   tabIndicator: {
     backgroundColor: '#7049f6',

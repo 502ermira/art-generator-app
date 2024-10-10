@@ -128,10 +128,8 @@ export default function TextPromptScreen() {
             placeholderTextColor='#aaa'
           />
           <TouchableOpacity style={styles.button} onPress={generateImage} disabled={loading}>
-            <Text style={styles.buttonText}>Generate Image</Text>
+          <Text style={styles.buttonText}>{loading ? 'Generating...' : 'Generate Image'}</Text>
           </TouchableOpacity>
-
-          {loading && <Text>Loading...</Text>}
           {error && <Text style={styles.error}>{error}</Text>}
 
           {imageUrl && (

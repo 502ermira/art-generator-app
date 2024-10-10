@@ -42,7 +42,7 @@ export default function ExploreScreen({ route }) {
   }, []);
 
   const handlePostPress = (postId) => {
-    navigation.navigate('PostScreen', { postId });
+    navigation.push('PostScreen', { postId });
   };
 
   const renderPostItem = ({ item }) => (

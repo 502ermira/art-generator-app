@@ -4,12 +4,10 @@ const { width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   container: {
-    padding: 18,
     backgroundColor: '#fff',
     minHeight: '100%',
     width: width,
-    marginTop: -29,
-    paddingBottom: 90,
+    paddingBottom: 77,
   },
   loadingContainer: {
     flex: 1,
@@ -26,8 +24,9 @@ export const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#f9f9f9',
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 5,
     alignItems: 'center',
+    marginHorizontal: 10,
   },
   commentContentText: {
     fontSize:15,
@@ -52,7 +51,8 @@ export const styles = StyleSheet.create({
     marginTop: 5,
     borderTopWidth: 1,
     borderColor: '#ddd',
-    paddingTop: 10,
+    margin: 10,
+    paddingTop: 11
   },
   commentInput: {
     flex: 1,

@@ -62,7 +62,21 @@ export default function CommentsScreen() {
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
-
+  
+    const optimisticComment = {
+      _id: Date.now().toString(),
+      content: newComment,
+      user: {
+        fullname: loggedInUsername,
+        username: loggedInUsername,
+        profilePicture: '',
+      },
+      createdAt: new Date().toISOString(),
+    };
+  
+    setComments((prev) => [optimisticComment, ...prev]);
+    setNewComment('');
+  
     try {
       const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/comments`, {
         method: 'POST',
@@ -72,19 +86,38 @@ export default function CommentsScreen() {
         },
         body: JSON.stringify({ content: newComment }),
       });
-
+  
       const data = await response.json();
       if (response.ok) {
-        setComments((prev) => [data, ...prev]);
-        setNewComment('');
+        const updatedComments = await fetchComments();
+        setComments(updatedComments);
       } else {
         console.error('Failed to add comment:', data.error);
+        setComments((prev) => prev.filter(comment => comment._id !== optimisticComment._id));
       }
     } catch (error) {
       console.error('Error adding comment:', error);
+      setComments((prev) => prev.filter(comment => comment._id !== optimisticComment._id));
     }
   };
-
+  
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/comments`, {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        return data;
+      } else {
+        console.error('Failed to fetch comments:', data.error);
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      return [];
+    }
+  };
   const handleUserPress = (username) => {
     if (username === loggedInUsername) {
       navigation.push('Profile');
@@ -263,7 +296,7 @@ export default function CommentsScreen() {
             <View
               style={{
                 position: 'absolute',
-                bottom: height - inputPosition.y - keyboardHeight + 29,
+                bottom: height - inputPosition.y - keyboardHeight ,
                 left: inputPosition.x,
                 width: inputPosition.width,
                 backgroundColor: '#f0f0f0',

@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fafafa',
     padding: 0,
-    paddingBottom: 100,
+    paddingBottom: 77,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 17,
+    marginBottom: 7,
     paddingHorizontal: 20,
     paddingTop: 16,
   },
@@ -39,8 +39,8 @@ export const styles = StyleSheet.create({
   },
   bio : {
     paddingHorizontal: 21,
-    marginTop:-10,
     fontSize: 15,
+    marginBottom: 4,
   },
   followInfo: {
     flexDirection: 'row',
@@ -52,7 +52,8 @@ export const styles = StyleSheet.create({
   previewGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    padding: 2.5
   },
   previewImage: {
     width: '100%',
@@ -60,17 +61,18 @@ export const styles = StyleSheet.create({
   },
   postContainer: {
     overflow: 'hidden',
-    padding: 3,
+    padding: 2.5,
     justifyContent: 'flex-start',
+    paddingTop:0
   },
   followButton: {
     backgroundColor: '#7049f6',
-    paddingVertical: 9,
+    paddingVertical: 8.5,
     paddingHorizontal: 20,
     borderRadius: 5,
-    marginTop: 11,
+    marginTop: 6,
     marginHorizontal: 20,
-    marginBottom: -8,
+    marginBottom: -11,
   },
   followButtonText: {
     color: 'white',
@@ -80,7 +82,7 @@ export const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: '#fafafa',
     marginTop: 13,
-    marginHorizontal: 8,
+    marginHorizontal: 6,
     height: 42,
   },
   noPostsText : {

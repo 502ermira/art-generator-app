@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    paddingTop:95,
+    paddingVertical:95,
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
