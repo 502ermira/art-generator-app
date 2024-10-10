@@ -21,7 +21,6 @@ export default function FavoritesScreen() {
         });
         const data = await response.json();
         setFavorites(data.favorites || []);
-        console.log('Fetched favorites from backend:', data.favorites);
       } else {
         const storedFavorites = await AsyncStorage.getItem('favorites');
         if (storedFavorites) {

@@ -9,11 +9,6 @@ export default function PostImageScreen({ route, navigation }) {
   const { token, setIsLoggedIn, setUsername } = useContext(UserContext);
   const [description, setDescription] = useState('');
 
-  useEffect(() => {
-    console.log('Selected image:', selectedImage);
-    console.log('Image prompt:', imagePrompt);
-  }, []);
-
   const handleShare = async () => {
     try {
       if (!token) {

@@ -103,7 +103,6 @@ export default function TextPromptScreen() {
         setFavorites(updatedFavorites);
         await AsyncStorage.setItem('favorites', JSON.stringify(updatedFavorites));
         alert('Favorite saved locally');
-        console.log(favoriteObject);
       }
     } catch (error) {
       console.error('Error saving favorite:', error);

@@ -104,7 +104,9 @@ export default function ProfileScreen({ navigation }) {
   };
 
   const PostsRoute = () => (
-    <View style={styles.tabContent}>
+    <ScrollView 
+      contentContainerStyle={styles.tabContent}
+    >
       {posts.length > 0 ? (
         <View style={[styles.previewGrid, { width: screenWidth }]}>
           {posts
@@ -122,51 +124,54 @@ export default function ProfileScreen({ navigation }) {
       ) : (
         <Text style={styles.noPostsText}>No posts available</Text>
       )}
-    </View>
+    </ScrollView>
   );
 
-  const RepostsRoute = () => (
-    <View style={styles.tabContent}>
-      {reposts.length > 0 ? (
-        <View style={[styles.previewGrid, { width: screenWidth }]}>
-          {reposts
-            .sort((a, b) => new Date(b.repostedAt) - new Date(a.repostedAt))
-            .map((repost, index) => (
-              <TouchableOpacity 
-                key={index} 
-                style={[styles.postContainer, { width: imageSize, height: imageSize }]} 
-                onPress={() => navigation.navigate('PostScreen', { postId: repost.post._id, repostedBy: loggedInUsername ,repostedAt: repost.repostedAt })} 
-              >
-                <Image source={{ uri: repost.post.image.image }} style={styles.previewImage} />
-              </TouchableOpacity>
-          ))}
-        </View>
-      ) : (
-        <Text style={styles.noPostsText}>No reposts available</Text>
-      )}
-    </View>
-  );
+const RepostsRoute = () => (
+  <ScrollView 
+    contentContainerStyle={styles.tabContent}
+  >
+    {reposts.length > 0 ? (
+      <View style={[styles.previewGrid, { width: screenWidth }]}>
+        {reposts
+          .sort((a, b) => new Date(b.repostedAt) - new Date(a.repostedAt))
+          .map((repost, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={[styles.postContainer, { width: imageSize, height: imageSize }]} 
+              onPress={() => navigation.navigate('PostScreen', { postId: repost.post._id, repostedBy: loggedInUsername ,repostedAt: repost.repostedAt })} 
+            >
+              <Image source={{ uri: repost.post.image.image }} style={styles.previewImage} />
+            </TouchableOpacity>
+        ))}
+      </View>
+    ) : (
+      <Text style={styles.noPostsText}>No reposts available</Text>
+    )}
+  </ScrollView>
+);
 
-  const LikesRoute = () => (
-    <View style={styles.tabContent}>
-      {likes.length > 0 ? (
-        <View style={[styles.previewGrid, { width: screenWidth }]}>
-          {likes
-            .map((like, index) => (
-              <TouchableOpacity 
-                key={index} 
-                style={[styles.postContainer, { width: imageSize, height: imageSize }]} 
-                onPress={() => navigation.navigate('PostScreen', { postId: like.post._id })}
-              >
-                <Image source={{ uri: like.post.image.image }} style={styles.previewImage} />
-              </TouchableOpacity>
-          ))}
-        </View>
-      ) : (
-        <Text style={styles.noPostsText}>No liked posts available</Text>
-      )}
-    </View>
-  );  
+const LikesRoute = () => (
+  <ScrollView 
+    contentContainerStyle={styles.tabContent}
+  >
+    {likes.length > 0 ? (
+      <View style={[styles.previewGrid, { width: screenWidth }]}>
+        {likes.map((like, index) => (
+          <TouchableOpacity 
+            key={index} 
+            style={[styles.postContainer, { width: imageSize, height: imageSize }]} 
+            onPress={() => navigation.navigate('PostScreen', { postId: like.post._id })}
+          >
+            <Image source={{ uri: like.post.image.image }} style={styles.previewImage} />
+          </TouchableOpacity>
+        ))}
+      </View>
+    ) : (
+      <Text style={styles.noPostsText}>No liked posts available</Text>
+    )}
+  </ScrollView>
+);
 
   const renderScene = SceneMap({
     posts: PostsRoute,
@@ -231,7 +236,7 @@ export default function ProfileScreen({ navigation }) {
                 {...props}
                 indicatorStyle={{ backgroundColor: '#7049f6', marginBottom: 1.5 }}
                 style={styles.tabBar}
-                labelStyle={{ color: 'black' ,fontWeight: '400', fontSize: 13 }}
+                labelStyle={{ color: 'black' ,fontWeight: '400', fontSize: 12.5 }}
               />
             )}
           />

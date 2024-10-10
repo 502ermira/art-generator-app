@@ -33,7 +33,6 @@ export default function SearchScreen() {
       });
 
       const imageData = await imageResponse.json();
-      console.log('Image search response:', imageData);
       setImageResults(imageData.results || []);
 
       const userResponse = await fetch(`http://192.168.1.145:5000/auth/search-users?searchQuery=${searchQuery}`, {

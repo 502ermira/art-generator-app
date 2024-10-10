@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 17,
     paddingHorizontal: 20,
     paddingTop: 16,
   },
@@ -70,7 +70,7 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     marginTop: 11,
     marginHorizontal: 20,
-    marginBottom: -3,
+    marginBottom: -8,
   },
   followButtonText: {
     color: 'white',
@@ -81,6 +81,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#fafafa',
     marginTop: 13,
     marginHorizontal: 8,
+    height: 42,
   },
   noPostsText : {
     textAlign: 'center',

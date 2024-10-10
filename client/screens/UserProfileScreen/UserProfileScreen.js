@@ -122,7 +122,7 @@ export default function UserProfileScreen() {
   };
 
   const PostsRoute = () => (
-    <View style={styles.tabContent}>
+    <ScrollView contentContainerStyle={styles.tabContent}>
       {posts.length > 0 ? (
         <View style={styles.previewGrid}>
           {posts
@@ -140,11 +140,11 @@ export default function UserProfileScreen() {
       ) : (
         <Text style={styles.noPostsText}>No posts available</Text>
       )}
-    </View>
+    </ScrollView>
   );
-
+  
   const RepostsRoute = () => (
-    <View style={styles.tabContent}>
+    <ScrollView contentContainerStyle={styles.tabContent}>
       {reposts.length > 0 ? (
         <View style={styles.previewGrid}>
           {reposts
@@ -162,9 +162,9 @@ export default function UserProfileScreen() {
       ) : (
         <Text style={styles.noPostsText}>No reposts available</Text>
       )}
-    </View>
+    </ScrollView>
   );
-
+  
   const renderScene = SceneMap({
     posts: PostsRoute,
     reposts: RepostsRoute,
@@ -228,7 +228,7 @@ export default function UserProfileScreen() {
               {...props}
               indicatorStyle={{ backgroundColor: '#7049f6', marginBottom:1.5 }}
               style={styles.tabBar}
-              labelStyle={{ color: 'black', fontWeight: '400', fontSize: 13 }}
+              labelStyle={{ color: 'black', fontWeight: '400', fontSize: 12.5 }}
             />
           )}
         />
