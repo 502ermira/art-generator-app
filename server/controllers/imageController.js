@@ -6,7 +6,6 @@ const Search = require('../models/Search');
 
 exports.generateImage = async (req, res) => {
   const { prompt } = req.body;
-  const userId = req.userId;
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' });
@@ -31,8 +30,6 @@ exports.generateImage = async (req, res) => {
       const imageUrl = `data:image/png;base64,${base64Image}`;
 
       const fetch = (await import('node-fetch')).default;
-
-      console.log(`Sending request to Flask service for embedding: ${prompt}`);
       const embeddingResponse = await fetch('http://192.168.1.145:5001/embed', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,26 +42,13 @@ exports.generateImage = async (req, res) => {
 
       const embedding = await embeddingResponse.json();
 
-      const newImage = new Image({
-        prompt,
-        image: imageUrl,
-        embedding: embedding,
-        user: userId || null,
-      });
-      await newImage.save();
-
-      res.status(200).json({ image: imageUrl, embedding: embedding });
+      res.status(200).json({ image: imageUrl, embedding });
     } else {
       res.status(500).json({ error: 'Failed to generate image' });
     }
   } catch (error) {
     console.error('Error generating image:', error.message);
-
-    if (error.message.includes('Rate limit')) {
-      res.status(429).json({ error: 'Rate limit reached. Please try again later.' });
-    } else {
-      res.status(500).json({ error: 'Error generating image' });
-    }
+    res.status(500).json({ error: 'Error generating image' });
   }
 };
 

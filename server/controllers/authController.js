@@ -126,7 +126,7 @@ exports.login = async (req, res) => {
   };  
   
   exports.saveFavorite = async (req, res) => {
-    const { image } = req.body;
+    const { image, prompt, embedding } = req.body;
     const { authorization } = req.headers;
   
     try {
@@ -142,6 +142,14 @@ exports.login = async (req, res) => {
         return res.status(400).json({ error: 'Image is already a favorite' });
       }
   
+      const newImage = new Image({
+        prompt,
+        image,
+        embedding,
+        user: user._id,
+      });
+      await newImage.save();
+  
       user.favorites.push(image);
       await user.save();
   
@@ -150,7 +158,7 @@ exports.login = async (req, res) => {
       console.error(err);
       res.status(500).json({ error: 'Internal server error' });
     }
-  };   
+  };    
   
   exports.unfavorite = async (req, res) => {
     const { image } = req.body;
@@ -172,7 +180,21 @@ exports.login = async (req, res) => {
       user.favorites.splice(favoriteIndex, 1);
       await user.save();
   
-      res.status(200).json({ message: 'Image unfavorited successfully' });
+      const imageDocument = await Image.findOne({ image }); 
+  
+      if (!imageDocument) {
+        return res.status(400).json({ error: 'Image not found in the database' });
+      }
+  
+      const otherUsers = await User.find({ favorites: image });
+  
+      const imageInPosts = await Post.findOne({ image: imageDocument._id });
+  
+      if (otherUsers.length === 0 && !imageInPosts) {
+        await Image.findByIdAndDelete(imageDocument._id);
+      }
+  
+      res.status(200).json({ message: 'Image unfavorited successfully and removed from database if not used elsewhere' });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Internal server error' });
@@ -209,11 +231,12 @@ exports.login = async (req, res) => {
       }
   
       let existingImage = await Image.findOne({ image: image.url });
-      
+  
       if (!existingImage) {
         existingImage = new Image({
           prompt: image.prompt,
           image: image.url,
+          embedding: image.embedding, 
           user: user._id,
         });
   
@@ -223,14 +246,11 @@ exports.login = async (req, res) => {
       const newPost = new Post({
         image: existingImage._id,
         description,
-        user: user._id
+        user: user._id,
       });
   
       await newPost.save();
   
-      if (!user.posts) {
-        user.posts = [];
-      }
       user.posts.push(newPost._id);
       await user.save();
   

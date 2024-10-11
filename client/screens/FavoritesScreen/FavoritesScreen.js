@@ -32,7 +32,6 @@ export default function FavoritesScreen() {
           if (storedFavorites) {
             const parsedFavorites = JSON.parse(storedFavorites);
             setFavorites(parsedFavorites);
-            console.log('Loaded favorites from AsyncStorage:', parsedFavorites);
           } else {
             setFavorites([]);
           }
@@ -94,7 +93,8 @@ export default function FavoritesScreen() {
   const openInputModal = (image) => {
     navigation.navigate('PostImageScreen', { 
       selectedImage: image.image, 
-      imagePrompt: image.prompt 
+      imagePrompt: image.prompt, 
+      embedding: image.embedding,
     });
   };
 

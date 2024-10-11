@@ -75,9 +75,9 @@ export default function TextPromptScreen() {
 
 const saveFavorite = async () => {
   const favoriteObject = {
-    prompt: prompt,
+    prompt,
     image: imageUrl,
-    embedding: embedding,
+    embedding,
   };
 
   try {
@@ -89,7 +89,7 @@ const saveFavorite = async () => {
           Authorization: token,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ image: imageUrl }),
+        body: JSON.stringify(favoriteObject),
       });
 
       const data = await response.json();
@@ -145,11 +145,11 @@ const toggleFavorite = async () => {
   }
 };
   
-  const previewFavorites = favorites.slice(0, 6);
+  const previewFavorites = favorites.reverse().slice(0, 6);
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>
-      <ScrollView style={styles.scrollView}>
+      <ScrollView  contentContainerStyle={isLoggedIn ? styles.scrollViewLoggedIn : styles.scrollViewLoggedOut}>
         <View style={styles.container}>
           <Text style={styles.title}>Create, Share, and Inspire with ART-GEN!</Text>
           <Text style={styles.description}>
@@ -163,38 +163,38 @@ const toggleFavorite = async () => {
             placeholderTextColor='#aaa'
           />
           <TouchableOpacity style={styles.button} onPress={generateImage} disabled={loading}>
-          <Text style={styles.buttonText}>{loading ? 'Generating...' : 'Generate Image'}</Text>
+            <Text style={styles.buttonText}>{loading ? 'Generating...' : 'Generate Image'}</Text>
           </TouchableOpacity>
           {error && <Text style={styles.error}>{error}</Text>}
-
+  
           {imageUrl && (
-           <>
-            <Image source={{ uri: imageUrl }} style={styles.image} />
-            <TouchableOpacity style={styles.favoritesButton} onPress={toggleFavorite}>
-            <Text style={styles.buttonText}>{isFavorited ? '  Unfavorite  ' : '  Favorite  '}</Text>
-            </TouchableOpacity>
-           </>
+            <>
+              <Image source={{ uri: imageUrl }} style={styles.image} />
+              <TouchableOpacity style={styles.favoritesButton} onPress={toggleFavorite}>
+                <Text style={styles.buttonText}>{isFavorited ? '  Unfavorite  ' : '  Favorite  '}</Text>
+              </TouchableOpacity>
+            </>
           )}
-
+  
           {previewFavorites.length > 0 ? (
             <View style={styles.previewContainer}>
               <Text style={styles.favoritesTitle}>Favorite Images</Text>
               <View style={styles.previewGrid}>
-              {previewFavorites.map((favorite, index) => (
-              <Image
-               key={index}
-               source={{ uri: typeof favorite === 'string' ? favorite : favorite.image }}
-               style={styles.previewImage}
-              />
-              ))}
+                {previewFavorites.map((favorite, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: typeof favorite === 'string' ? favorite : favorite.image }}
+                    style={styles.previewImage}
+                  />
+                ))}
               </View>
               <TouchableOpacity style={styles.favoritesButton} onPress={() => navigation.navigate('FavoritesScreen')}>
                 <Text style={styles.buttonText}>See All Favorites</Text>
               </TouchableOpacity>
             </View>
-          ): null}
+          ) : null}
         </View>
       </ScrollView>
     </ImageBackground>
-  );
+  );  
 }

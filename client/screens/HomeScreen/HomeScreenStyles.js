@@ -43,11 +43,11 @@ export const styles = StyleSheet.create({
     marginTop: 5,
   },
   profileImage: {
-    width: 40,
-    height: 40,
+    width: 41,
+    height: 41,
     borderRadius: 20,
     marginRight: 10,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: '#7049f6',
   },
   username: {

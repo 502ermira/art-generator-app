@@ -57,9 +57,6 @@ export default StyleSheet.create({
     elevation: 5,
     zIndex: 10,
   },
-  searchButton: {
-   
-  },
   logoutButton: {
     backgroundColor: '#7049f6',
     paddingVertical: 8,

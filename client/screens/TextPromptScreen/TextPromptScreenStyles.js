@@ -1,20 +1,31 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
+  scrollViewLoggedIn: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 115,
+    paddingTop: 215,
+  },
+  scrollViewLoggedOut: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 205,
+    paddingBottom: 130,
+  },
+  container: {
+    width: '100%',
+    alignItems: 'center',
+    marginTop: -100,
   },
   background: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  container: {
-    flex: 1,
-    padding: 20,
-    paddingVertical:95,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
   },
   title: {
     fontSize: 26,
@@ -22,12 +33,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 20,
     textAlign: 'center',
+    marginTop: -40,
   },
   input: {
     width: '100%',
     padding: 14,
     borderRadius: 12,
-    backgroundColor: '#7049f6',
+    backgroundColor: '#6200ea',
     borderWidth: 0,
     marginBottom: 20,
     fontSize: 16,
@@ -38,7 +50,7 @@ const styles = StyleSheet.create({
     color: '#eee',
   },
   button: {
-    backgroundColor: '#7049f6',
+    backgroundColor: '#6200ea',
     paddingVertical: 13,
     paddingHorizontal: 11,
     borderRadius: 25,
@@ -76,7 +88,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   favoritesButton: {
-    backgroundColor: '#7049f6',
+    backgroundColor: '#6200ea',
     paddingVertical: 11,
     paddingHorizontal: 25,
     borderRadius: 25,

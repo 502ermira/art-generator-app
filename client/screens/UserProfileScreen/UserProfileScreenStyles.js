@@ -63,7 +63,7 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
     padding: 2.5,
     justifyContent: 'flex-start',
-    paddingTop:0
+    paddingTop:2.5
   },
   followButton: {
     backgroundColor: '#7049f6',
@@ -84,6 +84,7 @@ export const styles = StyleSheet.create({
     marginTop: 13,
     marginHorizontal: 6,
     height: 42,
+    marginBottom:-3
   },
   noPostsText : {
     textAlign: 'center',

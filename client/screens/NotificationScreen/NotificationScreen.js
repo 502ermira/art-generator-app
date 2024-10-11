@@ -57,8 +57,11 @@ export default function NotificationScreen() {
       });
       const data = await response.json();
       if (response.ok) {
-        setNotifications((prevNotifications) => [...prevNotifications, ...data]);
-        setHasMore(data.length > 0);
+        const filteredNotifications = data.filter(
+          (notification) => notification.fromUser?.username !== loggedInUsername
+        );
+        setNotifications((prevNotifications) => [...prevNotifications, ...filteredNotifications]);
+        setHasMore(filteredNotifications.length > 0);
       } else {
         console.error('Failed to fetch notifications:', data.error);
       }

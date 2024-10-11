@@ -5,10 +5,10 @@ import CustomHeader from '../../components/CustomHeader';
 import styles from './PostImageScreenStyles';
 
 export default function PostImageScreen({ route, navigation }) {
-  const { selectedImage, imagePrompt } = route.params;
+  const { selectedImage, imagePrompt, embedding } = route.params;
   const { token, setIsLoggedIn, setUsername } = useContext(UserContext);
   const [description, setDescription] = useState('');
-
+  
   const handleShare = async () => {
     try {
       if (!token) {
@@ -18,7 +18,7 @@ export default function PostImageScreen({ route, navigation }) {
           if (loginConfirm) {
             navigation.navigate('Login', { 
               redirectTo: 'PostImageScreen', 
-              imageParams: { selectedImage, imagePrompt } 
+              imageParams: { selectedImage, imagePrompt, embedding } 
             });
           }
         } else {
@@ -34,7 +34,7 @@ export default function PostImageScreen({ route, navigation }) {
                 text: 'Login',
                 onPress: () => navigation.navigate('Login', { 
                   redirectTo: 'PostImageScreen', 
-                  imageParams: { selectedImage, imagePrompt } 
+                  imageParams: { selectedImage, imagePrompt, embedding } 
                 }),
               },
             ]
@@ -49,7 +49,7 @@ export default function PostImageScreen({ route, navigation }) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            image: { url: selectedImage },
+            image: { url: selectedImage, prompt: imagePrompt, embedding },
             description,
           }),
         });
@@ -63,7 +63,7 @@ export default function PostImageScreen({ route, navigation }) {
             Alert.alert('Success', 'Image shared successfully!', [
               {
                 text: 'OK', 
-                onPress: () => navigation.goBack(),
+                onPress: () => navigation.navigate('FavoritesScreen'),
               }
             ]);
           }

@@ -21,9 +21,9 @@ export const styles = StyleSheet.create({
   },
   userInfo: {
     flexDirection: 'row',
-    marginBottom: 5,
+    marginBottom: 8,
     paddingHorizontal: 16,
-    paddingTop: 6,
+    paddingTop: 8,
     justifyContent:'space-between',
     alignItems: 'center'
   },
@@ -103,6 +103,7 @@ export const styles = StyleSheet.create({
   },
   comment: {
     paddingHorizontal: 3,
+    paddingRight: 20,
     paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',

@@ -12,11 +12,10 @@ export const styles = StyleSheet.create({
   notification: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-  
   },
   notificationContent: {
     flexDirection: 'row',
@@ -36,6 +35,7 @@ export const styles = StyleSheet.create({
   },
   usernameText: {
     fontWeight: '600',
+    top:2.5,
   },
   notificationTextContainer: {
     flex: 1,
@@ -44,6 +44,7 @@ export const styles = StyleSheet.create({
   usernameAndTextContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
+    alignItems: 'center',
   },  
   notificationText: {
     fontSize: 14,
