@@ -125,7 +125,7 @@ const getRelevanceScore = async (post, userId) => {
   const userRecentSearch = await Search.findOne({ user: userId }).sort({ timestamp: -1 });
   const query = userRecentSearch ? userRecentSearch.query : post.description;
 
-  const response = await fetch('http://192.168.1.145:5001/search', {
+  const response = await fetch('http://192.168.1.145:5001/search-pagination', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query })
