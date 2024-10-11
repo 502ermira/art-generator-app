@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, ImageBackground, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../../contexts/UserContext';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import styles from './TextPromptScreenStyles';
 
 const backgroundImage = require('../../assets/images/bg.jpg');
@@ -19,27 +19,33 @@ export default function TextPromptScreen() {
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const loadFavorites = async () => {
-      const storedToken = await AsyncStorage.getItem('token');
-      setToken(storedToken);
+  const loadFavorites = async () => {
+    const storedToken = await AsyncStorage.getItem('token');
+    setToken(storedToken);
 
-      if (storedToken) {
-        const response = await fetch('http://192.168.1.145:5000/auth/favorites', {
-          headers: { Authorization: storedToken },
-        });
-        const data = await response.json();
-        setFavorites(data.favorites || []);
+    if (storedToken) {
+      const response = await fetch('http://192.168.1.145:5000/auth/favorites', {
+        headers: { Authorization: storedToken },
+      });
+      const data = await response.json();
+      setFavorites(data.favorites || []);
+    } else {
+      const storedFavorites = await AsyncStorage.getItem('favorites');
+      if (storedFavorites) {
+        setFavorites(JSON.parse(storedFavorites));
       } else {
-        const storedFavorites = await AsyncStorage.getItem('favorites');
-        if (storedFavorites) {
-          setFavorites(JSON.parse(storedFavorites));
-        } else {
-          setFavorites([]);
-        }
+        setFavorites([]);
       }
-    };
+    }
+  };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      loadFavorites();
+    }, [])
+  );
+
+  useEffect(() => {
     loadFavorites();
   }, [isLoggedIn]);
 
@@ -145,7 +151,7 @@ const toggleFavorite = async () => {
   }
 };
   
-  const previewFavorites = favorites.reverse().slice(0, 6);
+const previewFavorites = [...favorites].reverse().slice(0, 6);
 
   return (
     <ImageBackground source={backgroundImage} style={styles.background}>

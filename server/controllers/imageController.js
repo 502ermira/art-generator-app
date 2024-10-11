@@ -14,6 +14,8 @@ exports.generateImage = async (req, res) => {
   try {
     const inference = new HfInference(process.env.HUGGINGFACE_API_KEY);
 
+    const seed = Math.floor(Math.random() * 100000);
+
     const result = await inference.textToImage({
       model: 'stabilityai/stable-diffusion-2',
       inputs: prompt,
@@ -22,6 +24,7 @@ exports.generateImage = async (req, res) => {
         height: 512,
         width: 512,
         num_inference_steps: 50,
+        seed: seed,
       },
     });
 
