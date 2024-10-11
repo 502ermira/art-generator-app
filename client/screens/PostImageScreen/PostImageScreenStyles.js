@@ -9,7 +9,10 @@ const styles = StyleSheet.create({
         justifyContent:'center',
         alignContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fafafa'
+        backgroundColor: '#fafafa',
+     },
+     innerContainer : {
+      marginHorizontal: 20,
      },
       image: {
         width: width * 0.9,
@@ -20,7 +23,7 @@ const styles = StyleSheet.create({
         marginTop: 33,
       },
       promptText: {
-        fontSize: 16,
+        fontSize: 15.5,
         color: '#666',
         marginBottom: 12,
         fontStyle: 'italic',
@@ -29,10 +32,10 @@ const styles = StyleSheet.create({
         height: 40,
         borderColor: '#ccc',
         borderWidth: 1,
-        paddingLeft: 8,
         marginBottom: 16,
         height: 100,
-        borderRadius: 7
+        borderRadius: 7,
+        paddingHorizontal:6,
       },
       shareButton: {
         backgroundColor: '#7049f6',

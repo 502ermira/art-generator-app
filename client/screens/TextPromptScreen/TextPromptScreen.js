@@ -167,6 +167,7 @@ const previewFavorites = [...favorites].reverse().slice(0, 6);
             value={prompt}
             onChangeText={setPrompt}
             placeholderTextColor='#aaa'
+            maxLength={85}
           />
           <TouchableOpacity style={styles.button} onPress={generateImage} disabled={loading}>
             <Text style={styles.buttonText}>{loading ? 'Generating...' : 'Generate Image'}</Text>

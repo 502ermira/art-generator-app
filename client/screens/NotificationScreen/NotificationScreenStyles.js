@@ -5,9 +5,16 @@ export const styles = StyleSheet.create({
   container: {
     padding: 16,
     backgroundColor: '#f9f9f9',
-    paddingVertical:60,
+    paddingVertical:64,
     minHeight: height,
     paddingBottom:100,
+  },
+  title : {
+    fontSize: 24,
+    paddingBottom: 15,
+    paddingHorizontal: 14,
+    fontWeight: '500'
+
   },
   notification: {
     flexDirection: 'row',
@@ -87,7 +94,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   loader: {
-    paddingVertical: 10,
+    paddingTop: 70,
     alignItems: 'center',
   }
 });

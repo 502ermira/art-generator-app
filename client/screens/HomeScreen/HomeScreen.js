@@ -49,9 +49,9 @@ export default function HomeScreen() {
   const onRefresh = async () => {
     setRefreshing(true);
     setPage(1);
+    setHasMorePosts(true);
     await fetchPosts(1);
     setRefreshing(false);
-    setHasMorePosts(true);
   };
 
   const loadMorePosts = async () => {
@@ -61,6 +61,12 @@ export default function HomeScreen() {
       setLoadingMore(false);
     }
   };
+
+  const renderNoPostsMessage = () => (
+    <View style={styles.noPostsContainer}>
+      <Text style={styles.noPostsText}>No posts available. Follow someone to see their posts!</Text>
+    </View>
+  );
 
   const handleLike = async (postId, isLikedByUser) => {
     try {
@@ -183,8 +189,10 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      {isLoading ? (
+      {isLoading && page === 1 ? (
         <Loader/>
+      ) : posts.length === 0 ? (
+        renderNoPostsMessage()
       ) : (
       <FlatList
         data={posts}
@@ -255,7 +263,13 @@ export default function HomeScreen() {
         }
         onEndReached={loadMorePosts}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={loadingMore ? <Loader /> : null}
+        ListFooterComponent={
+          loadingMore ? (
+            <View style={styles.loaderContainer}>
+              <Loader />
+            </View>
+          ) : null
+        }
         showsVerticalScrollIndicator={false}              
       />
       )}

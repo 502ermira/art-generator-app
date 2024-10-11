@@ -8,6 +8,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: 10,
     paddingTop: 50,
+    paddingBottom: 50,
   },
   postContainer: {
     backgroundColor: '#fff',
@@ -106,5 +107,10 @@ export const styles = StyleSheet.create({
     color: '#7049f6',
     fontWeight: 'bold',
     marginTop: 5,
+  },
+  loaderContainer: {
+    paddingVertical: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -18,6 +18,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    maxWidth: '48%'
   },
   title : {
     fontSize: 18,
@@ -46,5 +47,11 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     color: '#777',
+  },
+  loaderContainer: {
+    paddingBottom: 10,
+    paddingTop: 65,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

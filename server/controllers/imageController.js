@@ -77,16 +77,14 @@ exports.searchImages = async (req, res) => {
     }
 
     const data = await response.json();
-    const imageIds = data.results.map(result => result.id);
+    const postIds = data.results.map(result => result.id);
 
-    await Search.create({ user: userId, query, type: 'images' });
-
-    const posts = await Post.find({ image: { $in: imageIds } })
+    const posts = await Post.find({ _id: { $in: postIds } })
       .populate('image')
       .populate('user', 'username profilePicture');
       
-    const sortedPosts = imageIds.map(id => 
-      posts.find(post => post.image._id.toString() === id)
+    const sortedPosts = postIds.map(id => 
+      posts.find(post => post._id.toString() === id)
     );
 
     const results = sortedPosts.map(post => {
@@ -105,7 +103,6 @@ exports.searchImages = async (req, res) => {
       };
     }).filter(post => post !== null);
     
-
     res.status(200).json({ results });
   } catch (error) {
     console.error('Search error:', error.message);

@@ -1,4 +1,6 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   scrollViewLoggedIn: {
@@ -18,9 +20,9 @@ const styles = StyleSheet.create({
     paddingBottom: 130,
   },
   container: {
-    width: '100%',
     alignItems: 'center',
     marginTop: -100,
+    maxWidth: width,
   },
   background: {
     flex: 1,
@@ -34,9 +36,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     marginTop: -40,
+    paddingHorizontal: 20,
   },
   input: {
-    width: '100%',
+    width: width - 50,
     padding: 14,
     borderRadius: 12,
     backgroundColor: '#6200ea',
@@ -52,12 +55,11 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: '#6200ea',
     paddingVertical: 13,
-    paddingHorizontal: 11,
+    paddingHorizontal: 25,
     borderRadius: 25,
     marginVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '53%',
     shadowColor: '#6200ea',
     shadowOpacity: 0.4,
     shadowRadius: 10,

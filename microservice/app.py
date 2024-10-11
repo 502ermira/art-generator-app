@@ -24,7 +24,7 @@ except Exception as e:
     print(f"Failed to connect to MongoDB: {e}")
 
 db = client['art_generator']
-image_collection = db['images']
+post_collection = db['posts']
 
 # Search API endpoint
 @app.route('/search', methods=['POST'])
@@ -33,25 +33,43 @@ def search():
     if not query:
         return jsonify({'error': 'No query provided'}), 400
 
-    # Convert search query to embedding (float32 for consistency)
+    # Convert search query to embedding
     query_embedding = model.encode(query, convert_to_tensor=True).to(torch.float32)
 
-    # Fetch all image prompts and their embeddings from the database
-    image_docs = image_collection.find({}, {'prompt': 1, 'embedding': 1})
+    # Fetch all posts with their associated images and embeddings
+    post_docs = post_collection.aggregate([
+        {
+            '$lookup': {
+                'from': 'images',  # join with images collection
+                'localField': 'image',
+                'foreignField': '_id',
+                'as': 'imageData'
+            }
+        },
+        {
+            '$unwind': '$imageData'
+        },
+        {
+            '$project': {
+                'imageData.prompt': 1,
+                'imageData.embedding': 1
+            }
+        }
+    ])
 
     # Calculate cosine similarity
     similarities = []
-    for doc in image_docs:
-        if 'embedding' not in doc:
+    for doc in post_docs:
+        if 'embedding' not in doc['imageData']:
             continue
         
-        # Ensure prompt_embedding is explicitly converted to a torch tensor with float32 dtype
-        prompt_embedding = np.array(doc['embedding'], dtype=np.float32)
+        # Convert embedding to tensor for similarity calculation
+        prompt_embedding = np.array(doc['imageData']['embedding'], dtype=np.float32)
         prompt_embedding_tensor = torch.tensor(prompt_embedding, dtype=torch.float32)
 
         # Calculate similarity
         similarity_score = util.pytorch_cos_sim(query_embedding, prompt_embedding_tensor).item()
-        similarities.append((doc['_id'], doc['prompt'], similarity_score))
+        similarities.append((doc['_id'], doc['imageData']['prompt'], similarity_score))
 
     # Sort by similarity score
     similarities = sorted(similarities, key=lambda x: x[2], reverse=True)
@@ -60,17 +78,6 @@ def search():
     results = [{'id': str(sim[0]), 'prompt': sim[1], 'score': sim[2]} for sim in similarities[:50]]
 
     return jsonify({'results': results}), 200
-
-# Embed API endpoint
-@app.route('/embed', methods=['POST'])
-def embed():
-    sentence = request.json.get('sentence')
-    if not sentence:
-        return jsonify({'error': 'No sentence provided'}), 400
-
-    # Compute the embedding
-    embedding = model.encode(sentence).tolist()
-    return jsonify(embedding), 200
 
 # Relevance API endpoint
 @app.route('/relevance', methods=['POST'])

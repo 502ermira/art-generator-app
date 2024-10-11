@@ -3,6 +3,7 @@ import { View, RefreshControl, Text, ScrollView, TouchableOpacity, Image, Dimens
 import { UserContext } from '../../contexts/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from './NotificationScreenStyles.js';
+import Loader from '@/components/Loader';
 import io from 'socket.io-client';
 
 export default function NotificationScreen() {
@@ -52,7 +53,7 @@ export default function NotificationScreen() {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/notifications?page=${page}&limit=10`, {
+      const response = await fetch(`http://192.168.1.145:5000/auth/notifications?page=${page}&limit=15`, {
         headers: { Authorization: token },
       });
       const data = await response.json();
@@ -176,6 +177,7 @@ export default function NotificationScreen() {
         onScroll={handleScroll}
         scrollEventThrottle={400}
       >
+        <Text style={styles.title}>Notifications</Text>
         {notifications.map((notification) => (
           <TouchableOpacity
             key={notification._id}
@@ -246,7 +248,7 @@ export default function NotificationScreen() {
         ))}
         {loading && !refreshing && (
           <View style={styles.loader}>
-            <ActivityIndicator size="large" color="#7049f6" />
+            <Loader />
           </View>
         )}
       </ScrollView>
