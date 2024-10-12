@@ -1,8 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Image, View, Alert, Platform, KeyboardAvoidingView, Keyboard } from 'react-native';
+import { useContext, useState, useEffect } from 'react';
+import { ScrollView, TextInput, Pressable, Text, Image, View, Alert, Platform, KeyboardAvoidingView, Keyboard } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { UserContext } from '../../contexts/UserContext';
 import styles from './EditProfileScreenStyles';
+import CustomHeader from '../../components/CustomHeader'; 
 import * as FileSystem from 'expo-file-system';
 
 let debounceTimeout;
@@ -264,11 +265,12 @@ export default function EditProfileScreen({ navigation, route }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScrollView style={styles.container}>
+       <CustomHeader title="Edit Profile" screenType={null} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 95 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.imageContainer}>
@@ -338,6 +340,6 @@ export default function EditProfileScreen({ navigation, route }) {
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScrollView>
   );
 }

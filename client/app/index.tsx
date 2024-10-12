@@ -18,6 +18,7 @@ import NotificationScreen from '../screens/NotificationScreen/NotificationScreen
 import HomeScreen from '../screens/HomeScreen/HomeScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen/ChangePasswordScreen';
 import PostImageScreen from '../screens/PostImageScreen/PostImageScreen';
+import SettingsScreen from '../screens/SettingsScreen/SettingsScreen';
 import Navbar from '../components/Navbar';
 import CustomHeader from '../components/CustomHeader';
 import GlobalNotificationPopup from '../components/GlobalNotificationPopup';
@@ -36,7 +37,7 @@ export default function Index() {
           <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
           <Stack.Screen name="FavoritesScreen" component={FavoritesScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+          <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="SearchScreen" component={SearchScreen} options={{ headerShown: false }} />
           <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Followers" component={FollowersScreen} options={{ headerShown: false }} />
@@ -47,8 +48,9 @@ export default function Index() {
           <Stack.Screen name="RepostsScreen" component={RepostsScreen} options={{ headerShown: false }} />
           <Stack.Screen name="NotificationScreen" component={NotificationScreen} options={{ headerShown: false }} />
           <Stack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
+          <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="PostImageScreen" component={PostImageScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
         <GlobalNotificationPopup />
       </NavigationContainer>

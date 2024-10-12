@@ -31,7 +31,7 @@ export default function CustomHeader({ title, screenType }) {
           <MaterialIcons name="menu-open" size={24} color="black" />
         </TouchableOpacity>
       ) : screenType === 'ProfileScreen' ? (
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.menuButton}>
+        <TouchableOpacity onPress={() => navigation.navigate('SettingsScreen')} style={styles.menuButton}>
           <Ionicons name="settings" size={24} color="black" />
         </TouchableOpacity>
       ) : screenType === 'FollowersFollowing' ? (
@@ -44,7 +44,6 @@ export default function CustomHeader({ title, screenType }) {
 
 const styles = StyleSheet.create({
   headerContainer: {
-    paddingTop:20,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fafafa',

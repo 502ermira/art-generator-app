@@ -57,21 +57,6 @@ export default StyleSheet.create({
     elevation: 5,
     zIndex: 10,
   },
-  logoutButton: {
-    backgroundColor: '#7049f6',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 20,
-    shadowColor: '#ff5252',
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-  },
   navIcon: {
     fontSize: 28,
     color: '#ddd',

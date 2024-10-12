@@ -110,5 +110,16 @@ def searchPaginaton():
 
     return jsonify({'results': results, 'page': page, 'limit': limit}), 200
 
+# Embed API endpoint
+@app.route('/embed', methods=['POST'])
+def embed():
+    sentence = request.json.get('sentence')
+    if not sentence:
+        return jsonify({'error': 'No sentence provided'}), 400
+
+    # Compute the embedding
+    embedding = model.encode(sentence).tolist()
+    return jsonify(embedding), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)

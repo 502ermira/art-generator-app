@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
-import { SafeAreaView, ScrollView, TextInput, Pressable, Text, Alert, View } from 'react-native';
+import { ScrollView, TextInput, Pressable, Text, Alert, View } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
+import CustomHeader from '../../components/CustomHeader';
 import styles from '../EditProfileScreen/EditProfileScreenStyles';
 
 export default function ChangePasswordScreen({ navigation }) {
@@ -10,6 +11,11 @@ export default function ChangePasswordScreen({ navigation }) {
   const [error, setError] = useState('');
 
   const handleChangePassword = async () => {
+    if (newPassword.length < 8) {
+      setError('New password must be at least 8 characters long.');
+      return; 
+    }
+    
     try {
       const response = await fetch('http://192.168.1.145:5000/auth/change-password', {
         method: 'PUT',
@@ -36,7 +42,9 @@ export default function ChangePasswordScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <CustomHeader title="Change Password" screenType={null} />
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <TextInput
           placeholder="Old Password"
@@ -57,6 +65,6 @@ export default function ChangePasswordScreen({ navigation }) {
         </Pressable>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

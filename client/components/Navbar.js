@@ -9,20 +9,12 @@ const logo = require('../assets/images/nav-logo.png');
 
 export default function Navbar() {
   const navigation = useNavigation();
-  const { isLoggedIn, handleLogout } = useContext(UserContext);
+  const { isLoggedIn } = useContext(UserContext);
 
   const handleNavigation = (screen) => {
     navigation.reset({
       index: 0,
       routes: [{ name: screen }],
-    });
-  };
-
-  const handleLogoutAndRefresh = () => {
-    handleLogout();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'TextPromptScreen' }],
     });
   };
 
@@ -66,9 +58,6 @@ export default function Navbar() {
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleNavigation('NotificationScreen')}>
             <Icon name="bell" style={styles.navIcon} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogoutAndRefresh}>
-            <Text style={styles.logoutButtonText}>Logout</Text>
           </TouchableOpacity>
         </View>
       )}
