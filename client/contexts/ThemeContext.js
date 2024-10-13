@@ -1,5 +1,6 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { Appearance } from 'react-native';
+import { UserContext } from './UserContext';
 
 export const ThemeContext = createContext();
 
@@ -34,10 +35,52 @@ const darkTheme = {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(Appearance.getColorScheme() || 'light');
+  const { token, isLoggedIn } = useContext(UserContext);
+  const [theme, setTheme] = useState(Appearance.getColorScheme() || 'dark');
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+  useEffect(() => {
+    const loadThemeFromBackend = async () => {
+      if (isLoggedIn && token) {
+        try {
+          const response = await fetch('http://192.168.1.145:5000/auth/profile', {
+            headers: { Authorization: token },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.theme) {
+              setTheme(data.theme);
+            }
+          } else {
+            console.error('Failed to load theme from backend');
+          }
+        } catch (error) {
+          console.error('Error fetching theme:', error);
+        }
+      }
+    };
+
+    loadThemeFromBackend();
+  }, [isLoggedIn, token]);
+
+  const toggleTheme = async () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+
+    if (isLoggedIn && token) {
+      try {
+        await fetch('http://192.168.1.145:5000/auth/update-theme', {
+          method: 'POST',
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ theme: newTheme }),
+        });
+      } catch (error) {
+        console.error('Error updating theme:', error);
+      }
+    }
   };
 
   const currentTheme = theme === 'light' ? lightTheme : darkTheme;

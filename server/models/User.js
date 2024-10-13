@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema({
   },
   favorites: [{ type: String }],
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post', default: [] }],
+  theme: { type: String, default: 'dark' } 
 });
 
 module.exports = mongoose.model('User', userSchema);

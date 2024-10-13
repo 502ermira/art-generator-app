@@ -193,7 +193,7 @@ const LikesRoute = () => (
       <CustomHeader title={loggedInUsername} screenType="ProfileScreen" />
       <ScrollView 
         contentContainerStyle={styles.scrollContainer}
-        style={{ backgroundColor: '#fafafa' }}
+        style={{ backgroundColor: currentTheme.backgroundColor }}
         refreshControl={
           <RefreshControl
            refreshing={isRefreshing} 

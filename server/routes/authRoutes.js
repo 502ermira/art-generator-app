@@ -13,6 +13,7 @@ router.get('/profile', authenticateUser, authController.getProfile);
 router.post('/share', authenticateUser, authController.postImage);
 router.get('/user/:username', authenticateUser, authController.getUserProfileByUsername);
 router.put('/profile', authenticateUser, authController.updateProfile);
+router.post('/update-theme', authenticateUser, authController.updateTheme);
 router.post('/validate-username', authController.updateUsername);
 router.post('/update-email', authController.updateEmail);
 router.post('/update-username',authenticateUser, authController.updateUsername);

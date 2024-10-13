@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Text, TouchableOpacity, View, Switch } from 'react-native';
 import CustomHeader from '../../components/CustomHeader';
 import { UserContext } from '../../contexts/UserContext';
@@ -6,7 +6,7 @@ import { ThemeContext } from '../../contexts/ThemeContext';
 import styles from './SettingsScreenStyles.js';
 
 export default function SettingsScreen({ navigation }) {
-  const { handleLogout } = useContext(UserContext);
+  const { handleLogout} = useContext(UserContext);
   const { currentTheme, toggleTheme, theme } = useContext(ThemeContext);
 
   const handleLogoutAndRefresh = () => {

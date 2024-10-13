@@ -1,12 +1,12 @@
-import { useState, useEffect, useContext } from 'react';
-import { View, Text, ImageBackground, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, ImageBackground, TextInput, ScrollView, Image, TouchableOpacity, Switch  } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../../contexts/UserContext';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { getTextPromptScreenStyles } from './TextPromptScreenStyles';
 
-const backgroundImage = require('../../assets/images/bg.jpg');
+const darkBackgroundImage = require('../../assets/images/bg.jpg');
 const lightBackgroundImage = require('../../assets/images/light-bg.jpg');
 
 export default function TextPromptScreen() {
@@ -24,10 +24,9 @@ export default function TextPromptScreen() {
   const navigation = useNavigation();
 
   const isDarkMode = theme === 'dark'; 
-  const bgImage = isDarkMode ? backgroundImage : lightBackgroundImage;
+  const bgImage = isDarkMode ? darkBackgroundImage : lightBackgroundImage;
   const fontWeight = isDarkMode ? 500 : 700;
   const descriptionFontWeight = isDarkMode ? 400 : 500;
-
 
   const loadFavorites = async () => {
     const storedToken = await AsyncStorage.getItem('token');

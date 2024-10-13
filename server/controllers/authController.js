@@ -100,7 +100,7 @@ exports.login = async (req, res) => {
       }
   
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
-      res.json({ token, username: user.username });
+      res.json({ token, username: user.username, theme: user.theme });
     } catch (error) {
       res.status(500).json({ error: 'Login failed' });
     }
@@ -204,7 +204,7 @@ exports.login = async (req, res) => {
   exports.getProfile = async (req, res) => {
     try {
       const user = await User.findById(req.userId)
-        .select('fullname username email profilePicture bio');
+        .select('fullname username email profilePicture bio theme');
   
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
@@ -217,6 +217,22 @@ exports.login = async (req, res) => {
       res.status(500).json({ error: 'Failed to fetch user profile' });
     }
   };  
+
+  exports.updateTheme = async (req, res) => {
+    const { theme } = req.body;
+    try {
+      const user = await User.findById(req.userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      
+      user.theme = theme;
+      await user.save();
+      res.json({ message: 'Theme updated successfully', theme: user.theme });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update theme' });
+    }
+  };   
 
   exports.postImage = async (req, res) => {
     const { image, description } = req.body;
