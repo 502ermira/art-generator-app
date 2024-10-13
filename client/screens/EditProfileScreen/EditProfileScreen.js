@@ -2,14 +2,18 @@ import { useContext, useState, useEffect } from 'react';
 import { ScrollView, TextInput, Pressable, Text, Image, View, Alert, Platform, KeyboardAvoidingView, Keyboard } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { UserContext } from '../../contexts/UserContext';
-import styles from './EditProfileScreenStyles';
 import CustomHeader from '../../components/CustomHeader'; 
 import * as FileSystem from 'expo-file-system';
+import { ThemeContext } from '@/contexts/ThemeContext';
+import { getEditProfileScreenStyles } from './EditProfileScreenStyles';
+
 
 let debounceTimeout;
 
 export default function EditProfileScreen({ navigation, route }) {
   const { token, setUsername: setContextUsername } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getEditProfileScreenStyles(currentTheme);
   const { updateUserData } = route.params;
 
   const [fullname, setFullname] = useState('');
@@ -265,8 +269,9 @@ export default function EditProfileScreen({ navigation, route }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
-       <CustomHeader title="Edit Profile" screenType={null} />
+    <View style={styles.container}>
+      <CustomHeader title="Edit Profile" screenType={null} />
+    <ScrollView>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -291,6 +296,7 @@ export default function EditProfileScreen({ navigation, route }) {
             value={fullname}
             onChangeText={setFullname}
             style={styles.input}
+            placeholderTextColor={currentTheme.placeholderTextColor}
           />
           {fullnameError ? <Text style={styles.fieldErrorText}>{fullnameError}</Text> : null}
 
@@ -299,12 +305,13 @@ export default function EditProfileScreen({ navigation, route }) {
             value={username}
             onChangeText={setUsername}
             style={styles.input}
+            placeholderTextColor={currentTheme.placeholderTextColor}
           />
           {usernameError ? <Text style={styles.fieldErrorText}>{usernameError}</Text> : null}
 
           <TextInput
            placeholder="Add bio"
-           placeholderTextColor='#aaa'
+           placeholderTextColor={currentTheme.placeholderTextColor}
            value={bio}
            onChangeText={(text) => {
              if (text.length <= 150) {
@@ -330,6 +337,7 @@ export default function EditProfileScreen({ navigation, route }) {
             onChangeText={setEmail}
             style={styles.input}
             keyboardType="email-address"
+            placeholderTextColor={currentTheme.placeholderTextColor}
           />
           {emailError ? <Text style={styles.fieldErrorText}>{emailError}</Text> : null}
 
@@ -341,5 +349,6 @@ export default function EditProfileScreen({ navigation, route }) {
         </ScrollView>
       </KeyboardAvoidingView>
     </ScrollView>
+    </View>
   );
 }

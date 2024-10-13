@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { styles } from '../FollowersScreen/FollowersScreenStyles';
+import { getFollowersScreenStyles } from '../FollowersScreen/FollowersScreenStyles';
 import CustomHeader from '@/components/CustomHeader';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import Loader from '@/components/Loader';
 
 export default function LikesScreen() {
@@ -11,6 +12,8 @@ export default function LikesScreen() {
   const navigation = useNavigation();
   const { postId } = route.params;
   const { username: loggedInUsername, token } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getFollowersScreenStyles(currentTheme);
   const [loading, setLoading] = useState(true);
   const [likers, setLikers] = useState([]);
   const [followingStatus, setFollowingStatus] = useState({});

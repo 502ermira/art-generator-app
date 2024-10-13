@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useContext, memo } from 'react';
+import { useState, useEffect, useContext, memo } from 'react';
 import { View, Text, TextInput, Image, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import { styles } from './FollowersScreenStyles';
+import { getFollowersScreenStyles } from './FollowersScreenStyles';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import CustomHeader from '@/components/CustomHeader';
 import Loader from '@/components/Loader';
 
@@ -11,6 +12,8 @@ export default function FollowersFollowingScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const { username: loggedInUsername, token } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getFollowersScreenStyles(currentTheme);
   const { username, type } = route.params;
   const [loading, setLoading] = useState(true);
   const [followers, setFollowers] = useState([]);
@@ -120,7 +123,6 @@ export default function FollowersFollowingScreen() {
   
     return (
       <View style={styles.tabSceneContainer}>
-        <Text style={styles.sectionTitle}>Followers</Text>
         <TextInput
           style={styles.searchBar}
           placeholder="Search Followers"
@@ -150,7 +152,6 @@ export default function FollowersFollowingScreen() {
   
     return (
       <View style={styles.tabSceneContainer}>
-        <Text style={styles.sectionTitle}>Following</Text>
         <TextInput
           style={styles.searchBar}
           placeholder="Search Following"
@@ -193,9 +194,9 @@ export default function FollowersFollowingScreen() {
         renderTabBar={(props) => (
           <TabBar
             {...props}
-            indicatorStyle={{ backgroundColor: '#eee', height: 2 }}
+            indicatorStyle={{ height: 1.8, backgroundColor: '#7049f6', marginBottom:1 }}
             style={styles.tabBar}
-            labelStyle={{ color: 'white', fontWeight: '500' }}
+            labelStyle={{ color: currentTheme.textColor, fontWeight: '400', fontSize:13.5 }}
           />
         )}
       />

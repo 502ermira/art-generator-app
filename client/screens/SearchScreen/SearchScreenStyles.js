@@ -2,13 +2,13 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-const styles = StyleSheet.create({
+export const getSearchScreenStyles = (currentTheme) => StyleSheet.create({  
   container: {
     flex: 1,
     padding: 7,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: currentTheme.backgroundColor,
     paddingTop: 66,
-    paddingBottom: 77,
+    paddingBottom: 75,
   },
   searchContainer: {
     justifyContent: 'center',
@@ -17,35 +17,47 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     height: 38,
-    borderColor: '#cccccc',
+    borderColor: currentTheme.borderColor,
     borderWidth: 1,
     borderRadius: 20,
     paddingHorizontal: 16,
-    backgroundColor: '#fff',
+    backgroundColor: currentTheme.inputBackground,
     fontSize: 15,
     marginRight: 8,
     width: '85%',
+    color: currentTheme.iconColor,
   },
   resultContainer: {
     flex: 1,
-    margin: 3,
+    margin: 3.5,
     justifyContent: 'center',
     borderRadius: 5,
     overflow: 'hidden',
-    backgroundColor: '#fff',
+    backgroundColor: currentTheme.optionBackground,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
-    maxWidth: '48%'
+    maxWidth: '48%',
+    },
+  userResultContainer: {
+    flex: 1,
+    margin: 3.5,
+    justifyContent: 'center',
+    borderRadius: 5,
+    overflow: 'hidden',
+    backgroundColor: currentTheme.inputBackground,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
     },
   userResult: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     padding: 10,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
     justifyItems: 'flex-start',
   },
   profileImage: {
@@ -73,20 +85,20 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   fullname: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#000',
+    fontSize: 16.5,
+    fontWeight: '500',
+    color : currentTheme.textColor,
     marginTop: 2.5,
   },
   username: {
     fontSize: 15,
-    color: '#777',
+    color: currentTheme.secondaryTextColor,
     marginTop: 1,
   },
   usernamePost : {
     fontSize: 12,
     fontWeight: '500',
-    color: '#777',
+    color: currentTheme.secondaryTextColor,
   },
   photoImage: {
     width: (width / 2) ,
@@ -94,7 +106,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   searchIconContainer : {
-    color: '#7049f6',
+    color: currentTheme.iconColor
   },
   tabBar: {
     marginTop: 10,
@@ -106,15 +118,14 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   tabLabel: {
-    color: '#000',
+    color: currentTheme.secondaryTextColor,
     fontSize: 13,
   },
   noResultsText: {
-    fontSize: 17,
+    fontSize: 16,
     color: '#888',
     top: 32,
-    textAlign: 'center'
+    textAlign: 'center',
+    color: currentTheme.secondaryTextColor,
   },
 });
-
-export default styles;

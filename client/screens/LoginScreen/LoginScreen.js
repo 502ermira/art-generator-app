@@ -1,9 +1,10 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { TextInput, Text, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from '../../components/Loader.js';
 import { UserContext } from '../../contexts/UserContext.js';
-import { styles } from './LoginScreenStyles';
+import { ThemeContext } from '../../contexts/ThemeContext.js';
+import { getLoginScreenStyles } from './LoginScreenStyles';
 
 export default function LoginScreen({ navigation, route }) {
   const [email, setEmail] = useState('');
@@ -11,6 +12,8 @@ export default function LoginScreen({ navigation, route }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { setIsLoggedIn, setUsername } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getLoginScreenStyles(currentTheme);
 
   const { redirectTo, imageParams } = route.params || {};
 

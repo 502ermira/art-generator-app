@@ -5,7 +5,6 @@ const { width, height } = Dimensions.get('window');
 export default StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: '#151419',
     },
     imageContainer: {
       width: width * 0.87,

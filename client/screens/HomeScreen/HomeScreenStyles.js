@@ -2,16 +2,16 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-export const styles = StyleSheet.create({
+export const getHomeScreenStyles = (currentTheme) => StyleSheet.create({  
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 10,
+    backgroundColor: currentTheme.backgroundColor,
+    padding: 12,
     paddingTop: 50,
     paddingBottom: 50,
   },
   postContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: currentTheme.inputBackground,
     borderRadius: 7,
     marginBottom: 25,
     padding: 15,
@@ -28,7 +28,6 @@ export const styles = StyleSheet.create({
     marginTop:4,
     marginBottom: 18,
     alignSelf: 'center',
-    tintColor: 'rgba(0, 0, 0, 0.33)',
   },
   image: {
     height: (height / 2) - 65,
@@ -37,28 +36,28 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
   },
   description: {
-    fontSize: 15,
+    fontSize: 14.5,
     fontWeight: '500',
-    color: '#333',
+    color : currentTheme.secondaryTextColor,
     lineHeight: 22,
     marginTop: 5,
   },
   profileImage: {
-    width: 41,
-    height: 41,
+    width: 42,
+    height: 42,
     borderRadius: 20,
     marginRight: 10,
-    borderWidth: 1.5,
+    borderWidth: 1.3,
     borderColor: '#7049f6',
   },
   username: {
-    fontSize: 14.5,
+    fontSize: 14.8,
     fontWeight: '600',
-    color: '#7049f6',
+    color: currentTheme.violet,
   },
   date: {
     fontSize: 11,
-    color: '#888',
+    color: '#909090',
     marginTop: 4,
   },
   userInfoContainer: {
@@ -78,33 +77,37 @@ export const styles = StyleSheet.create({
   likes: {
     fontWeight: '500',
     marginHorizontal: 7,
-    alignContent: 'center'
+    alignContent: 'center',
+    color : currentTheme.darkIconColor,
   },
   comments: {
     fontWeight: '500',
     marginHorizontal: 7,
     alignContent: 'center',
+    color : currentTheme.darkIconColor,
   },
   commentIcon : {
-    top:-2
+    top:-2,
+    color : currentTheme.darkIconColor,
   },
   reposts: {
     fontWeight: '500',
     marginHorizontal: 7,
     alignContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    color : currentTheme.darkIconColor,
   },
   repostIcon : {
     top:-1.5,
   },
   prompt : {
     fontSize: 13,
-    color: '#808080',
+    color: currentTheme.tertiaryTextColor,
     fontStyle: 'italic',
     marginBottom: 5,
   },
   readMoreText: {
-    color: '#7049f6',
+    color: currentTheme.violet,
     fontWeight: 'bold',
     marginTop: 5,
   },

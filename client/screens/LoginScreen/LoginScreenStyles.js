@@ -1,17 +1,17 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+export const getLoginScreenStyles = (currentTheme) => StyleSheet.create({  
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 25,
-    backgroundColor: '#151419',
+    backgroundColor: currentTheme.backgroundColor,
   },
   title: {
-    fontSize: 26,
-    fontWeight: '600',
-    color: '#fff',
+    fontSize: 26.5,
+    fontWeight: '700',
+    color: currentTheme.secondaryTextColor,
     marginBottom: 20,
     textAlign: 'center',
     marginTop: -50,
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   signupText: {
     marginTop: 20,
-    color: '#eee',
+    color: currentTheme.tertiaryTextColor,
     fontSize: 16,
   },
   signupLink: {
@@ -64,5 +64,3 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
 });
-
-export { styles };

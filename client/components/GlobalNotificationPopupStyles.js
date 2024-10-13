@@ -1,12 +1,13 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
-export const styles = StyleSheet.create({
+const { width } = Dimensions.get('window');
+
+export const getGlobalNotificationPopupStyles = (currentTheme) => StyleSheet.create({  
   popup: {
     position: 'absolute',
-    width: '100%',
+    maxWidth: width,
     padding: 16,
-    paddingVertical: 12,
-    backgroundColor: '#ddd',
+    paddingVertical: 9,
     zIndex: 1000,
     flexDirection: 'row',
     alignItems: 'center',
@@ -15,29 +16,31 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 0.5 },
     elevation: 5,
-    paddingTop:40,
+    marginTop:41,
+    marginHorizontal:10,
+    borderRadius:10,
   },
   
   popupMessage: {
-    color: '#000',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: currentTheme.textColor,
+    fontSize: 15,
+    fontWeight: '600',
     textAlign: 'center',
     alignItems: 'center',
   },
   
   popupProfileImage: {
-    width: 50,
-    height: 50,
+    width: 48,
+    height: 48,
     borderRadius: 25,
     marginRight:12,
   },
   
   popupPostImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 10,
-    marginLeft:15,
+    width: 54,
+    height: 54,
+    borderRadius: 4,
+    marginLeft:10,
   },
   
   popupContainer: {

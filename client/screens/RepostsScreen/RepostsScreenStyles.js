@@ -1,9 +1,9 @@
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
-    container: {
+export const getRepostScreenStyles = (currentTheme) => StyleSheet.create({  
+  container: {
       flex: 1,
-      backgroundColor: '#151419',
+      backgroundColor: currentTheme.backgroundColor,
     },
     scrollContainer: {
       paddingVertical: 20,
@@ -12,48 +12,49 @@ export const styles = StyleSheet.create({
     repost: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 10,
+      padding: 9,
       borderRadius: 10,
       marginBottom: 6,
-      backgroundColor: '#28272C',
+      backgroundColor: currentTheme.optionBackground,
       shadowColor: '#000',
       shadowOpacity: 0.2,
       elevation: 5,
-      paddingHorizontal: 14,
+      paddingHorizontal: 13,
     },
     profileImage: {
-      width: 50,
-      height: 50,
+      width: 49,
+      height: 49,
       borderRadius: 50,
-      marginRight: 15,
+      marginRight: 13,
     },
     repostInfo: {
       flex: 1,
     },
     username: {
-      fontSize: 16,
-      color: '#fff',
+      fontSize: 15,
+      color: currentTheme.textColor,
       fontWeight: '600',
     },
     repostedAt: {
-      fontSize: 13.5,
-      color: '#ddd',
-      marginTop: 5,
+      fontSize: 13,
+      color: currentTheme.tertiaryTextColor,
+      marginTop: 4,
     },
     emptyText: {
       fontSize: 16,
-      color: '#aaa',
+      color: currentTheme.tertiaryTextColor,
       textAlign: 'center',
       marginTop: 20,
     },
     searchBar: {
       height: 37,
-      borderColor: '#ccc',
+      borderColor: currentTheme.borderColor,
+      backgroundColor: currentTheme.inputBackground,
       borderWidth: 1,
       borderRadius: 8,
       paddingHorizontal: 10,
       marginTop: 25,
-      color: 'white',
+      color: currentTheme.secondaryTextColor,
       marginHorizontal: 18,
       marginVertical:3,
     }  

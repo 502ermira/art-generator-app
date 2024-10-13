@@ -1,14 +1,14 @@
 import { StyleSheet } from 'react-native';
 
-export default StyleSheet.create({
+export const getEditProfileScreenStyles = (currentTheme) => StyleSheet.create({  
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: currentTheme.backgroundColor,
   },
   scrollContainer: {
     padding: 20,
     alignItems: 'center',
-    paddingBottom: 100,
+    paddingBottom: 0,
   },
   imageContainer: {
     width: 150,
@@ -18,8 +18,8 @@ export default StyleSheet.create({
     marginBottom: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#ccc',
+    borderWidth: 1.5,
+    borderColor: currentTheme.borderColor,
   },
   profileImage: {
     width: '100%',
@@ -31,31 +31,34 @@ export default StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: currentTheme.borderColor,
   },
   placeholderText: {
     fontSize: 16,
-    color: '#888',
+    color: currentTheme.placeholderText,
   },
   imageButton: {
     padding: 11,
-    backgroundColor: '#28a745',
+    backgroundColor: '#7049f6',
     borderRadius: 8,
     marginBottom: 20,
+    paddingHorizontal:20,
   },
   imageButtonText: {
     color: '#fff',
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '500',
+    letterSpacing: 0.4,
   },
   input: {
     width: '100%',
-    padding: 10,
-    marginVertical: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
+    padding: 15,
+    marginVertical: 9,
+    borderWidth: 0.5,
+    borderColor: currentTheme.borderColor,
     borderRadius: 8,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: currentTheme.inputBackground,
+    color: currentTheme.textColor
   },
   bioInput: {
     height: 100
@@ -68,21 +71,20 @@ export default StyleSheet.create({
   }, 
   saveButton: {
     width: '100%',
-    padding: 12,
-    backgroundColor: '#28a745',
+    padding: 14,
+    backgroundColor: '#7049f6',
     borderRadius: 8,
     alignItems: 'center',
     marginVertical: 20,
   },
   saveButtonText: {
     color: '#fff',
-    fontSize: 16.5,
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
+    fontSize: 16,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
   errorText: {
-    color: 'red',
-    marginTop: 10,
+    color: '#9F0000',
     textAlign: 'center',
   },
   successText: {
@@ -91,7 +93,7 @@ export default StyleSheet.create({
     marginVertical: 10,
   },
   fieldErrorText: {
-    color: 'red',
+    color: '#9F0000',
     fontSize: 12,
     marginTop: -5,
     marginBottom: 10,

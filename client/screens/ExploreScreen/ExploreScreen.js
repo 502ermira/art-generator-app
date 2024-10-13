@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, FlatList, TouchableOpacity, Image, Text, ActivityIndicator } from 'react-native';
+import { useState, useEffect, useContext } from 'react';
+import { View, FlatList, TouchableOpacity, Image, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import Loader from '@/components/Loader';
-import { styles } from './ExploreScreenStyles.js';
+import { getExploreScreenStyles } from './ExploreScreenStyles.js';
 
 export default function ExploreScreen({ route }) {
   const { token } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getExploreScreenStyles(currentTheme);
   const [explorePosts, setExplorePosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);

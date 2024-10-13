@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { View, Text, ScrollView, Image, Modal, TouchableOpacity, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../../contexts/UserContext';
@@ -7,9 +7,11 @@ import { useNavigation } from '@react-navigation/native';
 import styles from './FavoritesScreenStyles';
 import CustomHeader from '../../components/CustomHeader';
 import Loader from '@/components/Loader';
+import { ThemeContext } from '@/contexts/ThemeContext';
 
 export default function FavoritesScreen() {
   const { token, isLoggedIn } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
   const navigation = useNavigation();
   const [favorites, setFavorites] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -101,9 +103,9 @@ export default function FavoritesScreen() {
   return (
     <View style={{ flex: 1 }}>
       <CustomHeader title="Favorites" />
-      <ScrollView style={[styles.scrollView, { paddingTop: 60 }]}>
+      <ScrollView style={[styles.scrollView, { paddingTop: 60, backgroundColor: currentTheme.backgroundColor  }]}>
         <View style={styles.container}>
-          <Text style={styles.title}>Your Favorite Images</Text>
+          <Text style={[styles.title, { color: currentTheme.textColor }]}>Your Favorite Images</Text>
           {loading ? (
            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: height/2 + 120 }}>
             <Loader />
@@ -127,7 +129,7 @@ export default function FavoritesScreen() {
                 </View>
               ))
             ) : (
-              <Text style={styles.noFavorites}>No favorites yet.</Text>
+              <Text style={[styles.noFavorites, { color: currentTheme.textColor }]}>No favorites yet.</Text>
             )
           )}
         </View>

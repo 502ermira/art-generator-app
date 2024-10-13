@@ -2,12 +2,12 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const { height, width } = Dimensions.get('window');
 
-export const styles = StyleSheet.create({
+export const getPostScreenStyles = (currentTheme) => StyleSheet.create({  
   container: {
-    backgroundColor: '#fafafa',
+    backgroundColor: currentTheme.backgroundColor,
     minHeight: height,
     width: width,
-    paddingBottom: 77,
+    paddingBottom: 75,
   },
   loadingContainer: {
     flex: 1,
@@ -44,9 +44,10 @@ export const styles = StyleSheet.create({
   fullname: {
     fontWeight: '600',
     fontSize: 16,
+    color: currentTheme.secondaryTextColor
   },
   username: {
-    color: '#888',
+    color: currentTheme.tertiaryTextColor,
     fontSize: 14,
   },
   postImage: {
@@ -58,14 +59,13 @@ export const styles = StyleSheet.create({
   prompt: {
     fontStyle: 'italic',
     marginBottom: 2,
-    color: '#303030',
     fontSize: 15,
     paddingLeft: 16,
   },
   description: {
     fontWeight: '600',
-    fontSize: 16,
-    color: '#333',
+    fontSize: 15.5,
+    color: currentTheme.secondaryTextColor,
     paddingLeft: 16,
     marginTop: 6,
   },
@@ -122,6 +122,7 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
     fontSize: 15,
     justifyContent: 'center',
+    color: currentTheme.secondaryTextColor,
   },
   commentInputContainer: {
     flexDirection: 'row',
@@ -132,12 +133,14 @@ export const styles = StyleSheet.create({
   },
   commentInput: {
     flex: 1,
-    borderColor: '#ccc',
+    borderColor: currentTheme.borderColor,
     borderWidth: 1,
     borderRadius: 8,
     padding: 9,
     marginRight: 10,
     fontSize: 14,
+    backgroundColor: currentTheme.inputBackground,
+    color: currentTheme.secondaryTextColor,
   },
   commentButton: {
     alignItems: 'center',
@@ -154,9 +157,10 @@ export const styles = StyleSheet.create({
   viewMoreText : {
     marginBottom: 4,
     paddingLeft: 16,
+    color: currentTheme.tertiaryTextColor,
   },
   repostedByText: {  
-    fontSize: 15.5, 
+    fontSize: 15, 
     fontStyle: 'italic',
     color: '#999',
     paddingLeft: 18,
@@ -164,15 +168,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
   },
-  repostIcon : {
-    marginRight:10,
-  },
   repostDate : {
-    fontSize: 14,
+    fontSize: 13.5,
   },
   suggestionItem :{
     padding:7,
-    flex: 1
+    flex: 1,
   },
   profileImageSuggestion : {
     width: 27,
@@ -183,6 +184,9 @@ export const styles = StyleSheet.create({
   suggestionContainer : {
     flexDirection: 'row', 
     alignItems: 'center' ,
+  },
+  suggestionText : {
+    color: currentTheme.secondaryTextColor,
   },
   deleteButton: {
     color: 'red',
@@ -217,14 +221,15 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    backgroundColor: currentTheme.backgroundColor,
   },
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
-  },
+    color: currentTheme.secondaryTextColor 
+   },
   modalButton: {
     backgroundColor: '#7049f6',
     borderRadius: 5,

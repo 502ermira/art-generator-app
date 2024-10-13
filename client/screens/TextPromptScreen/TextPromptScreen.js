@@ -1,14 +1,18 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { View, Text, ImageBackground, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import styles from './TextPromptScreenStyles';
+import { getTextPromptScreenStyles } from './TextPromptScreenStyles';
 
 const backgroundImage = require('../../assets/images/bg.jpg');
+const lightBackgroundImage = require('../../assets/images/light-bg.jpg');
 
 export default function TextPromptScreen() {
   const { isLoggedIn } = useContext(UserContext);
+  const { currentTheme, theme } = useContext(ThemeContext);
+  const styles = getTextPromptScreenStyles(currentTheme);
   const [prompt, setPrompt] = useState('');
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -18,6 +22,12 @@ export default function TextPromptScreen() {
   const [embedding, setEmbedding] = useState(null);
 
   const navigation = useNavigation();
+
+  const isDarkMode = theme === 'dark'; 
+  const bgImage = isDarkMode ? backgroundImage : lightBackgroundImage;
+  const fontWeight = isDarkMode ? 500 : 700;
+  const descriptionFontWeight = isDarkMode ? 400 : 500;
+
 
   const loadFavorites = async () => {
     const storedToken = await AsyncStorage.getItem('token');
@@ -154,11 +164,11 @@ const toggleFavorite = async () => {
 const previewFavorites = [...favorites].reverse().slice(0, 6);
 
   return (
-    <ImageBackground source={backgroundImage} style={styles.background}>
+    <ImageBackground source={bgImage} style={styles.background}>
       <ScrollView  contentContainerStyle={isLoggedIn ? styles.scrollViewLoggedIn : styles.scrollViewLoggedOut}>
         <View style={styles.container}>
-          <Text style={styles.title}>Create, Share, and Inspire with ART-GEN!</Text>
-          <Text style={styles.description}>
+          <Text style={[styles.title, {fontWeight: fontWeight}]}>Create, Share, and Inspire with ART-GEN!</Text>
+          <Text style={[styles.description, {fontWeight:descriptionFontWeight}]}>
             Enter a creative prompt and watch as AI transforms it into a unique piece of art. Share your work with others and build your gallery!
           </Text>
           <TextInput
@@ -166,7 +176,7 @@ const previewFavorites = [...favorites].reverse().slice(0, 6);
             placeholder="Enter prompt"
             value={prompt}
             onChangeText={setPrompt}
-            placeholderTextColor='#aaa'
+            placeholderTextColor={currentTheme.placeholderTextColor}
             maxLength={85}
           />
           <TouchableOpacity style={styles.button} onPress={generateImage} disabled={loading}>
@@ -185,7 +195,7 @@ const previewFavorites = [...favorites].reverse().slice(0, 6);
   
           {previewFavorites.length > 0 ? (
             <View style={styles.previewContainer}>
-              <Text style={styles.favoritesTitle}>Favorite Images</Text>
+              <Text style={[styles.favoritesTitle, {fontWeight: fontWeight}]}>Favorite Images</Text>
               <View style={styles.previewGrid}>
                 {previewFavorites.map((favorite, index) => (
                   <Image

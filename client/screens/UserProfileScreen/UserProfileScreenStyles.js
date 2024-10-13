@@ -1,11 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-export const styles = StyleSheet.create({
+export const getUserProfileScreenStyles = (currentTheme) => StyleSheet.create({  
   container: {
     flex: 1,
-    backgroundColor: '#fafafa',
+    backgroundColor: currentTheme.backgroundColor,
     padding: 0,
-    paddingBottom: 77,
+    paddingBottom: 75,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -34,13 +34,14 @@ export const styles = StyleSheet.create({
   fullname: {
     fontSize: 23,
     fontWeight: 'bold',
-    color: '#333',
+    color: currentTheme.textColor,
     top: 8,
   },
   bio : {
     paddingHorizontal: 21,
     fontSize: 15,
     marginBottom: 4,
+    color: currentTheme.secondaryTextColor,
   },
   followInfo: {
     flexDirection: 'row',
@@ -48,6 +49,10 @@ export const styles = StyleSheet.create({
   },
   followers: {
     marginRight: 10,
+    color: currentTheme.secondaryTextColor,
+  },
+  following :{
+    color: currentTheme.secondaryTextColor,
   },
   previewGrid: {
     flexDirection: 'row',
@@ -80,15 +85,17 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   tabBar: {
-    backgroundColor: '#fafafa',
+    backgroundColor: currentTheme.backgroundColor,
     marginTop: 13,
     marginHorizontal: 6,
-    height: 42,
-    marginBottom:-3
+    height: 43,
+    marginBottom:-3,
+    color: currentTheme.textColor,
   },
   noPostsText : {
     textAlign: 'center',
     top:23,
     fontSize: 15,
+    color: currentTheme.tertiaryTextColor,
   }
 });

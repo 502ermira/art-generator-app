@@ -1,14 +1,17 @@
-import React, { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, RefreshControl, Dimensions } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '@/contexts/ThemeContext';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-import { styles } from './UserProfileScreenStyles';
+import { getUserProfileScreenStyles } from './UserProfileScreenStyles';
 import CustomHeader from '@/components/CustomHeader';
 import Loader from '@/components/Loader';
 
 export default function UserProfileScreen() {
   const { token, username: loggedInUsername } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getUserProfileScreenStyles(currentTheme);
   const route = useRoute();
   const { username } = route.params;
   const navigation = useNavigation();
@@ -181,7 +184,7 @@ export default function UserProfileScreen() {
     <CustomHeader title={username} screenType="UserProfileScreen" />
     <ScrollView 
       contentContainerStyle={styles.scrollContainer}
-      style={{ backgroundColor: '#fafafa' }}
+      style={{  backgroundColor: currentTheme.backgroundColor, }}
       refreshControl={ 
         <RefreshControl 
           refreshing={refreshing} 
@@ -230,7 +233,7 @@ export default function UserProfileScreen() {
               {...props}
               indicatorStyle={{ backgroundColor: '#7049f6', marginBottom:1.5 }}
               style={styles.tabBar}
-              labelStyle={{ color: 'black', fontWeight: '400', fontSize: 12.5 }}
+              labelStyle={{ color: currentTheme.textColor, fontWeight: '400', fontSize: 13 }}
             />
           )}
         />

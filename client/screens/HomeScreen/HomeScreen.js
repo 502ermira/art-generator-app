@@ -1,11 +1,12 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { View, FlatList, Text, Image, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
+import { useEffect, useState, useContext } from 'react';
+import { View, FlatList, Text, Image, TouchableOpacity, RefreshControl } from 'react-native';
 import axios from 'axios';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { styles } from './HomeScreenStyles.js';
+import { getHomeScreenStyles } from './HomeScreenStyles.js';
 import Loader from '@/components/Loader';
 const logo = require('../../assets/images/nav-logo.png');
 
@@ -17,7 +18,12 @@ export default function HomeScreen() {
   const [hasMorePosts, setHasMorePosts] = useState(true);
   const [page, setPage] = useState(1);
   const { token, username } = useContext(UserContext);
+  const { currentTheme, theme } = useContext(ThemeContext);
+  const styles = getHomeScreenStyles(currentTheme);
   const navigation = useNavigation();
+
+  const isDarkMode = theme === 'dark'; 
+  const logoTintColor = isDarkMode ? 'rgba(300, 300, 300, 0.52)' : 'rgba(0, 0, 0, 0.33)';
 
   useEffect(() => {
     fetchPosts(1);
@@ -226,7 +232,7 @@ export default function HomeScreen() {
                     name={item.isLikedByUser ? 'heart' : 'heart-o'}
                     style={styles.icon}
                     size={21}
-                    color={item.isLikedByUser ? '#7049f6' : 'black'}
+                    color={item.isLikedByUser ? '#7049f6' : currentTheme.darkIconColor }
                   />
                 </TouchableOpacity>
 
@@ -234,7 +240,7 @@ export default function HomeScreen() {
                   <Text style={styles.comments}>{item.comments}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleCommentsPress(item._id)}>
-                  <Icon name="comment-o" style={styles.commentIcon} size={21} color="black" />
+                  <Icon name="comment-o" style={styles.commentIcon} size={21} />
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => handleRepostsPress(item._id)}>
@@ -243,9 +249,9 @@ export default function HomeScreen() {
                 <TouchableOpacity onPress={() => handleRepost(item._id, item.isRepostedByUser)}>
                   <AntDesign
                     name="retweet"
-                    style={styles.repostIcon}
+                    style={[styles.icon]}
                     size={21}
-                    color={item.isRepostedByUser ? '#7049f6' : 'black'}
+                    color={item.isRepostedByUser ? currentTheme.violet : currentTheme.darkIconColor }
                   />
                 </TouchableOpacity>
               </View>
@@ -253,7 +259,7 @@ export default function HomeScreen() {
           </View>
         )}
         ListHeaderComponent={() => (
-          <Image source={logo} style={styles.logo} />
+          <Image source={logo}  style={[styles.logo, { tintColor: logoTintColor }]}  />
         )}
         refreshControl={
           <RefreshControl

@@ -1,16 +1,16 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+export const getSignupScreenStyles = (currentTheme) => StyleSheet.create({  
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#151419',
+    backgroundColor: currentTheme.backgroundColor,
   },
   title: {
     fontSize: 26,
-    fontWeight: '600',
-    color: '#fff',
+    fontWeight: '700',
+    color: currentTheme.secondaryTextColor,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '70%',
-    backgroundColor: '#eee',
+    backgroundColor:  currentTheme.inputBackground,
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: currentTheme.secondaryTextColor,
   },
   modalButton: {
     backgroundColor: '#7049f6',
@@ -151,5 +151,3 @@ const styles = StyleSheet.create({
     fontWeight: 500
   }
 });
-
-export { styles };

@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import { useEffect, useState, useContext, useRef } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, ScrollView, Keyboard, Dimensions, KeyboardAvoidingView, Alert, Platform } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { styles } from './CommentsScreenStyles.js';
+import { getCommentsScreenStyles } from './CommentsScreenStyles';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import CustomHeader from '../../components/CustomHeader.js';
 import Loader from '@/components/Loader.js';
 
@@ -15,6 +16,8 @@ export default function CommentsScreen() {
   const navigation = useNavigation();
   const { postId } = route.params;
   const { token, username: loggedInUsername } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getCommentsScreenStyles(currentTheme);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
@@ -221,10 +224,10 @@ export default function CommentsScreen() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: currentTheme.backgroundColor }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-        <ScrollView contentContainerStyle={[styles.container]} keyboardShouldPersistTaps="handled">
           <CustomHeader title="Comments" />
+          <ScrollView contentContainerStyle={styles.container}>
           {comments.map((comment) => {
             const isAuthor = comment.user.username === loggedInUsername;
 
@@ -234,11 +237,11 @@ export default function CommentsScreen() {
               renderRightActions={() => renderRightActions(comment._id)}
               overshootRight={false}
           >
-            <View style={styles.comment}>
-              <TouchableOpacity onPress={() => handleUserPress(comment.user.username)}>
+           <View style={ styles.comment }>
+              <TouchableOpacity onPress={() => handleUserPress(comment.user.username)} >
                 <Image source={{ uri: comment.user.profilePicture }} style={styles.profileImageComment} />
               </TouchableOpacity>
-              <View style={styles.commentContent}>
+              <View style={styles.commentContent} >
                 <Text style={styles.commentUser}>{comment.user.fullname}</Text>
                 <Text style={styles.commentContentText}>{comment.content}</Text>
                 <Text style={styles.commentDate}>
@@ -286,9 +289,11 @@ export default function CommentsScreen() {
               onChangeText={handleCommentChange}
               onFocus={measureInputPosition}
               blurOnSubmit={false}
+              placeholderTextColor={currentTheme.placeholderTextColor}
+              color={currentTheme.textColor}
             />
             <TouchableOpacity onPress={handleAddComment}>
-              <Icon name="paper-plane" size={25} color="black" />
+              <Icon name="paper-plane" size={25} color={currentTheme.iconColor}/>
             </TouchableOpacity>
           </View>
 
@@ -299,11 +304,11 @@ export default function CommentsScreen() {
                 bottom: height - inputPosition.y - keyboardHeight ,
                 left: inputPosition.x,
                 width: inputPosition.width,
-                backgroundColor: '#f0f0f0',
                 borderRadius: 5,
                 paddingVertical: 10,
                 maxHeight: 150,
                 zIndex: 1000,
+                backgroundColor: currentTheme.optionBackground,
               }}
             >
               <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={true}>

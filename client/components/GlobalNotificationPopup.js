@@ -1,17 +1,23 @@
 import React, { useRef, useEffect, useState, useContext } from 'react';
 import { View, Animated, Text, Image, TouchableOpacity, PanResponder } from 'react-native';
 import { UserContext } from '../contexts/UserContext';
-import { styles } from './GlobalNotificationPopupStyles.js';
+import { ThemeContext } from '../contexts/ThemeContext';
+import { getGlobalNotificationPopupStyles } from './GlobalNotificationPopupStyles.js';
 import io from 'socket.io-client';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
 
 export default function GlobalNotificationPopup() {
   const { token, username: loggedInUsername } = useContext(UserContext);
+  const { currentTheme, theme } = useContext(ThemeContext);
+  const styles = getGlobalNotificationPopupStyles(currentTheme);
   const [popupMessage, setPopupMessage] = useState(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const popupAnimation = useRef(new Animated.Value(-100)).current;
   const socket = useRef(null);
   const navigation = useNavigation();
+
+  const isDarkMode = theme === 'dark'; 
+  const popupBackground = isDarkMode ? '#303030' : '#fff';
 
   const currentRouteName = useNavigationState((state) => {
     if (!state || !state.routes || state.routes.length === 0) {
@@ -109,7 +115,7 @@ export default function GlobalNotificationPopup() {
 
   return (
     <Animated.View
-      style={[styles.popup, { transform: [{ translateY: popupAnimation }] }]}
+      style={[styles.popup, { transform: [{ translateY: popupAnimation }], backgroundColor: popupBackground }]}
       {...panResponder.panHandlers}
     >
       <TouchableOpacity onPress={handlePopupPress} style={styles.popupContainer}>

@@ -1,12 +1,15 @@
-import React, { useState, useContext, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import { Text, Image, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Keyboard, ScrollView, Alert } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import CustomHeader from '../../components/CustomHeader';
-import styles from './PostImageScreenStyles';
+import { getPostImageScreenStyles } from './PostImageScreenStyles';
 
 export default function PostImageScreen({ route, navigation }) {
   const { selectedImage, imagePrompt, embedding } = route.params;
   const { token, setIsLoggedIn, setUsername } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getPostImageScreenStyles(currentTheme);
   const [description, setDescription] = useState('');
   
   const handleShare = async () => {
@@ -115,7 +118,7 @@ export default function PostImageScreen({ route, navigation }) {
           value={description}
           onChangeText={handleDescriptionChange}
           placeholder="Enter a description"
-          placeholderTextColor="#bbb"
+          placeholderTextColor= {currentTheme.placeholderTextColor}
           style={styles.input}
           maxLength={250}
           multiline

@@ -5,10 +5,13 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { UserContext } from '../../contexts/UserContext';
 import ExploreScreen from '../ExploreScreen/ExploreScreen';
-import styles from './SearchScreenStyles';
+import { ThemeContext } from '../../contexts/ThemeContext';
+import { getSearchScreenStyles } from './SearchScreenStyles';
 
 export default function SearchScreen() {
   const { token, username: loggedInUsername } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getSearchScreenStyles(currentTheme);
   const [searchQuery, setSearchQuery] = useState('');
   const [imageResults, setImageResults] = useState([]);
   const [userResults, setUserResults] = useState([]);
@@ -73,7 +76,7 @@ export default function SearchScreen() {
         </View>
       );
     }
-    
+  
     return (
       <FlatList
         data={results}
@@ -81,7 +84,7 @@ export default function SearchScreen() {
         numColumns={type === 'images' ? 2 : 1}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.resultContainer}
+            style={type === 'images' ? styles.resultContainer : styles.userResultContainer}
             onPress={() => handleResultPress(item)}
           >
             {type === 'images' ? (
@@ -105,7 +108,7 @@ export default function SearchScreen() {
         )}
       />
     );
-  };
+  };  
 
   const renderScene = SceneMap({
     images: () => renderSearchResults('images'),
@@ -137,6 +140,7 @@ export default function SearchScreen() {
           onChangeText={setSearchQuery}
           onSubmitEditing={handleSearch}
           returnKeyType="search"
+          placeholderTextColor={currentTheme.placeholderTextColor}
         />
         <TouchableOpacity
           style={styles.searchIconContainer}

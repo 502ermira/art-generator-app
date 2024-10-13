@@ -1,14 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { View, TextInput, ScrollView, TouchableOpacity, Text, Image, KeyboardAvoidingView, Platform, Modal, Dimensions, Keyboard } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Loader from '../../components/Loader.js';
-import { styles } from './SignupScreenStyles';
+import { getSignupScreenStyles } from './SignupScreenStyles';
+import { ThemeContext } from '../../contexts/ThemeContext.js';
 import * as FileSystem from 'expo-file-system';
 
 const { width } =  Dimensions.get('window');
 
 export default function SignupScreen({ navigation, route }) {
+  const { currentTheme, theme } = useContext(ThemeContext);
+  const styles = getSignupScreenStyles(currentTheme);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +31,9 @@ export default function SignupScreen({ navigation, route }) {
   const [passwordError, setPasswordError] = useState('');
   const [fullnameError, setFullnameError] = useState('');
   const [bioError, setBioError] = useState('');
+
+  const isDarkMode = theme === 'dark'; 
+  const errorTextColor = isDarkMode ? '#C6B4FF' : '#8579AB';
 
   const { redirectTo, imageParams } = route.params || {};
 
@@ -211,12 +217,10 @@ export default function SignupScreen({ navigation, route }) {
 
       if (response.ok) {
         setModalVisible(true);
-
-        navigation.replace('Login', { redirectTo, imageParams });
-        
       } else {
         setError(data.error || 'An unknown error occurred. Please try again.');
       }
+      
     } catch (err) {
       setError('Signup failed. Please check your connection and try again.');
       setLoading(false);
@@ -246,6 +250,20 @@ export default function SignupScreen({ navigation, route }) {
     }
   };
 
+  const goToLogin = () => {
+    try {
+      setModalVisible(false);
+      setTimeout(() => {
+        navigation.navigate('Login', { 
+          redirectTo: redirectTo || null, 
+          imageParams: imageParams || {} 
+        });
+      }, 100);
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
+  };  
+
   return (
     <KeyboardAvoidingView 
        style={styles.container} 
@@ -255,7 +273,7 @@ export default function SignupScreen({ navigation, route }) {
        <ScrollView contentContainerStyle={{  
          justifyContent: 'center',
          alignItems: 'center',
-         backgroundColor: '#151419',
+         backgroundColor: currentTheme.backgroundColor,
          maxWidth : width,
          minWidth :  width,
          padding: 23 }}
@@ -269,11 +287,11 @@ export default function SignupScreen({ navigation, route }) {
               <Image source={{ uri: profilePicture }} style={styles.profileImage} />
             ) : (
               <View style={styles.imagePlaceholder}>
-                <Text style={styles.imageButtonText}><Icon name="image" size={30} color="#eee" /></Text>
+                <Text style={styles.imageButtonText}><Icon name="image" size={30} color="#dedede" /></Text>
               </View>
             )}
           </TouchableOpacity>
-          <Text style={styles.label}>Choose Your Profile Picture</Text>
+          <Text style={[styles.label, { color: errorTextColor}]}>Choose Your Profile Picture</Text>
           <TextInput
             style={styles.input}
             placeholder="Fullname*"
@@ -282,7 +300,7 @@ export default function SignupScreen({ navigation, route }) {
             onChangeText={setFullname}
             maxLength={25}
           />
-          {fullnameError ? <Text style={styles.error}>{fullnameError}</Text> : null}
+          {fullnameError ? <Text style={[styles.error, {color: errorTextColor}]}>{fullnameError}</Text> : null}
           <TextInput
             style={styles.input}
             placeholder="Username*"
@@ -291,7 +309,7 @@ export default function SignupScreen({ navigation, route }) {
             onChangeText={setUsername}
             maxLength={18}
           />
-          {usernameError ? <Text style={styles.error}>{usernameError}</Text> : null}
+          {usernameError ? <Text style={[styles.error, {color: errorTextColor}]}>{usernameError}</Text> : null}
           <TextInput
             style={styles.input}
             placeholder="Email*"
@@ -299,7 +317,7 @@ export default function SignupScreen({ navigation, route }) {
             value={email}
             onChangeText={setEmail}
           />
-          {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
+          {emailError ? <Text style={[styles.error, {color: errorTextColor}]}>{emailError}</Text> : null}
           <TextInput
             style={styles.input}
             placeholder="Password*"
@@ -309,7 +327,7 @@ export default function SignupScreen({ navigation, route }) {
             secureTextEntry
             maxLength={50}
           />
-          {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
+          {passwordError ? <Text style={[styles.error, {color: errorTextColor}]}>{passwordError}</Text> : null}
           <TextInput
             style={[styles.input, styles.bioInput]}
             placeholder="Bio"
@@ -329,15 +347,15 @@ export default function SignupScreen({ navigation, route }) {
             }}
             blurOnSubmit={true}
           />
-            <Text style={styles.characterCount}>
+            <Text style={[styles.characterCount,{color: errorTextColor}]}>
              {bio.length}/150 characters
             </Text>
-            {bioError ? <Text style={styles.error}>{bioError}</Text> : null}
+            {bioError ? <Text style={[styles.error, {color: errorTextColor}]}>{bioError}</Text> : null}
  
           <TouchableOpacity style={styles.button} onPress={signupUser}>
             <Text style={styles.buttonText}>Signup</Text>
           </TouchableOpacity>
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {error ? <Text style={[styles.error, {color: errorTextColor}]}>{error}</Text> : null}
           <Modal
             animationType="slide"
             transparent={true}
@@ -347,10 +365,8 @@ export default function SignupScreen({ navigation, route }) {
             <View style={styles.modalView}>
              <View style={styles.modalContent}>
               <Text style={styles.modalText}>Signup Successful!</Text>
-              <TouchableOpacity onPress={() => {
-               navigation.replace('Login', { redirectTo, imageParams });
-               setModalVisible(false);
-              }} style={styles.modalButton}>
+              <TouchableOpacity onPress={goToLogin}
+                style={styles.modalButton}>
                 <Text style={styles.modalButtonText}>Go to Login</Text>
               </TouchableOpacity>
              </View>

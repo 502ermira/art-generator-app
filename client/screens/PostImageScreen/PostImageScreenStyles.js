@@ -2,14 +2,13 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const {width } = Dimensions.get('window');
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        justifyContent:'center',
-        alignContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#fafafa',
+export const getPostImageScreenStyles = (currentTheme) => StyleSheet.create({  
+  container: {
+      flex: 1,
+      justifyContent:'center',
+      alignContent: 'center',
+      alignItems: 'center',
+      backgroundColor: currentTheme.backgroundColor,
      },
      innerContainer : {
       marginHorizontal: 20,
@@ -24,18 +23,20 @@ const styles = StyleSheet.create({
       },
       promptText: {
         fontSize: 15.5,
-        color: '#666',
+        color: currentTheme.secondaryTextColor,
         marginBottom: 12,
         fontStyle: 'italic',
       },
       input: {
         height: 40,
-        borderColor: '#ccc',
+        borderColor: currentTheme.borderColor,
         borderWidth: 1,
         marginBottom: 16,
         height: 100,
         borderRadius: 7,
         paddingHorizontal:6,
+        backgroundColor: currentTheme.inputBackground,
+        color: currentTheme.secondaryTextColor,
       },
       shareButton: {
         backgroundColor: '#7049f6',
@@ -57,5 +58,3 @@ const styles = StyleSheet.create({
         marginTop: -10,
       },  
 });
-
-export default styles;

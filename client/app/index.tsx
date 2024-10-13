@@ -23,12 +23,14 @@ import Navbar from '../components/Navbar';
 import CustomHeader from '../components/CustomHeader';
 import GlobalNotificationPopup from '../components/GlobalNotificationPopup';
 import { UserProvider } from '../contexts/UserContext';
+import { ThemeProvider } from '../contexts/ThemeContext';
 
 const Stack = createNativeStackNavigator();
 
 export default function Index() {
   return (
     <UserProvider>
+     <ThemeProvider>
       <NavigationContainer independent={true}>
         <Navbar />
         <Stack.Navigator initialRouteName="TextPromptScreen">
@@ -54,6 +56,7 @@ export default function Index() {
         </Stack.Navigator>
         <GlobalNotificationPopup />
       </NavigationContainer>
+     </ThemeProvider>
     </UserProvider>
   );
 }

@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import { View, KeyboardAvoidingView, Keyboard, Platform, Text, Image, ScrollView, TextInput, TouchableOpacity , Dimensions, Modal, RefreshControl} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
-import { styles } from './PostScreenStyles.js';
+import { getPostScreenStyles } from './PostScreenStyles.js';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import CustomHeader from '@/components/CustomHeader';
 import Loader from '@/components/Loader.js';
 
@@ -15,6 +16,8 @@ export default function PostScreen() {
   const navigation = useNavigation();
   const { postId, repostedBy, repostedAt } = route.params;
   const { token, username } = useContext(UserContext);
+  const { currentTheme, theme } = useContext(ThemeContext);
+  const styles = getPostScreenStyles(currentTheme);
   const [postData, setPostData] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
@@ -28,6 +31,9 @@ export default function PostScreen() {
   const [deleteMessage, setDeleteMessage] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  const isDarkMode = theme === 'dark'; 
+  const promptColor = isDarkMode ? '#bebebe' : '#303030';
 
   const textInputRef = useRef(null);
 
@@ -290,14 +296,13 @@ export default function PostScreen() {
     <ScrollView
      contentContainerStyle={styles.container}
      keyboardShouldPersistTaps="handled"
-     style={{ backgroundColor: '#fafafa' }}
+     style={{ backgroundColor: currentTheme.backgroundColor }}
      refreshControl={
       <RefreshControl 
       refreshing={refreshing} 
       onRefresh={onRefresh}
       tintColor="#7049f6"
       colors={['#7049f6', '#ff6347', '#32cd32']}
-      progressBackgroundColor="#fafafa"
       />
     }
     >
@@ -307,8 +312,10 @@ export default function PostScreen() {
 
       {repostedBy && repostedAt && (
         <Text style={styles.repostedByText}>
-         <AntDesign name="retweet" style={styles.repostIcon} size={19} color={'#999'} />
-         {repostedBy} reposted on <Text style={styles.repostDate} >{formattedRepostDate}</Text>
+         <AntDesign name="retweet" style={[styles.repostIcon]} size={18.5} color={'#999'} />
+          &nbsp;
+          {repostedBy === username ? 'You reposted' : `${repostedBy} reposted`} 
+          &nbsp;on&nbsp;<Text style={styles.repostDate}>{formattedRepostDate}</Text>
         </Text>
       )}
       <View style={styles.userInfo}>
@@ -337,7 +344,7 @@ export default function PostScreen() {
       
       <View style={styles.likesContainer}>
         <TouchableOpacity onPress={handleLikesPress}>
-          <Text>{postData.likes} {postData.likes === 1 ? 'Like' : 'Likes'}</Text>
+          <Text style={{color : currentTheme.darkIconColor}}>{postData.likes} {postData.likes === 1 ? 'Like' : 'Likes'}</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={postData.isLikedByUser ? styles.unlikeButton : styles.likeButton} 
@@ -346,25 +353,25 @@ export default function PostScreen() {
           {postData.isLikedByUser ? (
             <Icon name="heart" style={styles.likeIcon} size={25} color="#7049f6" />
           ) : (
-            <Icon name="heart-o" style={styles.likeIcon} size={25} color="black" />
+            <Icon name="heart-o" style={styles.likeIcon} size={25} color={currentTheme.darkIconColor} />
           )}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleCommentsPress} style={styles.commentButton}>
-          <Text>{comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}</Text>
-          <Icon name="comment-o" style={styles.commentIcon} size={24.5} color="black" />
+          <Text style={{color : currentTheme.darkIconColor}}>{comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}</Text>
+          <Icon name="comment-o" style={styles.commentIcon} size={24.5} color={currentTheme.darkIconColor} />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleRepostsPress} style={styles.commentButton}>
-          <Text>{postData.reposts} {postData.reposts === 1 ? 'Repost' : 'Reposts'}</Text>
+          <Text style={{color : currentTheme.darkIconColor}}>{postData.reposts} {postData.reposts === 1 ? 'Repost' : 'Reposts'}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleRepost} style={styles.repostButton}>
-          <AntDesign name="retweet" style={styles.commentIcon} size={25.5} color={isRepostedByUser ? '#7049f6' : 'black'}  />
+          <AntDesign name="retweet" style={styles.commentIcon} size={25.5} color={isRepostedByUser ? currentTheme.violet : currentTheme.darkIconColor}  />
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.prompt}>Prompt: {postData.image.prompt || 'No prompt available'}</Text>
+      <Text style={[styles.prompt, {color: promptColor}]}>Prompt: {postData.image.prompt || 'No prompt available'}</Text>
       {postData.description ? (
          <Text style={styles.description}>{postData.description}</Text>
       ) : null}
@@ -390,13 +397,14 @@ export default function PostScreen() {
           ref={textInputRef}
           style={styles.commentInput}
           placeholder="Leave a comment"
+          placeholderTextColor={currentTheme.placeholderTextColor}
           value={newComment}
           onChangeText={handleCommentChange}
           onFocus={measureInputPosition}
           blurOnSubmit={false}
         />
         <TouchableOpacity style={styles.commentSubmitButton} onPress={handleAddComment}>
-          <Icon name="paper-plane" style={styles.submitIcon} size={27} color="black" />
+          <Icon name="paper-plane" style={styles.submitIcon} size={27} color={currentTheme.darkIconColor} />
         </TouchableOpacity>
       </View>
       {showSuggestions && (
@@ -406,11 +414,11 @@ export default function PostScreen() {
         bottom: height - inputPosition.y - keyboardHeight,
         left: inputPosition.x,
         width: inputPosition.width,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: currentTheme.optionBackground,
         borderRadius: 5,
         paddingVertical: 10,
         zIndex: 1000,
-        bottom: 240,
+        bottom: 215,
         maxHeight: 155,
         zIndex: 1000,
        }}
@@ -448,7 +456,7 @@ export default function PostScreen() {
           >
             <View style={styles.modalView}>
              <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Post deleted!</Text>
+              <Text style={styles.modalText}>Post deleted successfully!</Text>
               <TouchableOpacity onPress={() => {
                navigation.goBack();
                setModalVisible(false);

@@ -1,13 +1,16 @@
-import React, { useRef, useEffect, useState, useContext } from 'react';
+import { useRef, useEffect, useState, useContext } from 'react';
 import { View, RefreshControl, Text, ScrollView, TouchableOpacity, Image, Dimensions, ActivityIndicator } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
-import { styles } from './NotificationScreenStyles.js';
+import { getNotificationScreenStyles } from './NotificationScreenStyles.js';
 import Loader from '@/components/Loader';
 import io from 'socket.io-client';
 
 export default function NotificationScreen() {
   const { token, username: loggedInUsername } = useContext(UserContext);
+  const { currentTheme, theme } = useContext(ThemeContext);
+  const styles = getNotificationScreenStyles(currentTheme);
   const [notifications, setNotifications] = useState([]);
   const [followingStatus, setFollowingStatus] = useState({});
   const navigation = useNavigation();
@@ -16,6 +19,9 @@ export default function NotificationScreen() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  const isDarkMode = theme === 'dark'; 
+  const borderColor = isDarkMode ? '#232323' : '#dedede';
 
   useEffect(() => {
     socket.current = io('http://192.168.1.145:5000');
@@ -164,7 +170,7 @@ export default function NotificationScreen() {
     <View>
       <ScrollView 
         contentContainerStyle={styles.container}
-        style={{ backgroundColor: '#fafafa' }}
+        style={{ backgroundColor: currentTheme.backgroundColor, }}
         refreshControl={
           <RefreshControl 
             refreshing={refreshing} 
@@ -181,7 +187,7 @@ export default function NotificationScreen() {
         {notifications.map((notification) => (
           <TouchableOpacity
             key={notification._id}
-            style={styles.notification}
+            style={[styles.notification, { borderBottomColor: borderColor }]}
             onPress={() => {
               if (notification.type !== 'follow') {
                 handlePostPress(notification.post._id);

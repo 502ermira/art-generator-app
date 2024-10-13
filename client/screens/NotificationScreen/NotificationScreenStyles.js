@@ -1,10 +1,10 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
 const { height } = Dimensions.get('window')
-export const styles = StyleSheet.create({
+export const getNotificationScreenStyles = (currentTheme) => StyleSheet.create({  
   container: {
     padding: 16,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: currentTheme.backgroundColor,
     paddingVertical:64,
     minHeight: height,
     paddingBottom:100,
@@ -13,8 +13,8 @@ export const styles = StyleSheet.create({
     fontSize: 24,
     paddingBottom: 15,
     paddingHorizontal: 14,
-    fontWeight: '500'
-
+    fontWeight: '500',
+    color: currentTheme.textColor,
   },
   notification: {
     flexDirection: 'row',
@@ -22,7 +22,6 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-start',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
   },
   notificationContent: {
     flexDirection: 'row',
@@ -43,6 +42,7 @@ export const styles = StyleSheet.create({
   usernameText: {
     fontWeight: '600',
     top:2.5,
+    color: currentTheme.textColor,
   },
   notificationTextContainer: {
     flex: 1,
@@ -55,6 +55,7 @@ export const styles = StyleSheet.create({
   },  
   notificationText: {
     fontSize: 14,
+    color: currentTheme.textColor,
   },
   notificationTime: {
     fontSize: 12,
@@ -66,11 +67,6 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     marginLeft:20,
   },
-  followButton: {
-    padding: 10,
-    backgroundColor: '#1DA1F2',
-    borderRadius: 5,
-  },
   followButtonText: {
     color: '#fff',
     fontSize: 14,
@@ -80,7 +76,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#7049f6',
     paddingVertical: 8.5,
     paddingHorizontal: 11,
-    borderRadius: 5,
+    borderRadius: 8,
   },
   followButtonText: {
     color: 'white',

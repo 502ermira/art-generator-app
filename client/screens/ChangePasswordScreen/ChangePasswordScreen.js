@@ -1,11 +1,13 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { ScrollView, TextInput, Pressable, Text, Alert, View } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
+import { ThemeContext } from '../../contexts/ThemeContext';
 import CustomHeader from '../../components/CustomHeader';
 import styles from '../EditProfileScreen/EditProfileScreenStyles';
 
 export default function ChangePasswordScreen({ navigation }) {
   const { token } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
@@ -13,9 +15,9 @@ export default function ChangePasswordScreen({ navigation }) {
   const handleChangePassword = async () => {
     if (newPassword.length < 8) {
       setError('New password must be at least 8 characters long.');
-      return; 
+      return;
     }
-    
+
     try {
       const response = await fetch('http://192.168.1.145:5000/auth/change-password', {
         method: 'PUT',
@@ -42,28 +44,30 @@ export default function ChangePasswordScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: currentTheme.backgroundColor }]}>
       <CustomHeader title="Change Password" screenType={null} />
 
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView contentContainerStyle={[styles.scrollContainer, {paddingTop:30 }]}>
         <TextInput
           placeholder="Old Password"
           value={oldPassword}
           onChangeText={setOldPassword}
           secureTextEntry={true}
-          style={styles.input}
+          style={[styles.input, { color: currentTheme.textColor, backgroundColor: currentTheme.inputBackground,  borderColor: currentTheme.borderColor }]}
+          placeholderTextColor={currentTheme.placeholderTextColor}
         />
         <TextInput
           placeholder="New Password"
           value={newPassword}
           onChangeText={setNewPassword}
           secureTextEntry={true}
-          style={styles.input}
+          style={[styles.input, { color: currentTheme.textColor, backgroundColor: currentTheme.inputBackground, borderColor: currentTheme.borderColor }]}
+          placeholderTextColor={currentTheme.placeholderTextColor}
         />
         <Pressable onPress={handleChangePassword} style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Change Password</Text>
+          <Text style={[styles.saveButtonText, { color: currentTheme.buttonText }]}>Change Password</Text>
         </Pressable>
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        {error ? <Text style={[styles.errorText, { color: 'red' }]}>{error}</Text> : null}
       </ScrollView>
     </View>
   );

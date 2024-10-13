@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
-const styles = StyleSheet.create({
+export const getTextPromptScreenStyles = (currentTheme) => StyleSheet.create({  
   scrollViewLoggedIn: {
     flexGrow: 1,
     justifyContent: 'center',
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '600',
-    color: '#fff',
+    color:  currentTheme.textColor,
     marginBottom: 20,
     textAlign: 'center',
     marginTop: -40,
@@ -85,8 +85,8 @@ const styles = StyleSheet.create({
   favoritesTitle: {
     fontSize: 19,
     fontWeight: '500',
-    color: '#e0e0e0',
-    marginBottom: 15,
+    color:  currentTheme.textColor,
+    marginBottom: 11,
     textAlign: 'center',
   },
   favoritesButton: {
@@ -97,13 +97,13 @@ const styles = StyleSheet.create({
     marginTop: 17,
   },
   error: {
-    color: 'red',
+    color: '#9F0000',
     marginVertical: 10,
     fontSize: 16,
   },
   description: {
     fontSize: 15.5,
-    color: '#eee',
+    color:  currentTheme.textColor,
     textAlign: 'center',
     marginBottom: 30,
     paddingHorizontal: 10,
@@ -123,5 +123,3 @@ const styles = StyleSheet.create({
     margin: 4,
   },
 });
-
-export default styles;

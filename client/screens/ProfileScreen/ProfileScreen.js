@@ -1,13 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, Dimensions, RefreshControl } from 'react-native';
 import { UserContext } from '../../contexts/UserContext.js';
+import { ThemeContext } from '@/contexts/ThemeContext.js';
 import CustomHeader from '@/components/CustomHeader.js';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Loader from '@/components/Loader.js';
-import { styles } from '../UserProfileScreen/UserProfileScreenStyles.js';
+import { getUserProfileScreenStyles } from '../UserProfileScreen/UserProfileScreenStyles.js';
 
 export default function ProfileScreen({ navigation }) {
   const { token, username: loggedInUsername, loading: contextLoading } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getUserProfileScreenStyles(currentTheme);
   const [userData, setUserData] = useState({});
   const [posts, setPosts] = useState([]);
   const [reposts, setReposts] = useState([]);
@@ -238,7 +241,7 @@ const LikesRoute = () => (
                 {...props}
                 indicatorStyle={{ backgroundColor: '#7049f6', marginBottom: 1.5 }}
                 style={styles.tabBar}
-                labelStyle={{ color: 'black' ,fontWeight: '400', fontSize: 12.5 }}
+                labelStyle={{ color: currentTheme.textColor, fontWeight: '400', fontSize: 13 }}
               />
             )}
           />

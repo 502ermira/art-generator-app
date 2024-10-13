@@ -2,17 +2,17 @@ import { StyleSheet, Dimensions } from 'react-native';
 
 const{ width, height } = Dimensions.get('window'); 
 
-export const styles = StyleSheet.create({
+export const getExploreScreenStyles = (currentTheme) => StyleSheet.create({  
   container: {
     flex: 1,
   },
   postContainer: {
     flex: 1,
-    margin: 3,
+    margin: 3.5,
     justifyContent: 'center',
     borderRadius: 4,
     overflow: 'hidden',
-    backgroundColor: '#fff',
+    backgroundColor: currentTheme.optionBackground,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -25,6 +25,7 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: 17,
     paddingBottom: 8,
+    color: currentTheme.textColor,
   },
   postImage: {
     width: (width / 2),
@@ -46,7 +47,7 @@ export const styles = StyleSheet.create({
   username: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#777',
+    color: currentTheme.secondaryTextColor,
   },
   loaderContainer: {
     paddingBottom: 10,

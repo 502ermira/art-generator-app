@@ -2,7 +2,8 @@ import { useEffect, useState, useContext } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { UserContext } from '../../contexts/UserContext';
-import { styles } from './RepostsScreenStyles';
+import { ThemeContext } from '../../contexts/ThemeContext';
+import { getRepostScreenStyles } from './RepostsScreenStyles';
 import Loader from '@/components/Loader';
 import CustomHeader from '@/components/CustomHeader';
 
@@ -11,6 +12,8 @@ export default function RepostsScreen() {
   const navigation = useNavigation();
   const { postId } = route.params;
   const { token, username: loggedInUsername } = useContext(UserContext);
+  const { currentTheme } = useContext(ThemeContext);
+  const styles = getRepostScreenStyles(currentTheme);
   const [reposts, setReposts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -59,7 +62,7 @@ export default function RepostsScreen() {
         placeholder="Search Reposts"
         value={searchQuery}
         onChangeText={setSearchQuery}
-        placeholderTextColor='#aaa'
+        placeholderTextColor={currentTheme.placeholderTextColor}
       />
       
       {isLoading ? ( 
@@ -79,7 +82,7 @@ export default function RepostsScreen() {
               </TouchableOpacity>
             ))
           ) : (
-            <Text style={styles.emptyText}>No reposts yet</Text>
+            <Text style={styles.emptyText}>No user found.</Text>
           )}
         </ScrollView>
       )}
