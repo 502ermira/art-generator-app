@@ -19,8 +19,8 @@ import HomeScreen from '../screens/HomeScreen/HomeScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen/ChangePasswordScreen';
 import PostImageScreen from '../screens/PostImageScreen/PostImageScreen';
 import SettingsScreen from '../screens/SettingsScreen/SettingsScreen';
+import BlockedUsersScreen from '../screens/BlockedUsersScreen/BlockedUsersScreen';
 import Navbar from '../components/Navbar';
-import CustomHeader from '../components/CustomHeader';
 import GlobalNotificationPopup from '../components/GlobalNotificationPopup';
 import { UserProvider } from '../contexts/UserContext';
 import { ThemeProvider } from '../contexts/ThemeContext';
@@ -53,6 +53,7 @@ export default function Index() {
           <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="PostImageScreen" component={PostImageScreen} options={{ headerShown: false }} />
           <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="BlockedUsersScreen" component={BlockedUsersScreen} options={{ headerShown: false }}/>
         </Stack.Navigator>
         <GlobalNotificationPopup />
       </NavigationContainer>

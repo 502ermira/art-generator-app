@@ -5,7 +5,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { ThemeContext } from '../contexts/ThemeContext';
 
-export default function CustomHeader({ title, screenType }) {
+export default function CustomHeader({ title, screenType, toggleMenu }) {
   const navigation = useNavigation();
   const canGoBack = navigation.canGoBack();
   
@@ -30,9 +30,10 @@ export default function CustomHeader({ title, screenType }) {
       <Text style={[styles.headerTitle, { color: currentTheme.textColor }]}>{title}</Text>
 
       {screenType === 'UserProfileScreen' ? (
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.menuButton}>
-          <MaterialIcons name="menu-open" size={24} color={currentTheme.textColor} />
+        <TouchableOpacity onPress={toggleMenu} style={[styles.menuButton,{ marginLeft : 0}]}>
+         <MaterialIcons name="menu-open" size={26.5} color={currentTheme.textColor} />
         </TouchableOpacity>
+
       ) : screenType === 'ProfileScreen' ? (
         <TouchableOpacity onPress={() => navigation.navigate('SettingsScreen')} style={styles.menuButton}>
           <Ionicons name="settings" size={24} color={currentTheme.textColor} />

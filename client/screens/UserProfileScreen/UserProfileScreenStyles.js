@@ -97,5 +97,30 @@ export const getUserProfileScreenStyles = (currentTheme) => StyleSheet.create({
     top:23,
     fontSize: 15,
     color: currentTheme.tertiaryTextColor,
-  }
+  },
+  menuContainer: {
+    position: 'absolute',
+    top: 80,
+    right: 11,
+    backgroundColor: currentTheme.inputBackground,
+    borderRadius: 5,
+    padding: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex:1,
+  },
+  menuOption: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    fontSize: 16,
+  },
+  menuOptionText: {
+    fontSize: 16,
+    color:currentTheme.textColor,
+    fontWeight: '500'
+
+  },
 });

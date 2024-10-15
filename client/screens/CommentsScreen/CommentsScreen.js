@@ -25,10 +25,29 @@ export default function CommentsScreen() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [inputPosition, setInputPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [blockedByUsers, setBlockedByUsers] = useState([]);
 
   const textInputRef = useRef(null);
 
   useEffect(() => {
+    const fetchBlockedUsers = async () => {
+      try {
+        const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+          headers: { Authorization: token },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setBlockedUsers((data.blockedUsers || []).map(user => user.username));
+          setBlockedByUsers((data.blockedByUsers || []).map(user => user.username));
+        } else {
+          console.error('Failed to fetch blocked users:', data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching blocked users:', error);
+      }
+    };  
+
     const fetchComments = async () => {
       try {
         const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/comments`, {
@@ -47,7 +66,7 @@ export default function CommentsScreen() {
         setLoading(false);
       }
     };
-
+    fetchBlockedUsers();
     fetchComments();
 
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
@@ -153,15 +172,19 @@ export default function CommentsScreen() {
         headers: { Authorization: token },
       });
       const data = await response.json();
+  
       if (response.ok) {
-        setSuggestions(data);
+        const filteredSuggestions = data.filter(
+          user => !blockedUsers.includes(user.username) && !blockedByUsers.includes(user.username)
+        );
+        setSuggestions(filteredSuggestions);
       } else {
         console.error('Failed to fetch user suggestions:', data.error);
       }
     } catch (error) {
       console.error('Error fetching user suggestions:', error);
     }
-  };
+  };  
 
   const handleMentionPress = (username) => {
     const words = newComment.split(' ');
@@ -228,7 +251,11 @@ export default function CommentsScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <CustomHeader title="Comments" />
           <ScrollView contentContainerStyle={styles.container}>
-          {comments.map((comment) => {
+          {comments  .filter(comment => 
+           !blockedUsers.includes(comment.user.username) &&
+           !blockedByUsers.includes(comment.user.username)
+           )
+          .map((comment) => {
             const isAuthor = comment.user.username === loggedInUsername;
 
             return isAuthor ? (

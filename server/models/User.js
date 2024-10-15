@@ -38,7 +38,9 @@ const userSchema = new mongoose.Schema({
   },
   favorites: [{ type: String }],
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post', default: [] }],
-  theme: { type: String, default: 'dark' } 
+  theme: { type: String, default: 'dark' },
+  blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }],
+  blockedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: [] }]  
 });
 
 module.exports = mongoose.model('User', userSchema);

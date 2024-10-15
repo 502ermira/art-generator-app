@@ -19,12 +19,33 @@ export default function SearchScreen() {
   const navigation = useNavigation();
   const layout = Dimensions.get('window');
 
+  const fetchBlockedUsers = async () => {
+    try {
+      const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        return {
+          blockedUsers: (data.blockedUsers || []).map(user => user.username),
+          blockedByUsers: (data.blockedByUsers || []).map(user => user.username),
+        };
+      } else {
+        console.error('Failed to fetch blocked users:', data.error);
+        return { blockedUsers: [], blockedByUsers: [] };
+      }
+    } catch (error) {
+      console.error('Error fetching blocked users:', error);
+      return { blockedUsers: [], blockedByUsers: [] };
+    }
+  };
+
   const handleSearch = async () => {
     if (searchQuery.trim() === '') return;
-
     setIsLoading(true);
 
     try {
+      const { blockedUsers, blockedByUsers } = await fetchBlockedUsers();
       const imageResponse = await fetch(`http://192.168.1.145:5000/api/search`, {
         method: 'POST',
         headers: {
@@ -36,14 +57,21 @@ export default function SearchScreen() {
       });
 
       const imageData = await imageResponse.json();
-      setImageResults(imageData.results || []);
+      const filteredImages = (imageData.results || []).filter(
+        item => !blockedUsers.includes(item.username) && !blockedByUsers.includes(item.username)
+      );
+      setImageResults(filteredImages);
 
       const userResponse = await fetch(`http://192.168.1.145:5000/auth/search-users?searchQuery=${searchQuery}`, {
         headers: { Authorization: token },
       });
 
       const userData = await userResponse.json();
-      setUserResults(userData);
+      const filteredUsers = userData.filter(
+        user => !blockedUsers.includes(user.username) && !blockedByUsers.includes(user.username)
+      );
+  
+      setUserResults(filteredUsers);
 
     } catch (error) {
       console.error('Error searching:', error);

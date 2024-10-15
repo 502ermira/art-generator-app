@@ -3,11 +3,12 @@ import { ScrollView, TextInput, Pressable, Text, Alert, View } from 'react-nativ
 import { UserContext } from '../../contexts/UserContext';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import CustomHeader from '../../components/CustomHeader';
-import styles from '../EditProfileScreen/EditProfileScreenStyles';
+import { getEditProfileScreenStyles } from '../EditProfileScreen/EditProfileScreenStyles';
 
 export default function ChangePasswordScreen({ navigation }) {
   const { token } = useContext(UserContext);
   const { currentTheme } = useContext(ThemeContext);
+  const styles = getEditProfileScreenStyles(currentTheme);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');

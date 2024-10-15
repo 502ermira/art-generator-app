@@ -17,8 +17,29 @@ export default function RepostsScreen() {
   const [reposts, setReposts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [blockedByUsers, setBlockedByUsers] = useState([]);
 
   useEffect(() => {
+    const fetchBlockedUsers = async () => {
+      try {
+        const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+          headers: {
+            Authorization: token,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setBlockedUsers((data.blockedUsers || []).map(user => user.username));
+          setBlockedByUsers((data.blockedByUsers || []).map(user => user.username));
+        } else {
+          console.error('Failed to fetch blocked users:', data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching blocked users:', error);
+      }
+    };
+
     const fetchReposts = async () => {
       try {
         const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/reposts`, {
@@ -38,6 +59,7 @@ export default function RepostsScreen() {
       }
     };
 
+    fetchBlockedUsers();
     fetchReposts();
   }, [postId, token]);
 
@@ -49,10 +71,13 @@ export default function RepostsScreen() {
     }
   };
 
-  const filteredReposts = reposts.filter(repost =>
-    repost.user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    repost.user.fullname.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+const filteredReposts = reposts.filter(
+  repost =>
+    !blockedUsers.includes(repost.user.username) &&
+    !blockedByUsers.includes(repost.user.username) &&
+    (repost.user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     repost.user.fullname.toLowerCase().includes(searchQuery.toLowerCase()))
+);
 
   return (
     <View style={styles.container}>

@@ -16,6 +16,7 @@ export default function UserProfileScreen() {
   const { username } = route.params;
   const navigation = useNavigation();
   const [profileData, setProfileData] = useState(null);
+  const [isBlocked, setIsBlocked] = useState(false);
   const [posts, setPosts] = useState([]);
   const [reposts, setReposts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +25,8 @@ export default function UserProfileScreen() {
   const [followingCount, setFollowingCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
   const [index, setIndex] = useState(0);
-  const [routes] = useState([
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [routes] = useState([
     { key: 'posts', title: 'Posts' },
     { key: 'reposts', title: 'Reposts' },
   ]);
@@ -32,6 +34,28 @@ export default function UserProfileScreen() {
   const screenWidth = Dimensions.get('window').width;
   const numColumns = screenWidth > 600 ? 3 : 2;
   const imageSize = screenWidth / numColumns - 2.5;
+
+  const toggleMenu = () => {
+    setIsMenuOpen((prevState) => !prevState);
+  };  
+
+  const checkIfBlocked = async () => {
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/blocked-users`, {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        const blocked = data.blockedUsers.some(user => user.username === username);
+        setIsBlocked(blocked);
+      } else {
+        console.error('Failed to fetch blocked users:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching blocked users:', error);
+    }
+  };
 
   const fetchUserProfile = async () => {
     try {
@@ -42,18 +66,25 @@ export default function UserProfileScreen() {
 
       if (response.ok) {
         setProfileData(data.user);
-        setReposts(data.reposts);
+        setIsBlocked(data.isBlocked);
+
+        if (data.isBlocked) {
+          setReposts([]);
+        } else {
+          setReposts(data.reposts);
+        }
 
         const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`);
         const followData = await followResponse.json();
 
-        setFollowerCount(followData.followers.length);
-        setFollowingCount(followData.following.length);
+        setFollowerCount(data.isBlocked ? 0 : followData.followers.length);
+        setFollowingCount(data.isBlocked ? 0 : followData.following.length);
 
         const isUserFollowing = followData.followers.some(
           (follower) => follower.followerId.username === loggedInUsername
         );
         setIsFollowing(isUserFollowing);
+        await checkIfBlocked();
       } else {
         console.error('Failed to fetch profile:', data.error);
       }
@@ -70,16 +101,17 @@ export default function UserProfileScreen() {
         headers: { Authorization: token },
       });
       const data = await response.json();
-
-      if (response.ok) {
-        setPosts(data);
+  
+      if (data.length === 0) {
+        setPosts([]);
+        setIsBlocked(true);
       } else {
-        console.error('Failed to fetch posts:', data.error);
+        setPosts(data);
       }
     } catch (error) {
       console.error('Error fetching user posts:', error);
     }
-  };
+  };  
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -117,13 +149,19 @@ export default function UserProfileScreen() {
   };
 
   const navigateToFollowers = () => {
+    if (isBlocked) {
+      return;
+    }
     navigation.push('Followers', { username, type: 'followers' });
   };
-
+  
   const navigateToFollowing = () => {
+    if (isBlocked) {
+      return;
+    }
     navigation.push('Following', { username, type: 'following' });
   };
-
+  
   const PostsRoute = () => (
     <ScrollView contentContainerStyle={styles.tabContent}>
       {posts.length > 0 ? (
@@ -173,6 +211,30 @@ export default function UserProfileScreen() {
     reposts: RepostsRoute,
   });
 
+
+  const handleBlockToggle = async () => {
+    const action = isBlocked ? 'unblock' : 'block';
+    try {
+      const response = await fetch(`http://192.168.1.145:5000/auth/${action}/${username}`, {
+        method: 'POST',
+        headers: { Authorization: token },
+      });
+
+      if (response.ok) {
+        setIsBlocked(!isBlocked);
+        setReposts([]);
+        setIsMenuOpen(false);
+        await onRefresh();
+
+      } else {
+        const data = await response.json();
+        console.error(`Failed to ${action} user:`, data.error);
+      }
+    } catch (error) {
+      console.error(`Error ${action}ing user:`, error);
+    }
+  };
+
   if (loading) {
     return (
       <Loader />
@@ -181,7 +243,19 @@ export default function UserProfileScreen() {
 
   return (
   <>
-    <CustomHeader title={username} screenType="UserProfileScreen" />
+    <CustomHeader 
+      title={username} 
+      screenType="UserProfileScreen"
+      toggleMenu={toggleMenu}
+    />
+      {isMenuOpen && (
+        <View style={styles.menuContainer}>
+          <TouchableOpacity onPress={handleBlockToggle} style={styles.menuOption}>
+            <Text style={styles.menuOptionText}>{isBlocked ? 'Unblock User' : 'Block User'}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
     <ScrollView 
       contentContainerStyle={styles.scrollContainer}
       style={{  backgroundColor: currentTheme.backgroundColor, }}
@@ -191,7 +265,6 @@ export default function UserProfileScreen() {
           onRefresh={onRefresh} 
           tintColor="#7049f6"
           colors={['#7049f6', '#ff6347', '#32cd32']}
-          progressBackgroundColor="#fafafa"
         />
       }
     >
@@ -216,10 +289,10 @@ export default function UserProfileScreen() {
 
         <TouchableOpacity 
           style={styles.followButton} 
-          onPress={handleFollowToggle}
+          onPress={isBlocked ? handleBlockToggle : handleFollowToggle}
         >
           <Text style={styles.followButtonText}>
-            {isFollowing ? 'Following' : 'Follow'}
+            {isBlocked ? 'Unblock' : isFollowing ? 'Following' : 'Follow'}
           </Text>
         </TouchableOpacity>
 

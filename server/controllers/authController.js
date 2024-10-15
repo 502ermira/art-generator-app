@@ -305,10 +305,11 @@ exports.searchUsers = async (req, res) => {
 
 exports.getUserProfileByUsername = async (req, res) => {
   const { username } = req.params;
+  const loggedInUserId = req.userId;
 
   try {
     const user = await User.findOne({ username })
-      .select('fullname username profilePicture posts bio')
+      .select('fullname username profilePicture posts bio blockedUsers')
       .populate({
         path: 'posts',
         populate: {
@@ -322,6 +323,25 @@ exports.getUserProfileByUsername = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    const loggedInUser = await User.findById(loggedInUserId).select('blockedUsers');
+    
+    const isBlocked = 
+      user.blockedUsers.includes(loggedInUserId) || 
+      loggedInUser.blockedUsers.includes(user._id);
+
+    if (isBlocked) {
+      return res.json({
+        user: {
+          username: user.username,
+          fullname: user.fullname,
+          profilePicture: user.profilePicture,
+          bio: user.bio,
+        },
+        reposts: [],
+        isBlocked: true,
+      });
+    }
+
     const reposts = await Repost.find({ user: user._id })
       .populate({
         path: 'post',
@@ -332,7 +352,7 @@ exports.getUserProfileByUsername = async (req, res) => {
         },
       });
 
-    res.json({ user, reposts });
+    res.json({ user, reposts, isBlocked });
   } catch (error) {
     console.error('Error fetching user profile:', error);
     res.status(500).json({ error: 'Failed to fetch user profile' });
@@ -341,12 +361,28 @@ exports.getUserProfileByUsername = async (req, res) => {
 
 exports.getUserPosts = async (req, res) => {
   const { username } = req.params;
+  const { authorization } = req.headers;
 
   try {
-    const user = await User.findOne({ username }).select('posts');
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const requestingUser = await User.findById(decoded.userId).select('blockedUsers');
+
+    if (!requestingUser) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    const user = await User.findOne({ username }).select('posts blockedUsers');
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
+    }
+
+    const isBlocked =
+      requestingUser.blockedUsers.includes(user._id) ||
+      user.blockedUsers.includes(requestingUser._id);
+
+    if (isBlocked) {
+      return res.json([]);
     }
 
     const posts = await Post.find({ _id: { $in: user.posts } })
@@ -501,10 +537,18 @@ exports.getFollowersAndFollowing = async (req, res) => {
     }
 
     const followers = await Follower.find({ followingId: user._id }).populate('followerId', 'username fullname profilePicture');
-    
     const following = await Follower.find({ followerId: user._id }).populate('followingId', 'username fullname profilePicture');
 
-    res.json({ followers, following });
+    const blockedUsers = await User.findById(user._id).select('blockedUsers');
+
+    const blockedByUsers = await User.find({ blockedUsers: user._id }).select('username');
+
+    res.json({ 
+      followers, 
+      following, 
+      blockedUsers: blockedUsers?.blockedUsers || [], 
+      blockedByUsers: blockedByUsers || []
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch followers/following' });
   }
@@ -1134,5 +1178,128 @@ exports.getLikedPosts = async (req, res) => {
   } catch (error) {
     console.error('Error fetching liked posts:', error);
     res.status(500).json({ error: 'Failed to fetch liked posts' });
+  }
+};
+
+exports.blockUser = async (req, res) => {
+  const { username } = req.params;
+  const { authorization } = req.headers;
+
+  try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+    const userToBlock = await User.findOne({ username });
+
+    if (!user || !userToBlock) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    await Follower.deleteMany({
+      $or: [
+        { followerId: user._id, followingId: userToBlock._id },
+        { followerId: userToBlock._id, followingId: user._id }
+      ]
+    });
+
+    await Like.deleteMany({
+      $or: [
+        { user: user._id, post: { $in: userToBlock.posts } },
+        { user: userToBlock._id, post: { $in: user.posts } }
+      ]
+    });
+
+    await Comment.deleteMany({
+      $or: [
+        { user: user._id, post: { $in: userToBlock.posts } },
+        { user: userToBlock._id, post: { $in: user.posts } }
+      ]
+    });
+
+    await Repost.deleteMany({
+      $or: [
+        { user: user._id, post: { $in: userToBlock.posts } },
+        { user: userToBlock._id, post: { $in: user.posts } }
+      ]
+    });
+
+    await Comment.updateMany(
+      { mentions: { $in: [user._id, userToBlock._id] } },
+      { $pull: { mentions: { $in: [user._id, userToBlock._id] } } }
+    );
+
+    await Notification.deleteMany({
+      $or: [
+        { user: user._id, fromUser: userToBlock._id },
+        { user: userToBlock._id, fromUser: user._id }
+      ]
+    });
+
+    if (!user.blockedUsers.includes(userToBlock._id)) {
+      user.blockedUsers.push(userToBlock._id);
+      await user.save();
+    }
+
+    if (!userToBlock.blockedBy.includes(user._id)) {
+      userToBlock.blockedBy.push(user._id);
+      await userToBlock.save();
+    }
+
+    res.status(200).json({ message: 'User blocked successfully' });
+  } catch (error) {
+    console.error('Error blocking user:', error);
+    res.status(500).json({ error: 'Failed to block user' });
+  }
+};
+
+exports.unblockUser = async (req, res) => {
+  const { username } = req.params;
+  const { authorization } = req.headers;
+
+  try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+    const userToUnblock = await User.findOne({ username });
+
+    if (!user || !userToUnblock) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.blockedUsers = user.blockedUsers.filter(
+      (blockedUserId) => !blockedUserId.equals(userToUnblock._id)
+    );
+    await user.save();
+
+    userToUnblock.blockedBy = userToUnblock.blockedBy.filter(
+      (blockedById) => !blockedById.equals(user._id)
+    );
+    await userToUnblock.save();
+
+    res.status(200).json({ message: 'User unblocked successfully' });
+  } catch (error) {
+    console.error('Error unblocking user:', error);
+    res.status(500).json({ error: 'Failed to unblock user' });
+  }
+};
+
+exports.getBlockedUsers = async (req, res) => {
+  const { authorization } = req.headers;
+
+  try {
+    const decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId)
+      .populate('blockedUsers', 'username profilePicture fullname')
+      .populate('blockedBy', 'username profilePicture fullname');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ 
+      blockedUsers: user.blockedUsers, 
+      blockedByUsers: user.blockedBy 
+    });
+  } catch (error) {
+    console.error('Error fetching blocked users:', error);
+    res.status(500).json({ error: 'Failed to fetch blocked users' });
   }
 };

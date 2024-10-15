@@ -16,6 +16,27 @@ export default function ExploreScreen({ route }) {
   const [hasMore, setHasMore] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const navigation = useNavigation();
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [blockedByUsers, setBlockedByUsers] = useState([]);
+
+  const fetchBlockedUsers = async () => {
+    try {
+      const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+        headers: {
+          Authorization: token,
+        },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setBlockedUsers((data.blockedUsers || []).map(user => user.username));
+        setBlockedByUsers((data.blockedByUsers || []).map(user => user.username));
+      } else {
+        console.error('Failed to fetch blocked users:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching blocked users:', error);
+    }
+  };
 
   const fetchExplorePosts = async (pageNumber = 1) => {
     if (!hasMore || isFetchingMore) return;
@@ -43,8 +64,15 @@ export default function ExploreScreen({ route }) {
   };
 
   useEffect(() => {
+    fetchBlockedUsers();
     fetchExplorePosts();
   }, []);
+
+  const filteredExplorePosts = explorePosts.filter(
+    post => 
+      !blockedUsers.includes(post.user.username) && 
+      !blockedByUsers.includes(post.user.username)
+  );
 
   const handlePostPress = (postId) => {
     navigation.push('PostScreen', { postId });
@@ -73,7 +101,7 @@ export default function ExploreScreen({ route }) {
         <Loader />
       ) : (
         <FlatList
-          data={explorePosts}
+          data={filteredExplorePosts}
           keyExtractor={(item) => item._id}
           renderItem={renderPostItem}
           numColumns={2}

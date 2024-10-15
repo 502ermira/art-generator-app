@@ -18,8 +18,29 @@ export default function LikesScreen() {
   const [likers, setLikers] = useState([]);
   const [followingStatus, setFollowingStatus] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [blockedByUsers, setBlockedByUsers] = useState([]);
 
   useEffect(() => {
+    const fetchBlockedUsers = async () => {
+      try {
+        const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+          headers: {
+            Authorization: token,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setBlockedUsers((data.blockedUsers || []).map(user => user.username));
+          setBlockedByUsers((data.blockedByUsers || []).map(user => user.username));
+        } else {
+          console.error('Failed to fetch blocked users:', data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching blocked users:', error);
+      }
+    };
+    
     const fetchLikers = async () => {
       try {
         const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/likes`, {
@@ -58,6 +79,7 @@ export default function LikesScreen() {
       }
     };
 
+    fetchBlockedUsers();
     fetchLikers();
   }, [postId, token, loggedInUsername]);
 
@@ -104,9 +126,11 @@ export default function LikesScreen() {
   }
 
   const filteredLikers = likers.filter(user =>
-    user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.fullname.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+    !blockedUsers.includes(user.username) && // User is not blocked
+    !blockedByUsers.includes(user.username) && // User has not blocked you
+    (user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     user.fullname.toLowerCase().includes(searchQuery.toLowerCase()))
+  );  
 
   const renderUserItem = (user) => (
     <View key={user.username} style={styles.userItemContainer}>

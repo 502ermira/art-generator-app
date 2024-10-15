@@ -31,11 +31,30 @@ export default function PostScreen() {
   const [deleteMessage, setDeleteMessage] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [blockedByUsers, setBlockedByUsers] = useState([]);
 
   const isDarkMode = theme === 'dark'; 
   const promptColor = isDarkMode ? '#bebebe' : '#303030';
 
   const textInputRef = useRef(null);
+
+  const fetchBlockedUsers = async () => {
+    try {
+      const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+        headers: { Authorization: token },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setBlockedUsers((data.blockedUsers || []).map(user => user.username));
+        setBlockedByUsers((data.blockedByUsers || []).map(user => user.username));
+      } else {
+        console.error('Failed to fetch blocked users:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching blocked users:', error);
+    }
+  };  
 
   const fetchPostData = async () => {
     try {
@@ -80,7 +99,7 @@ export default function PostScreen() {
   };
 
   useEffect(() => {
-
+    fetchBlockedUsers();
     fetchPostData();
     fetchComments();
 
@@ -173,15 +192,19 @@ export default function PostScreen() {
         headers: { Authorization: token },
       });
       const data = await response.json();
+  
       if (response.ok) {
-        setSuggestions(data);
+        const filteredSuggestions = data.filter(
+          user => !blockedUsers.includes(user.username) && !blockedByUsers.includes(user.username)
+        );
+        setSuggestions(filteredSuggestions);
       } else {
         console.error('Failed to fetch user suggestions:', data.error);
       }
     } catch (error) {
       console.error('Error fetching user suggestions:', error);
     }
-  };
+  };  
 
   const handleMentionPress = (username) => {
     const words = newComment.split(' ');
@@ -247,6 +270,12 @@ export default function PostScreen() {
       setShowSuggestions(false);
     }
   };
+
+  const filteredComments = comments.filter(
+    comment =>
+      !blockedUsers.includes(comment.user.username) &&
+      !blockedByUsers.includes(comment.user.username)
+  );  
 
   const handleCommentsPress = () => {
     navigation.push('CommentsScreen', { postId: postData._id });
@@ -383,7 +412,7 @@ export default function PostScreen() {
           <Text style={styles.viewMoreText}>View {comments.length - visibleComments} more comments</Text>
         </TouchableOpacity>
       )}
-      {comments.slice(0, visibleComments).map((comment) => (
+      {filteredComments.slice(0, visibleComments).map((comment) => (
         <View key={comment._id} style={styles.comment}>
           <Image source={{ uri: comment.user.profilePicture }} style={styles.profileImageComment} />
           <Text style={styles.commentUser}>{comment.user.fullname}: {comment.content}</Text>

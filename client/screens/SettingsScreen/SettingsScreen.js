@@ -25,6 +25,10 @@ export default function SettingsScreen({ navigation }) {
     navigation.navigate('FavoritesScreen');
   };
 
+  const navigateToBlockedUsers = () => {
+    navigation.navigate('BlockedUsersScreen');
+    };
+
   return (
     <>
       <CustomHeader title="Settings" screenType={null} />
@@ -37,10 +41,6 @@ export default function SettingsScreen({ navigation }) {
           <Text style={[styles.optionText,{ color: currentTheme.textColor }]}>Favorites</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.option,{ backgroundColor: currentTheme.optionBackground }]} onPress={handleLogoutAndRefresh}>
-          <Text style={[styles.optionText,{ color: currentTheme.textColor }]}>Logout</Text>
-        </TouchableOpacity>
-
         <View style={[styles.switchContainer,{ backgroundColor: currentTheme.optionBackground }]}>
           <Text style={[styles.optionText,{ color: currentTheme.textColor }]}>Dark Mode</Text>
           <Switch
@@ -51,6 +51,14 @@ export default function SettingsScreen({ navigation }) {
            ios_backgroundColor="#888"
           />
         </View>
+
+        <TouchableOpacity style={[styles.option,{ backgroundColor: currentTheme.optionBackground }]} onPress={navigateToBlockedUsers}>
+          <Text style={[styles.optionText,{ color: currentTheme.textColor }]}>Blocked Users</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[styles.option,{ backgroundColor: currentTheme.optionBackground }]} onPress={handleLogoutAndRefresh}>
+          <Text style={[styles.optionText,{ color: currentTheme.textColor }]}>Logout</Text>
+        </TouchableOpacity>
       </View>
     </>
   );

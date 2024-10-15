@@ -38,5 +38,8 @@ router.get('/user/:username/reposts', authenticateUser, authController.getRepost
 router.get('/notifications', authenticateUser, authController.getNotifications);
 router.get('/users/suggestions', authenticateUser, authController.suggestUsers);
 router.get('/user/:username/likes', authenticateUser, authController.getLikedPosts);
+router.post('/block/:username', authenticateUser, authController.blockUser);
+router.post('/unblock/:username', authenticateUser, authController.unblockUser);
+router.get('/blocked-users', authenticateUser, authController.getBlockedUsers);
 
 module.exports = router;

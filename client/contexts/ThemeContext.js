@@ -64,7 +64,7 @@ export const ThemeProvider = ({ children }) => {
   }, [isLoggedIn, token]);
 
   const toggleTheme = async () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
 
     if (isLoggedIn && token) {
@@ -83,7 +83,7 @@ export const ThemeProvider = ({ children }) => {
     }
   };
 
-  const currentTheme = theme === 'light' ? lightTheme : darkTheme;
+  const currentTheme = theme === 'dark' ? darkTheme : lightTheme;
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, currentTheme }}>

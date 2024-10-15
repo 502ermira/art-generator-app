@@ -18,6 +18,8 @@ export default function FollowersFollowingScreen() {
   const [loading, setLoading] = useState(true);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [blockedByUsers, setBlockedByUsers] = useState([]);
   const [followingStatus, setFollowingStatus] = useState({});
   const [index, setIndex] = useState(type === 'followers' ? 0 : 1);
   const [routes] = useState([
@@ -25,7 +27,27 @@ export default function FollowersFollowingScreen() {
     { key: 'following', title: 'Following' },
   ]);
 
+
   useEffect(() => {
+    const fetchBlockedUsers = async () => {
+      try {
+        const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+          headers: {
+            Authorization: token,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setBlockedUsers((data.blockedUsers || []).map(user => user.username));
+          setBlockedByUsers((data.blockedByUsers || []).map(user => user.username));
+        } else {
+          console.error('Failed to fetch blocked users:', data.error);
+        }
+      } catch (error) {
+        console.error('Error fetching blocked users:', error);
+      }
+    };
+  
     const fetchFollowersAndFollowing = async () => {
       try {
         const response = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`, {
@@ -54,6 +76,7 @@ export default function FollowersFollowingScreen() {
       }
     };
 
+    fetchBlockedUsers(); 
     fetchFollowersAndFollowing();
   }, [username, token]);
 
@@ -116,10 +139,13 @@ export default function FollowersFollowingScreen() {
 
   const FollowersRoute = memo(() => {
     const [searchQuery, setSearchQuery] = useState('');
-    const filteredFollowers = followers.filter(follower =>
-      follower.followerId.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      follower.followerId.fullname.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredFollowers = followers.filter(follower => 
+      !blockedUsers.includes(follower.followerId.username) && 
+      !blockedByUsers.includes(follower.followerId.username) && 
+      (follower.followerId.username.toLowerCase().includes(searchQuery.toLowerCase()) || 
+       follower.followerId.fullname.toLowerCase().includes(searchQuery.toLowerCase()))
     );
+       
   
     return (
       <View style={styles.tabSceneContainer}>
@@ -145,11 +171,13 @@ export default function FollowersFollowingScreen() {
   
   const FollowingRoute = memo(() => {
     const [searchQuery, setSearchQuery] = useState('');
-    const filteredFollowing = following.filter(user =>
-      user.followingId.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.followingId.fullname.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredFollowing = following.filter(user => 
+      !blockedUsers.includes(user.followingId.username) && 
+      !blockedByUsers.includes(user.followingId.username) && 
+      (user.followingId.username.toLowerCase().includes(searchQuery.toLowerCase()) || 
+       user.followingId.fullname.toLowerCase().includes(searchQuery.toLowerCase()))
     );
-  
+    
     return (
       <View style={styles.tabSceneContainer}>
         <TextInput

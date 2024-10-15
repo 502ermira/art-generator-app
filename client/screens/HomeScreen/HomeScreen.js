@@ -40,17 +40,22 @@ export default function HomeScreen() {
       });
       
       const newPosts = response.data;
+
+      if (newPosts.length === 0 && page === 1) {
+        setPosts([{ message: 'Discover new people to follow!' }]);
+      } else {
+        setPosts(prevPosts => (page === 1 ? newPosts : [...prevPosts, ...newPosts]));
+      }
+
       if (newPosts.length < 10) setHasMorePosts(false);
       
-      setPosts(prevPosts => (page === 1 ? newPosts : [...prevPosts, ...newPosts]));
       setPage(page + 1);
     } catch (error) {
       console.error('Error fetching posts:', error);
-    }
-    finally {
+    } finally {
       setIsLoading(false);
     }
-  };
+};
 
   const onRefresh = async () => {
     setRefreshing(true);

@@ -14,32 +14,46 @@ exports.getRelevantPosts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
+
   try {
+    const user = await User.findById(userId).select('blockedUsers blockedBy');
+    const blockedUserIds = user.blockedUsers.concat(user.blockedBy);
+
     const following = await Follower.find({ followerId: userId }).select('followingId');
     const followedUserIds = following.map(f => f.followingId);
 
-    const followedPosts = await Post.find({ user: { $in: followedUserIds } })
+    const followedPosts = await Post.find({ 
+        user: { $in: followedUserIds, $nin: blockedUserIds }
+      })
       .populate('user')
       .populate('image')
       .sort({ sharedAt: -1 })
       .skip(skip)
-      .limit(10);
+      .limit(limit / 2); 
 
-      const additionalPosts = await Post.find({
-        user: { $nin: followedUserIds },
-      })
-       .populate('user')
-       .populate('image')
-       .sort({ sharedAt: -1 })
-       .skip(skip)
-       .limit(10);
+    const additionalPosts = await Post.find({
+      user: { $nin: followedUserIds.concat(blockedUserIds) }
+    })
+      .populate('user')
+      .populate('image')
+      .sort({ sharedAt: -1 })
+      .skip(skip)
+      .limit(limit / 2); 
 
     const allPosts = [...followedPosts, ...additionalPosts];
 
     const scoredPosts = await Promise.all(
       allPosts.map(async (post) => {
         const engagementScore = await getEngagementScore(post._id);
-        const relevanceScore = await getRelevanceScore(post, userId);
+
+        let relevanceScore;
+        try {
+          relevanceScore = await getRelevanceScore(post, userId);
+        } catch (error) {
+          console.error(`Failed to fetch relevance score for user ${userId}:`, error);
+          relevanceScore = 0;
+        }
+
         const recencyScore = new Date() - post.sharedAt;
 
         const likesCount = await Like.countDocuments({ post: post._id });
@@ -48,9 +62,9 @@ exports.getRelevantPosts = async (req, res) => {
 
         const isLikedByUser = await Like.exists({ post: post._id, user: userId });
         const isRepostedByUser = await Repost.exists({ post: post._id, user: userId });
-        
+
         const finalScore = (engagementScore * 0.3) + (relevanceScore * 0.5) - (recencyScore * 0.2);
-        
+
         return {
           post: {
             ...post.toObject(),
@@ -80,11 +94,14 @@ exports.getPopularizedPosts = async (req, res) => {
   const skip = (page - 1) * limit;
 
   try {
+    const user = await User.findById(userId).select('blockedUsers blockedBy');
+    const blockedUserIds = user.blockedUsers.concat(user.blockedBy);
+
     const following = await Follower.find({ followerId: userId }).select('followingId');
     const followedUserIds = following.map(f => f.followingId);
 
     const popularPosts = await Post.find({ 
-      user: { $nin: [...followedUserIds, userId] } 
+      user: { $nin: [...followedUserIds, userId, ...blockedUserIds] } 
     })
       .populate('user')
       .populate('image')
@@ -123,24 +140,39 @@ const getRelevanceScore = async (post, userId) => {
   const fetch = (await import('node-fetch')).default;
 
   const userRecentSearch = await Search.findOne({ user: userId }).sort({ timestamp: -1 });
-  const query = userRecentSearch ? userRecentSearch.query : post.description;
 
-  const response = await fetch('http://192.168.1.145:5001/search-pagination', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query })
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch relevance score from microservice');
+  if (!userRecentSearch) {
+    console.warn(`No search history found for user ${userId}. Assigning default relevance score.`);
+    return 0;
   }
 
-  const searchResults = await response.json();
+  const query = userRecentSearch ? userRecentSearch.query : post.description;
 
-  const isRelevant = searchResults.results.some(result => result.id === post.image._id.toString());
+  try {
+    const response = await fetch('http://192.168.1.145:5001/search-pagination', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query })
+    });
 
-  return isRelevant ? 10 : 0;
-}
+    if (!response.ok) {
+      throw new Error('Failed to fetch relevance score from microservice');
+    }
+
+    const searchResults = await response.json();
+    const isRelevant = searchResults.results.some(result => result.id === post.image._id.toString());
+
+    return isRelevant ? 10 : 0;
+
+  } catch (error) {
+    console.error(`Error fetching relevance score: ${error.message}`);
+    
+    const postDescription = post.description.toLowerCase();
+    const relevanceFallback = query.toLowerCase().split(' ').some(keyword => postDescription.includes(keyword)) ? 5 : 0;
+
+    return relevanceFallback;
+  }
+};
 
 exports.deletePost = async (req, res) => {
   const { postId } = req.params;
