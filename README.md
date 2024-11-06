@@ -174,8 +174,8 @@ Use the **Bottom Navigation Bar** to switch between key sections:
     FLASK_SERVER_URL=http://192.168.1.145:5001 (or whatever server URL is being used)
    ```
 4. Additionally, in the config folder, create a `firebase-config.json` file with your Firebase service account credentials. The content should look similar to this, but you must replace it with your own Firebase credentials:  
-   ```bash
-  {
+```json
+{
   "type": "service_account",
   "project_id": "your_project_id",
   "private_key_id": "your_private_key_id",
@@ -187,8 +187,8 @@ Use the **Bottom Navigation Bar** to switch between key sections:
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
   "client_x509_cert_url": "your_cert_url",
   "universe_domain": "googleapis.com"
-  }
-   ```
+}
+```
    `Important`: You must replace the above values with your own Firebase service account credentials. These are sensitive details and should never be shared publicly.
 5. Start the backend server:
    ```bash
