@@ -7,6 +7,7 @@ import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { getUserProfileScreenStyles } from './UserProfileScreenStyles';
 import CustomHeader from '@/components/CustomHeader';
 import Loader from '@/components/Loader';
+import { API_ENDPOINTS } from '@/config/apiConfig';
 
 export default function UserProfileScreen() {
   const { token, username: loggedInUsername } = useContext(UserContext);
@@ -41,7 +42,7 @@ export default function UserProfileScreen() {
 
   const checkIfBlocked = async () => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/blocked-users`, {
+      const response = await fetch(API_ENDPOINTS.BLOCKED_USERS, {
         headers: { Authorization: token },
       });
       const data = await response.json();
@@ -59,7 +60,7 @@ export default function UserProfileScreen() {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/user/${username}`, {
+      const response = await fetch(API_ENDPOINTS.USER_PROFILE(username), {
         headers: { Authorization: token },
       });
       const data = await response.json();
@@ -74,7 +75,7 @@ export default function UserProfileScreen() {
           setReposts(data.reposts);
         }
 
-        const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`);
+        const followResponse = await fetch(API_ENDPOINTS.FOLLOWERS_FOLLOWING(username));
         const followData = await followResponse.json();
 
         setFollowerCount(data.isBlocked ? 0 : followData.followers.length);
@@ -97,7 +98,7 @@ export default function UserProfileScreen() {
 
   const fetchUserPosts = async () => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/user/${username}/posts`, {
+      const response = await fetch(API_ENDPOINTS.USER_POSTS(username), {
         headers: { Authorization: token },
       });
       const data = await response.json();
@@ -128,8 +129,8 @@ export default function UserProfileScreen() {
   const handleFollowToggle = async () => {
     try {
       const url = isFollowing 
-        ? `http://192.168.1.145:5000/auth/unfollow/${username}`
-        : `http://192.168.1.145:5000/auth/follow/${username}`;
+         ? API_ENDPOINTS.UNFOLLOW_USER(username)
+         : API_ENDPOINTS.FOLLOW_USER(username);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -213,25 +214,24 @@ export default function UserProfileScreen() {
 
 
   const handleBlockToggle = async () => {
-    const action = isBlocked ? 'unblock' : 'block';
+    const endpoint = isBlocked ? API_ENDPOINTS.UNBLOCK_USER(username) : API_ENDPOINTS.BLOCK_USER(username);
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/${action}/${username}`, {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { Authorization: token },
       });
-
+  
       if (response.ok) {
         setIsBlocked(!isBlocked);
         setReposts([]);
         setIsMenuOpen(false);
         await onRefresh();
-
       } else {
         const data = await response.json();
-        console.error(`Failed to ${action} user:`, data.error);
+        console.error(`Failed to ${isBlocked ? 'unblock' : 'block'} user:`, data.error);
       }
     } catch (error) {
-      console.error(`Error ${action}ing user:`, error);
+      console.error(`Error ${isBlocked ? 'unblocking' : 'blocking'} user:`, error);
     }
   };
 

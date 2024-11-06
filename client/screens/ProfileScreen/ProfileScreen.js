@@ -6,6 +6,7 @@ import CustomHeader from '@/components/CustomHeader.js';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import Loader from '@/components/Loader.js';
 import { getUserProfileScreenStyles } from '../UserProfileScreen/UserProfileScreenStyles.js';
+import { API_ENDPOINTS } from '@/config/apiConfig.js';
 
 export default function ProfileScreen({ navigation }) {
   const { token, username: loggedInUsername, loading: contextLoading } = useContext(UserContext);
@@ -32,13 +33,13 @@ export default function ProfileScreen({ navigation }) {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch('http://192.168.1.145:5000/auth/profile', {
+      const response = await fetch(API_ENDPOINTS.PROFILE, {
         headers: { Authorization: token },
       });
       const data = await response.json();
       setUserData(data);
     
-      const postsResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/posts`, {
+      const postsResponse = await fetch(API_ENDPOINTS.USER_POSTS(loggedInUsername),  {
         headers: { Authorization: token },
       });
       const postsData = await postsResponse.json();
@@ -49,7 +50,7 @@ export default function ProfileScreen({ navigation }) {
         console.error('Failed to fetch posts:', postsData.error);
       }
 
-      const repostsResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/reposts`, {
+      const repostsResponse = await fetch(API_ENDPOINTS.USER_REPOSTS(loggedInUsername), {
         headers: { Authorization: token },
       });
       const repostsData = await repostsResponse.json();
@@ -60,7 +61,7 @@ export default function ProfileScreen({ navigation }) {
         console.error('Failed to fetch reposts:', repostsData.error);
       }
 
-      const likesResponse = await fetch(`http://192.168.1.145:5000/auth/user/${loggedInUsername}/likes`, {
+      const likesResponse = await fetch(API_ENDPOINTS.USER_LIKES(loggedInUsername), {
         headers: { Authorization: token },
       });
       const likesData = await likesResponse.json();
@@ -71,7 +72,7 @@ export default function ProfileScreen({ navigation }) {
         console.error('Failed to fetch likes:', likesData.error);
       }          
 
-      const followResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${loggedInUsername}`);
+      const followResponse = await fetch(API_ENDPOINTS.FOLLOWERS_FOLLOWING(loggedInUsername));
       const followData = await followResponse.json();
       setFollowerCount(followData.followers.length);
       setFollowingCount(followData.following.length);

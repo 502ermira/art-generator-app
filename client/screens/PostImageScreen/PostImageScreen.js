@@ -3,6 +3,7 @@ import { Text, Image, TextInput, TouchableOpacity, KeyboardAvoidingView, Platfor
 import { UserContext } from '../../contexts/UserContext';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import CustomHeader from '../../components/CustomHeader';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 import { getPostImageScreenStyles } from './PostImageScreenStyles';
 
 export default function PostImageScreen({ route, navigation }) {
@@ -45,7 +46,7 @@ export default function PostImageScreen({ route, navigation }) {
         }
       } else {
         // User is logged in, proceed with the sharing process
-        const response = await fetch('http://192.168.1.145:5000/auth/share', {
+        const response = await fetch(API_ENDPOINTS.SHARE, {
           method: 'POST',
           headers: {
             Authorization: token,

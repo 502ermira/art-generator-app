@@ -116,20 +116,106 @@ Use the **Bottom Navigation Bar** to switch between key sections:
    - Manage followers and following lists.  
    - Access other users' profiles from posts, comments, or searches.  
 
-5. **Blocking Users**:  
+6. **Blocking Users**:  
   - Block users by tapping **Block User** at the top right of their profile.  
   - Manage blocked users in the **Blocked List** under **Settings**.  
   - Unblock users from the **Blocked List** if needed.  
 
-6. **Settings**:  
+7. **Settings**:  
   - Change the app theme (light or dark mode).  
   - Update your password.  
   - Log out of your account.  
   - Access **Favorites** and **Blocked List** from the settings menu.  
 
-7. **Posting and Sharing**  
+8. **Posting and Sharing**  
 
 - **Sharing Images**:  
   - Click **Share** after generating an image to open the post creation screen.  
   - Add a description to your image and proceed to post (login required).  
   - If not logged in, a prompt will appear. Use **Go to Login** to access the login screen.  
+
+
+## Installation
+
+### Microservice Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/502ermira/art-generator-app.git
+   cd art-generator-app/microservice
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Create a `.env` file in the backend directory and add your environment variables:
+   ```env
+    MONGO_URI=your_mongo_uri
+   ```
+4. Start the microservice:
+   ```bash
+   python app.py
+   ```
+### Backend Setup
+
+1. Clone the repository:
+   ```bash
+   cd ../server
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in the backend directory and add your environment variables:
+   ```env
+    MONGO_URI=your_mongo_uri
+    JWT_SECRET=your_jwt_secret
+    HUGGINGFACE_API_KEY=your_huggingface_api_key
+    FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+    FLASK_SERVER_URL=http://192.168.1.145:5001 (or whatever server URL is being used)
+   ```
+4. Additionally, in the config folder, create a `firebase-config.json` file with your Firebase service account credentials. The content should look similar to this, but you must replace it with your own Firebase credentials:  
+   ```bash
+  {
+  "type": "service_account",
+  "project_id": "your_project_id",
+  "private_key_id": "your_private_key_id",
+  "private_key": "your_private_key",
+  "client_email": "your_client_email",
+  "client_id": "your_client_id",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "your_cert_url",
+  "universe_domain": "googleapis.com"
+  }
+   ```
+   `Important`: You must replace the above values with your own Firebase service account credentials. These are sensitive details and should never be shared publicly.
+5. Start the backend server:
+   ```bash
+   node server.js
+   ```
+
+### Frontend Setup
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd ../client
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in the root directory of the client folder and add your environment variables:
+   ```env
+   BASE_URL=http://localhost:5000 (or whatever server URL is being used)
+   SOCKET_URL=http://localhost:5000 (or whatever server URL is being used)
+   ```
+4. Start the Expo development server:
+   ```bash
+   npx expo start
+   ```
+
+## Usage
+
+1. Ensure the microservice, the backend and frontend servers are running.
+2. Scan the QR code to run the app on a physical device using the Expo Go app, or open it in an emulator.

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useContext } from 'react';
 import { View, KeyboardAvoidingView, Keyboard, Platform, Text, Image, ScrollView, TextInput, TouchableOpacity , Dimensions, Modal, RefreshControl} from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { getPostScreenStyles } from './PostScreenStyles.js';
@@ -41,7 +42,7 @@ export default function PostScreen() {
 
   const fetchBlockedUsers = async () => {
     try {
-      const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+      const response = await fetch(API_ENDPOINTS.BLOCKED_USERS, {
         headers: { Authorization: token },
       });
       const data = await response.json();
@@ -58,14 +59,14 @@ export default function PostScreen() {
 
   const fetchPostData = async () => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}`, {
+      const response = await fetch(API_ENDPOINTS.POST_DETAILS(postId), {
         headers: { Authorization: token },
       });
       const data = await response.json();
 
       if (response.ok) {
         setPostData(data);
-        const repostResponse = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/reposts`, {
+        const repostResponse = await fetch(API_ENDPOINTS.POST_REPOSTS(postId), {
           headers: { Authorization: token },
         });
         const reposts = await repostResponse.json();
@@ -83,7 +84,7 @@ export default function PostScreen() {
 
   const fetchComments = async () => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/comments`, {
+      const response = await fetch(API_ENDPOINTS.POST_COMMENTS(postId), {
         headers: { Authorization: token },
       });
       const data = await response.json();
@@ -119,7 +120,7 @@ export default function PostScreen() {
 
   const handleLike = async (postId) => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/like`, {
+      const response = await fetch(API_ENDPOINTS.LIKE_POST(postId),{
         method: 'POST',
         headers: {
           Authorization: token,
@@ -143,14 +144,13 @@ export default function PostScreen() {
 
   const handleRepost = async () => {
     try {
-      const url = `http://192.168.1.145:5000/auth/posts/${postId}/repost`;
-      const response = await fetch(url, {
+      const response = await fetch(API_ENDPOINTS.REPOST_POST(postId), {
         method: 'POST',
         headers: {
           Authorization: token,
         },
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         setPostData((prev) => ({
@@ -168,7 +168,7 @@ export default function PostScreen() {
 
   const handleDeletePost = async () => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}`, {
+      const response = await fetch(API_ENDPOINTS.DELETE_POST(postId), {
         method: 'DELETE',
         headers: { Authorization: token },
       });
@@ -188,7 +188,7 @@ export default function PostScreen() {
 
   const fetchUserSuggestions = async (searchTerm) => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/users/suggestions?searchTerm=${searchTerm}`, {
+      const response = await fetch(API_ENDPOINTS.USER_SUGGESTIONS(searchTerm), {
         headers: { Authorization: token },
       });
       const data = await response.json();
@@ -231,7 +231,7 @@ export default function PostScreen() {
     setNewComment('');
   
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/comments`, {
+      const response = await fetch(API_ENDPOINTS.POST_COMMENTS(postId), {
         method: 'POST',
         headers: {
           Authorization: token,

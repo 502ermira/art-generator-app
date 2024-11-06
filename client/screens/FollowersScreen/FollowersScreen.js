@@ -7,6 +7,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import CustomHeader from '@/components/CustomHeader';
 import Loader from '@/components/Loader';
+import { API_ENDPOINTS } from '@/config/apiConfig';
 
 export default function FollowersFollowingScreen() {
   const route = useRoute();
@@ -31,7 +32,7 @@ export default function FollowersFollowingScreen() {
   useEffect(() => {
     const fetchBlockedUsers = async () => {
       try {
-        const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+        const response = await fetch(API_ENDPOINTS.BLOCKED_USERS, {
           headers: {
             Authorization: token,
           },
@@ -50,7 +51,7 @@ export default function FollowersFollowingScreen() {
   
     const fetchFollowersAndFollowing = async () => {
       try {
-        const response = await fetch(`http://192.168.1.145:5000/auth/followers-following/${username}`, {
+        const response = await fetch(API_ENDPOINTS.FOLLOWERS_FOLLOWING(username), {
           headers: {
             Authorization: token,
           },
@@ -83,8 +84,8 @@ export default function FollowersFollowingScreen() {
   const handleFollowToggle = async (user) => {
     const isFollowing = followingStatus[user.username];
     const url = isFollowing 
-      ? `http://192.168.1.145:5000/auth/unfollow/${user.username}` 
-      : `http://192.168.1.145:5000/auth/follow/${user.username}`;
+    ? API_ENDPOINTS.UNFOLLOW_USER(user.username)
+    : API_ENDPOINTS.FOLLOW_USER(user.username);
 
     try {
       const response = await fetch(url, { 

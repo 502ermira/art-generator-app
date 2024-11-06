@@ -1,10 +1,12 @@
 import { useRef, useEffect, useState, useContext } from 'react';
 import { View, RefreshControl, Text, ScrollView, TouchableOpacity, Image, Dimensions, ActivityIndicator } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
 import { getNotificationScreenStyles } from './NotificationScreenStyles.js';
 import Loader from '@/components/Loader';
+import { SOCKET_URL } from '@/config/apiConfig';
 import io from 'socket.io-client';
 
 export default function NotificationScreen() {
@@ -24,7 +26,7 @@ export default function NotificationScreen() {
   const borderColor = isDarkMode ? '#232323' : '#dedede';
 
   useEffect(() => {
-    socket.current = io('http://192.168.1.145:5000');
+    socket.current = io(SOCKET_URL);
     socket.current.emit('joinRoom', loggedInUsername);
   
     const handleNewNotification = (notification) => {
@@ -59,7 +61,7 @@ export default function NotificationScreen() {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/notifications?page=${page}&limit=15`, {
+      const response = await fetch(API_ENDPOINTS.NOTIFICATIONS(page), {
         headers: { Authorization: token },
       });
       const data = await response.json();
@@ -81,7 +83,7 @@ export default function NotificationScreen() {
 
   const fetchFollowingStatus = async () => {
     try {
-      const statusResponse = await fetch(`http://192.168.1.145:5000/auth/followers-following/${loggedInUsername}`, {
+      const statusResponse = await fetch(API_ENDPOINTS.FOLLOWERS_FOLLOWING(loggedInUsername), {
         headers: { Authorization: token },
       });
       const statusData = await statusResponse.json();
@@ -118,8 +120,8 @@ export default function NotificationScreen() {
   const handleFollowToggle = async (user) => {
     const isFollowing = followingStatus[user.username];
     const url = isFollowing
-      ? `http://192.168.1.145:5000/auth/unfollow/${user.username}`
-      : `http://192.168.1.145:5000/auth/follow/${user.username}`;
+      ? API_ENDPOINTS.UNFOLLOW_USER(user.username)
+      : API_ENDPOINTS.FOLLOW_USER(user.username);
 
     try {
       const response = await fetch(url, {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 import { getFollowersScreenStyles } from '../FollowersScreen/FollowersScreenStyles';
 import CustomHeader from '@/components/CustomHeader';
 import { UserContext } from '../../contexts/UserContext';
@@ -24,7 +25,7 @@ export default function LikesScreen() {
   useEffect(() => {
     const fetchBlockedUsers = async () => {
       try {
-        const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+        const response = await fetch(API_ENDPOINTS.BLOCKED_USERS, {
           headers: {
             Authorization: token,
           },
@@ -43,7 +44,7 @@ export default function LikesScreen() {
     
     const fetchLikers = async () => {
       try {
-        const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/likes`, {
+        const response = await fetch(API_ENDPOINTS.LIKERS(postId), {
           headers: {
             Authorization: token,
           },
@@ -86,8 +87,8 @@ export default function LikesScreen() {
   const handleFollowToggle = async (user) => {
     const isFollowing = followingStatus[user.username];
     const url = isFollowing 
-      ? `http://192.168.1.145:5000/auth/unfollow/${user.username}` 
-      : `http://192.168.1.145:5000/auth/follow/${user.username}`;
+       ? API_ENDPOINTS.UNFOLLOW_USER(user.username)
+       : API_ENDPOINTS.FOLLOW_USER(user.username);
   
     try {
       const response = await fetch(url, {
@@ -126,8 +127,8 @@ export default function LikesScreen() {
   }
 
   const filteredLikers = likers.filter(user =>
-    !blockedUsers.includes(user.username) && // User is not blocked
-    !blockedByUsers.includes(user.username) && // User has not blocked you
+    !blockedUsers.includes(user.username) &&
+    !blockedByUsers.includes(user.username) &&
     (user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
      user.fullname.toLowerCase().includes(searchQuery.toLowerCase()))
   );  

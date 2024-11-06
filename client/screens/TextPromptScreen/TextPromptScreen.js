@@ -5,6 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { getTextPromptScreenStyles } from './TextPromptScreenStyles';
+import { API_ENDPOINTS } from '@/config/apiConfig';
 
 const darkBackgroundImage = require('../../assets/images/bg.jpg');
 const lightBackgroundImage = require('../../assets/images/light-bg.jpg');
@@ -33,7 +34,7 @@ export default function TextPromptScreen() {
     setToken(storedToken);
 
     if (storedToken) {
-      const response = await fetch('http://192.168.1.145:5000/auth/favorites', {
+      const response = await fetch(API_ENDPOINTS.GET_FAVORITES, {
         headers: { Authorization: storedToken },
       });
       const data = await response.json();
@@ -64,7 +65,7 @@ export default function TextPromptScreen() {
     setLoading(true);
     setError(null);
     try {
-        const response = await fetch('http://192.168.1.145:5000/api/generate-image', {
+        const response = await fetch(API_ENDPOINTS.GENERATE_IMAGE, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -98,7 +99,7 @@ const saveFavorite = async () => {
   try {
     if (token) {
       // Save to backend if user is logged in
-      const response = await fetch('http://192.168.1.145:5000/auth/favorites', {
+      const response = await fetch(API_ENDPOINTS.GET_FAVORITES, {
         method: 'POST',
         headers: {
           Authorization: token,
@@ -132,7 +133,7 @@ const toggleFavorite = async () => {
   if (isFavorited) {
     try {
       if (token) {
-        const response = await fetch('http://192.168.1.145:5000/auth/unfavorite', {
+        const response = await fetch(API_ENDPOINTS.UNFAVORITE, {
           method: 'POST',
           headers: {
             Authorization: token,

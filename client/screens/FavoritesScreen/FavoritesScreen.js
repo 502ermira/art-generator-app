@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { View, Text, ScrollView, Image, Modal, TouchableOpacity, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 import { UserContext } from '../../contexts/UserContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
@@ -24,7 +25,7 @@ export default function FavoritesScreen() {
       try {
         setLoading(true);
         if (token) {
-          const response = await fetch('http://192.168.1.145:5000/auth/favorites', {
+          const response = await fetch(API_ENDPOINTS.GET_FAVORITES, {
             headers: { Authorization: token },
           });
           const data = await response.json();
@@ -51,7 +52,7 @@ export default function FavoritesScreen() {
   const unfavoriteImage = async (image) => {
     try {
       if (token) {
-        const response = await fetch('http://192.168.1.145:5000/auth/unfavorite', {
+        const response = await fetch(API_ENDPOINTS.UNFAVORITE, {
           method: 'POST',
           headers: {
             Authorization: token,

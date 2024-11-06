@@ -1,12 +1,12 @@
 import { useContext, useState, useEffect } from 'react';
 import { ScrollView, TextInput, Pressable, Text, Image, View, Alert, Platform, KeyboardAvoidingView, Keyboard } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 import { UserContext } from '../../contexts/UserContext';
 import CustomHeader from '../../components/CustomHeader'; 
 import * as FileSystem from 'expo-file-system';
 import { ThemeContext } from '@/contexts/ThemeContext';
 import { getEditProfileScreenStyles } from './EditProfileScreenStyles';
-
 
 let debounceTimeout;
 
@@ -39,7 +39,7 @@ export default function EditProfileScreen({ navigation, route }) {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('http://192.168.1.145:5000/auth/profile', {
+        const response = await fetch(API_ENDPOINTS.PROFILE, {
           headers: { Authorization: token },
         });
         const data = await response.json();
@@ -73,7 +73,7 @@ export default function EditProfileScreen({ navigation, route }) {
     if (email && email.trim().toLowerCase() !== initialEmail.trim().toLowerCase() && initialEmail) {
       debounce(async () => {
         try {
-          const response = await fetch(`http://192.168.1.145:5000/auth/update-email`, {
+          const response = await fetch(API_ENDPOINTS.UPDATE_EMAIL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ export default function EditProfileScreen({ navigation, route }) {
                     return;
                 }
 
-                const response = await fetch(`http://192.168.1.145:5000/auth/update-username`, {
+                const response = await fetch(API_ENDPOINTS.UPDATE_USERNAME, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ export default function EditProfileScreen({ navigation, route }) {
   
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.1.145:5000/auth/profile', {
+      const response = await fetch(API_ENDPOINTS.PROFILE, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

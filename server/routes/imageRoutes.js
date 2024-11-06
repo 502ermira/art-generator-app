@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const imageController = require('../controllers/imageController');
-const postController = require('../controllers/postController');
 const { authenticateUser } = require('../middleware/authMiddleware');
 
 router.post('/generate-image', imageController.generateImage);
-router.post('/search', authenticateUser, imageController.searchImages);
-router.get('/posts/relevant', authenticateUser, postController.getRelevantPosts);
-router.get('/posts/explore', authenticateUser, postController.getPopularizedPosts);
+router.get('/favorites', authenticateUser, imageController.getFavorites);
+router.post('/favorites', authenticateUser, imageController.saveFavorite);
+router.post('/unfavorite', authenticateUser, imageController.unfavorite);
 
 module.exports = router;

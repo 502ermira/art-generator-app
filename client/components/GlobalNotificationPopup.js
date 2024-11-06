@@ -4,6 +4,7 @@ import { UserContext } from '../contexts/UserContext';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { getGlobalNotificationPopupStyles } from './GlobalNotificationPopupStyles.js';
 import io from 'socket.io-client';
+import { SOCKET_URL } from '@/config/apiConfig';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
 
 export default function GlobalNotificationPopup() {
@@ -54,7 +55,7 @@ export default function GlobalNotificationPopup() {
   useEffect(() => {
     if (currentRouteName === 'NotificationScreen') return;
   
-    socket.current = io('http://192.168.1.145:5000');
+    socket.current = io(SOCKET_URL);
     socket.current.emit('joinRoom', loggedInUsername);
   
     const handleNewNotification = (notification) => {

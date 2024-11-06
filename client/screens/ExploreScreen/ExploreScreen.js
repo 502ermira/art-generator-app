@@ -5,6 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import Loader from '@/components/Loader';
 import { getExploreScreenStyles } from './ExploreScreenStyles.js';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 
 export default function ExploreScreen({ route }) {
   const { token } = useContext(UserContext);
@@ -21,7 +22,7 @@ export default function ExploreScreen({ route }) {
 
   const fetchBlockedUsers = async () => {
     try {
-      const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+      const response = await fetch(API_ENDPOINTS.BLOCKED_USERS, {
         headers: {
           Authorization: token,
         },
@@ -43,7 +44,7 @@ export default function ExploreScreen({ route }) {
 
     setIsFetchingMore(true);
     try {
-      const response = await fetch(`http://192.168.1.145:5000/api/posts/explore?page=${pageNumber}`, {
+      const response = await fetch(API_ENDPOINTS.EXPLORE_POSTS(pageNumber), {
         headers: {
           Authorization: token,
         },

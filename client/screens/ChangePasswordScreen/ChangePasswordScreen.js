@@ -2,6 +2,7 @@ import { useContext, useState } from 'react';
 import { ScrollView, TextInput, Pressable, Text, Alert, View } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
 import { ThemeContext } from '../../contexts/ThemeContext';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 import CustomHeader from '../../components/CustomHeader';
 import { getEditProfileScreenStyles } from '../EditProfileScreen/EditProfileScreenStyles';
 
@@ -20,7 +21,7 @@ export default function ChangePasswordScreen({ navigation }) {
     }
 
     try {
-      const response = await fetch('http://192.168.1.145:5000/auth/change-password', {
+      const response = await fetch(API_ENDPOINTS.CHANGE_PASSWORD, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

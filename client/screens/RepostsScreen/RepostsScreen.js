@@ -6,6 +6,7 @@ import { ThemeContext } from '../../contexts/ThemeContext';
 import { getRepostScreenStyles } from './RepostsScreenStyles';
 import Loader from '@/components/Loader';
 import CustomHeader from '@/components/CustomHeader';
+import { API_ENDPOINTS } from '@/config/apiConfig';
 
 export default function RepostsScreen() {
   const route = useRoute();
@@ -23,7 +24,7 @@ export default function RepostsScreen() {
   useEffect(() => {
     const fetchBlockedUsers = async () => {
       try {
-        const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+        const response = await fetch(API_ENDPOINTS.BLOCKED_USERS, {
           headers: {
             Authorization: token,
           },
@@ -42,7 +43,7 @@ export default function RepostsScreen() {
 
     const fetchReposts = async () => {
       try {
-        const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/reposts`, {
+        const response = await fetch(API_ENDPOINTS.POST_REPOSTS(postId), {
           headers: { Authorization: token },
         });
         const data = await response.json();

@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { TextInput, Text, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Loader from '../../components/Loader.js';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 import { UserContext } from '../../contexts/UserContext.js';
 import { ThemeContext } from '../../contexts/ThemeContext.js';
 import { getLoginScreenStyles } from './LoginScreenStyles';
@@ -21,7 +22,7 @@ export default function LoginScreen({ navigation, route }) {
     setLoading(true);
     const normalizedEmail = email.toLowerCase();
     try {
-      const response = await fetch('http://192.168.1.145:5000/auth/login', {
+      const response = await fetch(API_ENDPOINTS.LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

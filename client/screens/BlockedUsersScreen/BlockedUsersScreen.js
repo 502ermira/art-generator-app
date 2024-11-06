@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { ScrollView, Text, View, TouchableOpacity, Image } from 'react-native';
 import { UserContext } from '../../contexts/UserContext';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 import CustomHeader from '@/components/CustomHeader';
 import Loader from '@/components/Loader';
 import { ThemeContext } from '../../contexts/ThemeContext';
@@ -17,7 +18,7 @@ export default function BlockedUsersScreen() {
   useEffect(() => {
     const fetchBlockedUsers = async () => {
       try {
-        const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+        const response = await fetch(API_ENDPOINTS.BLOCKED_USERS, {
           headers: { Authorization: token },
         });
         const data = await response.json();
@@ -39,7 +40,7 @@ export default function BlockedUsersScreen() {
 
   const handleUnblockUser = async (username) => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/unblock/${username}`, {
+      const response = await fetch(API_ENDPOINTS.UNBLOCK_USER(username), {
         method: 'POST',
         headers: { Authorization: token },
       });

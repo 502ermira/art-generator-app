@@ -4,6 +4,11 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const imageRoutes = require('./routes/imageRoutes');
 const authRoutes = require('./routes/authRoutes');
+const followRoutes = require('./routes/followRoutes');
+const postRoutes = require('./routes/postRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const searchRoutes = require('./routes/searchRoutes');
+
 const http = require('http');
 const { initSocket } = require('./socket');
 
@@ -23,6 +28,10 @@ app.use(express.json({ limit: '16mb' }));
 
 app.use('/api', imageRoutes);
 app.use('/auth', authRoutes);
+app.use('/auth', followRoutes);
+app.use('/auth', postRoutes);
+app.use('/auth', profileRoutes);
+app.use('/auth', searchRoutes);
 
 const server = http.createServer(app);
 

@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
 import { View, TextInput, FlatList, Text, TouchableOpacity, Image, ActivityIndicator, Dimensions } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { API_ENDPOINTS } from '@/config/apiConfig';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { UserContext } from '../../contexts/UserContext';
@@ -21,7 +22,7 @@ export default function SearchScreen() {
 
   const fetchBlockedUsers = async () => {
     try {
-      const response = await fetch('http://192.168.1.145:5000/auth/blocked-users', {
+      const response = await fetch(API_ENDPOINTS.BLOCKED_USERS, {
         headers: { Authorization: token },
       });
       const data = await response.json();
@@ -46,7 +47,7 @@ export default function SearchScreen() {
 
     try {
       const { blockedUsers, blockedByUsers } = await fetchBlockedUsers();
-      const imageResponse = await fetch(`http://192.168.1.145:5000/api/search`, {
+      const imageResponse = await fetch(API_ENDPOINTS.SEARCH, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +63,7 @@ export default function SearchScreen() {
       );
       setImageResults(filteredImages);
 
-      const userResponse = await fetch(`http://192.168.1.145:5000/auth/search-users?searchQuery=${searchQuery}`, {
+      const userResponse = await fetch(API_ENDPOINTS.SEARCH_USERS(searchQuery), {
         headers: { Authorization: token },
       });
 

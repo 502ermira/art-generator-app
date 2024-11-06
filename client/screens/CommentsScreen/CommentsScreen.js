@@ -328,7 +328,7 @@ export default function CommentsScreen() {
             <View
               style={{
                 position: 'absolute',
-                bottom: height - inputPosition.y - keyboardHeight ,
+                bottom: height - inputPosition.y - keyboardHeight +90 ,
                 left: inputPosition.x,
                 width: inputPosition.width,
                 borderRadius: 5,

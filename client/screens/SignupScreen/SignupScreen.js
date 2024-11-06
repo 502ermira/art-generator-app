@@ -6,6 +6,7 @@ import Loader from '../../components/Loader.js';
 import { getSignupScreenStyles } from './SignupScreenStyles';
 import { ThemeContext } from '../../contexts/ThemeContext.js';
 import * as FileSystem from 'expo-file-system';
+import { API_ENDPOINTS } from '@/config/apiConfig.js';
 
 const { width } =  Dimensions.get('window');
 
@@ -133,7 +134,7 @@ export default function SignupScreen({ navigation, route }) {
       const usernameToCheck = debouncedUsernameValue.trim().toLowerCase();
       if (usernameToCheck && !usernameError) {
         try {
-          const response = await fetch('http://192.168.1.145:5000/auth/validate-username', {
+          const response = await fetch(API_ENDPOINTS.VALIDATE_USERNAME, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
@@ -162,7 +163,7 @@ export default function SignupScreen({ navigation, route }) {
       
       if (emailToCheck && !emailError) {
         try {
-          const response = await fetch('http://192.168.1.145:5000/auth/validate-email', {
+          const response = await fetch(API_ENDPOINTS.VALIDATE_EMAIL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: emailToCheck }),
@@ -206,7 +207,7 @@ export default function SignupScreen({ navigation, route }) {
     };
 
     try {
-      const response = await fetch('http://192.168.1.145:5000/auth/signup', {
+      const response = await fetch(API_ENDPOINTS.SIGNUP, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

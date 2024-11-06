@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { View, FlatList, Text, Image, TouchableOpacity, RefreshControl } from 'react-native';
 import axios from 'axios';
+import { API_ENDPOINTS } from '../../config/apiConfig';
 import { UserContext } from '../../contexts/UserContext';
 import { ThemeContext } from '../../contexts/ThemeContext';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -33,7 +34,7 @@ export default function HomeScreen() {
     if (!hasMorePosts && page > 1) return;
     try {
       if (page === 1) setIsLoading(true);
-      const response = await axios.get(`http://192.168.1.145:5000/api/posts/relevant?page=${page}&limit=20`, {
+      const response = await axios.get(API_ENDPOINTS.RELEVANT_POSTS(page), {
         headers: {
           Authorization: token,
         },
@@ -82,7 +83,7 @@ export default function HomeScreen() {
   const handleLike = async (postId, isLikedByUser) => {
     try {
       const response = await axios.post(
-        `http://192.168.1.145:5000/auth/posts/${postId}/like`,
+        API_ENDPOINTS.LIKE_POST(postId),
         {},
         {
           headers: { Authorization: token }
@@ -107,7 +108,7 @@ export default function HomeScreen() {
 
   const handleRepost = async (postId, isRepostedByUser) => {
     try {
-      const response = await fetch(`http://192.168.1.145:5000/auth/posts/${postId}/repost`, {
+      const response = await fetch(API_ENDPOINTS.REPOST_POST(postId), {
         method: 'POST',
         headers: {
           Authorization: token,
