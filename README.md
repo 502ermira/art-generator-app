@@ -189,7 +189,8 @@ Use the **Bottom Navigation Bar** to switch between key sections:
   "universe_domain": "googleapis.com"
 }
 ```
-   `Important`: You must replace the above values with your own Firebase service account credentials. These are sensitive details and should never be shared publicly.
+You must replace the above values with your own Firebase service account credentials. These are sensitive details and should never be shared publicly.
+   
 5. Start the backend server:
    ```bash
    node server.js
